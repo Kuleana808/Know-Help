@@ -31,3 +31,6 @@ content-engine/content/sitemap.xml
 content-engine/data/api-costs.jsonl
 content-engine/data/published.jsonl
 content-engine/data/queue.jsonl
+
+# Waitlist data
+data/

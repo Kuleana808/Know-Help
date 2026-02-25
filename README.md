@@ -22,6 +22,17 @@ know.help fixes this. It's a personal knowledge base that connects to Claude Des
 2. **Trigger keywords auto-load context** — mention a person's name, and their relationship history loads. Start a sales conversation, and your methodology appears. No manual prompting.
 3. **Your AI starts every conversation informed** — less explaining, better output, feels like talking to someone who's been paying attention.
 
+## Architecture
+
+### Layer 1: MCP Server (Static Knowledge Base)
+Modular markdown and JSONL files with trigger-based context loading. Your AI loads the right files at the right time based on conversation keywords.
+
+### Layer 2: Living Intelligence
+Scheduled crawlers (Twitter/X, Reddit) that monitor your ventures, extract signals via Claude API, and write updates back to your knowledge files automatically.
+
+### Layer 3: Knowledge Marketplace
+Install pre-built knowledge packs from creators. Sales methodologies, content voice guides, planning frameworks — one command to install.
+
 ## Quick Start
 
 ### Prerequisites
@@ -142,6 +153,62 @@ Formats are architectural decisions, not aesthetic ones:
 - **Markdown (.md)** — for narrative content (identity, methodology, voice guides). LLMs read it natively, renders everywhere, clean git diffs.
 - **JSONL (.jsonl)** — for append-only data (contacts, decisions, failures). One valid JSON object per line. Agents can add lines but never overwrite. Prevents accidental data destruction.
 
+## Waitlist API
+
+```bash
+# Start the waitlist server
+npm run start:waitlist
+
+# Endpoints
+POST /waitlist          — Submit email signup
+GET  /waitlist/count    — Get total signups
+GET  /health            — Health check
+```
+
+### Docker Deployment
+
+```bash
+docker build -t know-help-waitlist .
+docker run -p 3000:3000 -v waitlist-data:/data know-help-waitlist
+```
+
+## Living Intelligence
+
+```bash
+# Set environment variables
+export ANTHROPIC_API_KEY=your-key
+export TWITTER_BEARER_TOKEN=your-token
+
+# Start the crawler
+npm run start:crawler
+```
+
+Configure ventures and sources in `knowledge.config.json`.
+
+## Knowledge Packs
+
+```bash
+# Install a pack from local path
+know install ./path-to-pack
+
+# List available packs
+know list-packs
+
+# List installed packs
+know installed
+
+# Create a new pack
+know create-pack
+```
+
+### Seed Packs
+
+| Pack | Price | Description |
+|------|-------|-------------|
+| founder-core | Free | Identity, venture, and planning templates |
+| saas-sales-starter | $19 | Sales methodology, ICP, objection handling |
+| creator-voice-pack | $14 | LinkedIn, Twitter, newsletter voice guides |
+
 ## Who It's For
 
 - **Founders & operators** — context-switch constantly; know.help keeps your AI current across deals, relationships, and initiatives
@@ -149,29 +216,15 @@ Formats are architectural decisions, not aesthetic ones:
 - **Content creators** — your AI knows your distinct voice on every platform
 - **Developers** — your AI knows your stack, architecture, and team — not just the current file
 
-## Context Engineering vs. Prompt Engineering
+## Environment Variables
 
-Traditional **prompt engineering** focuses on crafting the right question. **Context engineering** focuses on providing the right information before the question is even asked.
-
-| Aspect | Prompt Engineering | Context Engineering |
-|--------|-------------------|-------------------|
-| Focus | How you ask | What the AI knows |
-| Timing | Per-conversation | Persistent across sessions |
-| Scale | Single interaction | Entire knowledge domain |
-| Maintenance | Re-write every time | Write once, auto-loads |
-| Tool | Copy-paste prompts | MCP server (know.help) |
-
-Context engineering is the next evolution. know.help is built for it.
-
-## Roadmap
-
-- [x] Layer 1: MCP server with trigger-based context loading
-- [x] 7 built-in tools for knowledge management
-- [x] Append-only JSONL for network and decision logs
-- [ ] Layer 2: Living Intelligence — autonomous crawlers for X, Reddit, TikTok, LinkedIn, RSS
-- [ ] Web UI for knowledge base management
-- [ ] Knowledge pack marketplace
-- [ ] Team shared knowledge bases
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `ANTHROPIC_API_KEY` | For intelligence layer | Claude API key for signal extraction |
+| `TWITTER_BEARER_TOKEN` | For Twitter crawling | Twitter API v2 bearer token |
+| `PORT` | No (default: 3000) | Waitlist server port |
+| `DATA_DIR` | No (default: ./data) | Persistent storage for waitlist |
+| `ALLOWED_ORIGINS` | No | Comma-separated CORS origins |
 
 ## Contributing
 
@@ -184,8 +237,11 @@ npm run dev
 # Build
 npm run build
 
-# Run
-npm start
+# Run tests
+npm test
+
+# Self-test
+npm run self-test
 ```
 
 ## License

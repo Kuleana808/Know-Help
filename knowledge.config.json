@@ -1,0 +1,19 @@
+{
+  "owner": {
+    "name": "",
+    "role": "",
+    "location": "",
+    "timezone": ""
+  },
+  "ventures": [],
+  "custom_topics": [],
+  "crawl_schedule": "every_6_hours",
+  "confidence_threshold": 0.7,
+  "sources": {
+    "twitter": { "enabled": false, "min_engagement": 50 },
+    "reddit": { "enabled": false, "min_upvotes": 50 },
+    "linkedin": { "enabled": false, "min_engagement": 20 },
+    "tiktok": { "enabled": false, "min_views": 500 },
+    "rss": { "enabled": false, "feeds": [], "auto_discover": true }
+  }
+}

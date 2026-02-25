@@ -1,11 +1,12 @@
 {
   "name": "know-help",
   "version": "1.0.0",
-  "description": "Context engineering MCP server — persistent, trigger-based knowledge base for Claude Desktop",
+  "description": "Personal AI OS — MCP server with trigger-based context loading, living intelligence, and knowledge marketplace",
   "mcpName": "io.github.kuleana808/know-help",
   "main": "dist/index.js",
   "bin": {
-    "know-help": "dist/index.js"
+    "know-help": "dist/index.js",
+    "know": "./dist/marketplace/cli.js"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,12 @@
     "test": "node test/server.test.js",
     "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
+    "start:api": "node dist/waitlist/server.js",
+    "start:waitlist": "node dist/waitlist/server.js",
+    "start:crawler": "node dist/intelligence/scheduler.js",
+    "self-test": "ts-node scripts/self-test.ts",
+    "dev:web": "cd web && npm run dev",
+    "build:web": "cd web && npm run build",
     "postinstall": "node scripts/init-knowledge.js",
     "scan": "cd content-engine && npx ts-node src/cli.ts scan",
     "scan:status": "cd content-engine && npx ts-node src/cli.ts scan status",
@@ -47,10 +54,31 @@
     "prepublishOnly": "npm run build && npm test"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.1"
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "archiver": "^7.0.1",
+    "axios": "^1.7.0",
+    "better-sqlite3": "^12.6.2",
+    "bullmq": "^5.70.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "ioredis": "^5.9.3",
+    "node-cron": "^3.0.3",
+    "resend": "^6.9.2",
+    "rss-parser": "^3.13.0",
+    "stripe": "^20.3.1",
+    "uuid": "^13.0.0",
+    "ws": "^8.19.0"
   },
   "devDependencies": {
+    "@types/archiver": "^7.0.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
     "@types/node": "^20.11.0",
+    "@types/node-cron": "^3.0.11",
+    "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.18.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }
