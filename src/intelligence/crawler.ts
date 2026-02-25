@@ -1,8 +1,11 @@
 import * as fs from "fs";
 import * as path from "path";
-import { ROOT_DIR } from "../utils/paths";
-import { searchTwitter, Tweet } from "./sources/twitter";
-import { searchReddit, RedditPost } from "./sources/reddit";
+import { ROOT_DIR, KNOWLEDGE_DIR } from "../utils/paths";
+import { searchTwitter } from "./sources/twitter";
+import { searchReddit } from "./sources/reddit";
+import { searchLinkedIn } from "./sources/linkedin";
+import { searchTikTok } from "./sources/tiktok";
+import { fetchRssFeeds, discoverFeeds, addDiscoveredFeeds } from "./sources/rss";
 import { extractSignal, ExtractionInput } from "./extractor";
 import { writeSignal } from "./writer";
 
@@ -14,13 +17,18 @@ interface VentureConfig {
   key_people?: string[];
 }
 
+interface SourcesConfig {
+  twitter?: { enabled: boolean; min_engagement: number };
+  reddit?: { enabled: boolean; min_upvotes: number };
+  linkedin?: { enabled: boolean; min_engagement: number };
+  tiktok?: { enabled: boolean; min_views: number };
+  rss?: { enabled: boolean; feeds: string[]; auto_discover?: boolean; auto_discovered_feeds?: string[] };
+}
+
 interface KnowledgeConfig {
   ventures: VentureConfig[];
   confidence_threshold: number;
-  sources: {
-    twitter: { enabled: boolean; min_engagement: number };
-    reddit: { enabled: boolean; min_upvotes: number };
-  };
+  sources: SourcesConfig;
 }
 
 export interface CrawlResult {
@@ -40,7 +48,7 @@ function loadConfig(): KnowledgeConfig {
 }
 
 /**
- * Main crawl orchestrator. Runs all enabled sources for each venture.
+ * Main crawl orchestrator. Runs all 5 enabled sources for each venture.
  * One failed source does not stop others.
  */
 export async function runCrawl(): Promise<CrawlResult> {
@@ -65,17 +73,15 @@ export async function runCrawl(): Promise<CrawlResult> {
       ...(venture.competitors || []),
     ].join(" OR ");
 
-    // Twitter
+    // ── Twitter ─────────────────────────────────────────────────────
     if (config.sources.twitter?.enabled) {
       try {
-        console.log(
-          `[crawler] Searching Twitter for: ${venture.name}`
-        );
+        console.log(`[crawler] Searching Twitter for: ${venture.name}`);
         const tweets = await searchTwitter(searchQuery, {
           bearerToken: process.env.TWITTER_BEARER_TOKEN || "",
           minEngagement: config.sources.twitter.min_engagement || 50,
         });
-        result.sourcesCrawled.push("twitter");
+        if (!result.sourcesCrawled.includes("twitter")) result.sourcesCrawled.push("twitter");
 
         for (const tweet of tweets) {
           await processContent(
@@ -96,31 +102,24 @@ export async function runCrawl(): Promise<CrawlResult> {
       }
     }
 
-    // Reddit
+    // ── Reddit ──────────────────────────────────────────────────────
     if (config.sources.reddit?.enabled) {
       try {
-        console.log(
-          `[crawler] Searching Reddit for: ${venture.name}`
-        );
+        console.log(`[crawler] Searching Reddit for: ${venture.name}`);
         const posts = await searchReddit(searchQuery, {
           minUpvotes: config.sources.reddit.min_upvotes || 50,
         });
-        result.sourcesCrawled.push("reddit");
+        if (!result.sourcesCrawled.includes("reddit")) result.sourcesCrawled.push("reddit");
 
         for (const post of posts) {
-          const content = `${post.title}\n${post.selftext}`.slice(
-            0,
-            2000
-          );
+          const content = `${post.title}\n${post.selftext}`.slice(0, 2000);
           await processContent(
             {
               venture_name: venture.name,
               venture_topics: venture.topics || [],
               content,
               source_url: post.permalink,
-              source_date: new Date(
-                post.created_utc * 1000
-              ).toISOString(),
+              source_date: new Date(post.created_utc * 1000).toISOString(),
             },
             config.confidence_threshold,
             result
@@ -131,6 +130,126 @@ export async function runCrawl(): Promise<CrawlResult> {
         console.error(`[crawler] Reddit error: ${err.message}`);
       }
     }
+
+    // ── LinkedIn ────────────────────────────────────────────────────
+    if (config.sources.linkedin?.enabled) {
+      try {
+        console.log(`[crawler] Searching LinkedIn for: ${venture.name}`);
+        const posts = await searchLinkedIn(searchQuery, {
+          apifyToken: process.env.APIFY_API_TOKEN || "",
+          minEngagement: config.sources.linkedin?.min_engagement || 20,
+        });
+        if (!result.sourcesCrawled.includes("linkedin")) result.sourcesCrawled.push("linkedin");
+
+        for (const post of posts) {
+          await processContent(
+            {
+              venture_name: venture.name,
+              venture_topics: venture.topics || [],
+              content: post.text,
+              source_url: post.url,
+              source_date: post.published_at,
+            },
+            config.confidence_threshold,
+            result
+          );
+        }
+      } catch (err: any) {
+        result.errors.push(`linkedin: ${err.message}`);
+        console.error(`[crawler] LinkedIn error: ${err.message}`);
+      }
+    }
+
+    // ── TikTok ──────────────────────────────────────────────────────
+    if (config.sources.tiktok?.enabled) {
+      try {
+        console.log(`[crawler] Searching TikTok for: ${venture.name}`);
+        const videos = await searchTikTok(searchQuery, {
+          apifyToken: process.env.APIFY_API_TOKEN || "",
+          minViews: config.sources.tiktok?.min_views || 500,
+        });
+        if (!result.sourcesCrawled.includes("tiktok")) result.sourcesCrawled.push("tiktok");
+
+        for (const video of videos) {
+          await processContent(
+            {
+              venture_name: venture.name,
+              venture_topics: venture.topics || [],
+              content: video.description,
+              source_url: video.url,
+              source_date: video.published_at,
+            },
+            config.confidence_threshold,
+            result
+          );
+        }
+      } catch (err: any) {
+        result.errors.push(`tiktok: ${err.message}`);
+        console.error(`[crawler] TikTok error: ${err.message}`);
+      }
+    }
+
+    // ── RSS ──────────────────────────────────────────────────────────
+    if (config.sources.rss?.enabled) {
+      try {
+        const feeds = [
+          ...(config.sources.rss.feeds || []),
+          ...(config.sources.rss.auto_discovered_feeds || []),
+        ];
+
+        if (feeds.length > 0) {
+          console.log(`[crawler] Fetching ${feeds.length} RSS feeds for: ${venture.name}`);
+          const items = await fetchRssFeeds(feeds, venture.topics);
+          if (!result.sourcesCrawled.includes("rss")) result.sourcesCrawled.push("rss");
+
+          for (const item of items) {
+            await processContent(
+              {
+                venture_name: venture.name,
+                venture_topics: venture.topics || [],
+                content: item.content,
+                source_url: item.url,
+                source_date: item.published_at,
+              },
+              config.confidence_threshold,
+              result
+            );
+          }
+        }
+
+        // Auto-discover feeds for competitors
+        if (config.sources.rss.auto_discover && venture.competitors) {
+          const competitorDomains = venture.competitors
+            .map((c) => c.toLowerCase().replace(/\s+/g, ""))
+            .filter(Boolean);
+          if (competitorDomains.length > 0) {
+            const discovered = await discoverFeeds(competitorDomains);
+            if (discovered.length > 0) {
+              addDiscoveredFeeds(discovered);
+              console.log(
+                `[crawler] Discovered ${discovered.length} new RSS feeds`
+              );
+            }
+          }
+        }
+      } catch (err: any) {
+        result.errors.push(`rss: ${err.message}`);
+        console.error(`[crawler] RSS error: ${err.message}`);
+      }
+    }
+  }
+
+  // Trim intelligence feeds after crawl
+  try {
+    const ventureDir = path.join(KNOWLEDGE_DIR, "venture");
+    if (fs.existsSync(ventureDir)) {
+      const files = fs.readdirSync(ventureDir).filter((f) => f.endsWith(".md"));
+      for (const file of files) {
+        trimIntelligenceFeed(path.join(ventureDir, file));
+      }
+    }
+  } catch (err: any) {
+    console.error(`[crawler] Trim error: ${err.message}`);
   }
 
   return result;
@@ -156,4 +275,44 @@ async function processContent(
   } catch (err: any) {
     result.errors.push(`extraction: ${err.message}`);
   }
+}
+
+/**
+ * Trim the ## Intelligence feed section to maxEntries.
+ * This is the ONE place overwriting is allowed — trimming old intelligence.
+ */
+function trimIntelligenceFeed(
+  filepath: string,
+  maxEntries: number = 50
+): void {
+  if (!fs.existsSync(filepath)) return;
+
+  const content = fs.readFileSync(filepath, "utf-8");
+  const sectionMarker = "## Intelligence feed";
+  const sectionIndex = content.indexOf(sectionMarker);
+  if (sectionIndex === -1) return;
+
+  const beforeSection = content.slice(0, sectionIndex);
+  const sectionContent = content.slice(sectionIndex + sectionMarker.length);
+
+  // Count entries (each starts with **[)
+  const entryPattern = /\n\*\*\[/g;
+  const entries: number[] = [];
+  let match;
+  while ((match = entryPattern.exec(sectionContent)) !== null) {
+    entries.push(match.index);
+  }
+
+  if (entries.length <= maxEntries) return;
+
+  // Keep only the most recent entries (they're at the top after the header)
+  const keepFrom = entries[entries.length - maxEntries];
+  const trimmedSection = sectionContent.slice(keepFrom);
+
+  const newContent = beforeSection + sectionMarker + trimmedSection;
+  fs.writeFileSync(filepath, newContent, "utf-8");
+
+  console.log(
+    `[crawler] Trimmed ${filepath}: ${entries.length} → ${maxEntries} entries`
+  );
 }

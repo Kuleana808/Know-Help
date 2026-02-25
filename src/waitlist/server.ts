@@ -3,6 +3,16 @@ import cors from "cors";
 import * as path from "path";
 import * as fs from "fs";
 import { appendJsonl, readJsonl, jsonlEntryExists } from "../utils/jsonl";
+import { initDatabase } from "../db/database";
+import { createCheckoutSession } from "../payments/checkout";
+import { handleStripeWebhook } from "../payments/webhooks";
+import { handleDownload, checkDownloadStatus } from "../payments/download";
+import { onboardCreator, getCreatorDashboard, triggerPayouts } from "../payments/creators";
+import portalRoutes from "../portal/routes";
+import dashboardRoutes from "../dashboard/routes";
+import billingRoutes from "../hosted/billing";
+import onboardingRoutes from "../hosted/onboarding";
+import teamRoutes from "../hosted/teams";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "3000", 10);
@@ -13,6 +23,9 @@ const WAITLIST_FILE = path.join(DATA_DIR, "waitlist.jsonl");
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
+
+// Initialize database
+initDatabase();
 
 // CORS
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -26,7 +39,6 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
@@ -34,6 +46,13 @@ app.use(
       return callback(new Error("Not allowed by CORS"));
     },
   })
+);
+
+// Stripe webhook needs raw body — mount before express.json()
+app.post(
+  "/webhooks/stripe",
+  express.raw({ type: "application/json" }),
+  handleStripeWebhook
 );
 
 app.use(express.json());
@@ -44,7 +63,8 @@ function isValidEmail(email: string): boolean {
   return re.test(email);
 }
 
-// POST /waitlist
+// ── Waitlist routes ─────────────────────────────────────────────────────────
+
 app.post("/waitlist", (req, res) => {
   const { email, source } = req.body;
 
@@ -64,7 +84,6 @@ app.post("/waitlist", (req, res) => {
     });
   }
 
-  // Check for duplicates
   if (jsonlEntryExists(WAITLIST_FILE, "email", trimmedEmail)) {
     return res.status(409).json({
       success: false,
@@ -72,7 +91,6 @@ app.post("/waitlist", (req, res) => {
     });
   }
 
-  // Count existing entries to determine position
   const existingEntries = readJsonl(WAITLIST_FILE);
   const position = existingEntries.length + 1;
 
@@ -98,22 +116,55 @@ app.post("/waitlist", (req, res) => {
   });
 });
 
-// GET /waitlist/count
 app.get("/waitlist/count", (_req, res) => {
   const entries = readJsonl(WAITLIST_FILE);
   return res.json({ count: entries.length });
 });
 
-// Health check
+// ── Payment routes ──────────────────────────────────────────────────────────
+
+app.post("/checkout/session", async (req, res) => {
+  try {
+    const result = await createCheckoutSession(req.body);
+    res.json(result);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.get("/download/:token", handleDownload);
+app.get("/download/check", checkDownloadStatus);
+
+// ── Creator routes ──────────────────────────────────────────────────────────
+
+app.post("/creators/onboard", onboardCreator);
+app.get("/creators/dashboard/:handle", getCreatorDashboard);
+app.post("/payouts/trigger", triggerPayouts);
+
+// ── Portal routes (auth, pack submission, admin) ────────────────────────────
+
+app.use("/portal", portalRoutes);
+
+// ── Dashboard routes (file mgmt, network, intelligence, logs) ───────────────
+
+app.use("/api", dashboardRoutes);
+
+// ── Hosted routes (billing, onboarding, teams) ──────────────────────────────
+
+app.use("/api", billingRoutes);
+app.use("/api", onboardingRoutes);
+app.use("/api", teamRoutes);
+
+// ── Health check ────────────────────────────────────────────────────────────
+
 app.get("/health", (_req, res) => {
   return res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 export { app, PORT };
 
-// Start server if run directly
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(`know.help waitlist API running on port ${PORT}`);
+    console.log(`know.help API running on port ${PORT}`);
   });
 }
