@@ -478,3 +478,113 @@ ADMIN_KEY=                  # For /api/admin/security/* endpoints
 PRESIDIO_ANALYZER_URL=      # Optional: for enhanced PII detection
 PRESIDIO_ANONYMIZER_URL=    # Optional: for enhanced PII redaction
 ```
+
+---
+
+## 2026-02-25 — CLI Build Prompt (know command)
+
+**Built:**
+
+### Commander.js CLI Rewrite
+
+Rewrote the `know` CLI from manual `process.argv` parsing to Commander.js with proper command structure.
+
+**Entrypoint:**
+- `bin/know.js` — Thin shim: `#!/usr/bin/env node` + `require('../dist/marketplace/cli.js')`
+- `src/marketplace/cli.ts` — Commander.js program definition, registers all commands
+
+**Commands implemented (9 total):**
+
+| Command | File | Description |
+|---------|------|-------------|
+| `know install <target>` | `src/commands/install.ts` | Install Mindset with SHA256 verification, security scan, .integrity file |
+| `know sync [slug]` | `src/commands/sync.ts` | Check/download updates with diff summary, expired subscription handling |
+| `know status` | `src/commands/status.ts` | Auth state, installed Mindsets, knowledge base file counts |
+| `know list` | `src/commands/list.ts` | Machine-readable JSON output of installed Mindsets |
+| `know remove <slug>` | `src/commands/remove.ts` | Confirm + delete + regenerate CLAUDE.md |
+| `know publish [dir]` | `src/commands/publish.ts` | Publish with `--init`, `--dry-run`, security scan, PII check |
+| `know login` | `src/commands/login.ts` | Browser-based auth, keytar + auth.json fallback |
+| `know logout` | `src/commands/logout.ts` | Clear stored credentials |
+| `know serve` | `src/commands/serve.ts` | MCP server with `--config` flag for Claude Desktop config |
+
+**All commands accept `--debug` flag** for verbose output.
+
+**CLI lib modules (2 new):**
+- `src/commands/auth.ts` — Credential storage: env var > keytar > ~/.know-help/auth.json fallback
+- `src/commands/integrity.ts` — SHA256 hashing, .integrity file read/write/verify
+
+**Install flow enhancements:**
+1. SHA256 verification of each downloaded file against manifest hash
+2. Security scan (injection detection, confidence >= 0.85 blocks file)
+3. PII check (warn in debug mode, don't block — creator already approved)
+4. `.integrity` file written: `{ version, installedAt, files: { [path]: sha256 } }`
+5. Proper HTTP status handling: 404 (not found), 402 (payment required), 401 (invalid token)
+6. Fire-and-forget activity logging to API
+
+**Sync flow enhancements:**
+1. Per-file security scanning before write
+2. SHA256 verification on each downloaded file
+3. Diff summary output (Updated/Added files listed)
+4. Expired subscription (402) marks read-only, keeps files
+5. Cancelled subscription (403) handled similarly
+
+**Publish flow enhancements:**
+1. `--dry-run` flag shows diff without uploading
+2. `--init` scaffolds mindset/ directory with MINDSET.md + starter files
+3. Hard block (injection confidence >= 0.85) aborts publish
+4. Soft warn (0.7-0.85) prompts for confirmation
+5. PII detection prompts with redacted preview
+6. Diff against current published version before upload
+
+**Serve enhancements:**
+- `know serve --config` prints Claude Desktop `mcpServers` config block
+- Auto-includes real token if logged in
+- Shows config file path per platform (macOS/Windows/Linux)
+
+### API Endpoint Added
+
+- `POST /api/mindsets/creator/publish/confirm` — Confirms a two-phase publish, returns version and subscriber notification count
+
+### CLAUDE.md Generation Updated
+
+Rewritten to match CLI spec format:
+- `# know.help — Context Router` header with auto-generated timestamp
+- `## Security Notice` — explicit reference-knowledge-only disclaimer
+- `## Your Knowledge Base` — grouped by directory (core, venture, network, etc.)
+- `## Installed Mindsets` — per-file `load for:` triggers, version, sync time
+- `## Instructions for Claude` — clear instructions for tool usage chain
+- Files marked as injection-detected excluded from CLAUDE.md
+
+### package.json Updates
+- `"bin.know"` now points to `"./bin/know.js"` (proper shim)
+- Added `"engines": { "node": ">=18.0.0" }`
+- `commander@^12.1.0` added to dependencies
+
+**Files created (12):**
+```
+bin/know.js                          — CLI entrypoint shim
+src/commands/auth.ts                 — Credential storage (keytar + fallback)
+src/commands/integrity.ts            — SHA256 + .integrity file management
+src/commands/install.ts              — Install command with security + verification
+src/commands/sync.ts                 — Sync command with diff summary
+src/commands/status.ts               — Status display command
+src/commands/list.ts                 — JSON list command
+src/commands/remove.ts               — Remove with confirmation
+src/commands/publish.ts              — Publish with --init, --dry-run, security
+src/commands/login.ts                — Browser auth + token storage
+src/commands/logout.ts               — Credential clear
+src/commands/serve.ts                — MCP server + --config
+```
+
+**Files modified (3):**
+```
+src/marketplace/cli.ts               — Rewritten from switch/case to Commander.js
+src/mindsets/routes.ts               — Added POST /creator/publish/confirm endpoint
+src/utils/triggers.ts                — CLAUDE.md generation rewritten to spec format
+package.json                         — bin field, engines, commander dependency
+```
+
+**Tested:**
+- Backend TypeScript compiles with zero errors
+- Next.js frontend builds successfully — 28 pages
+- All legacy pack commands preserved (list-packs, create-pack, installed)

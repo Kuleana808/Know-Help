@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "bin": {
     "know-help": "dist/index.js",
-    "know": "./dist/marketplace/cli.js"
+    "know": "./bin/know.js"
   },
   "repository": {
     "type": "git",
@@ -61,6 +61,7 @@
     "better-sqlite3": "^12.6.2",
     "bullmq": "^5.70.1",
     "chokidar": "^3.6.0",
+    "commander": "^12.1.0",
     "cors": "^2.8.5",
     "express": "^4.21.0",
     "ioredis": "^5.9.3",
@@ -70,6 +71,9 @@
     "stripe": "^20.3.1",
     "uuid": "^13.0.0",
     "ws": "^8.19.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "devDependencies": {
     "@types/archiver": "^7.0.0",
