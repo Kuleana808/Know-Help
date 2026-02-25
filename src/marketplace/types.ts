@@ -1,3 +1,12 @@
+export interface PackTheme {
+  mode: "dark" | "light";
+  accent: string;
+  fonts?: {
+    serif?: string;
+    mono?: string;
+  };
+}
+
 export interface PackManifest {
   id: string;
   name: string;
@@ -10,6 +19,7 @@ export interface PackManifest {
   install_path: string;
   files: string[];
   merge_strategy: "replace" | "append" | "skip";
+  theme?: PackTheme;
 }
 
 export interface RegistryEntry {
@@ -23,6 +33,7 @@ export interface RegistryEntry {
   price_usd: number;
   downloads: number;
   registry_url: string;
+  theme?: PackTheme;
 }
 
 export interface Registry {

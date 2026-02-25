@@ -1,0 +1,30 @@
+{
+  "id": "brand-designer-clone",
+  "name": "The Brand Designer Clone",
+  "author": "Brent A.",
+  "version": "1.0.0",
+  "description": "15 years of refined brand taste, loaded into your AI. Not a persona — a specific point of view on logo systems, typography, color, and identity.",
+  "category": "design",
+  "tags": ["design", "brand", "identity", "logo", "typography", "color"],
+  "price_usd": 0,
+  "install_path": "",
+  "files": [
+    "design/philosophy.md",
+    "design/taste-filters.md",
+    "design/typography.md",
+    "design/color.md",
+    "design/logo.md",
+    "design/references.md",
+    "design/red-lines.md",
+    "design/critique-voice.md"
+  ],
+  "merge_strategy": "skip",
+  "theme": {
+    "mode": "dark",
+    "accent": "#b8965a",
+    "fonts": {
+      "serif": "Cormorant Garamond",
+      "mono": "DM Mono"
+    }
+  }
+}

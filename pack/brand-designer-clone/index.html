@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Brand Designer Clone — know.help</title>
+  <meta name="description" content="15 years of refined brand taste, loaded into your AI. Not a persona — a specific point of view on logo systems, typography, color, and identity." />
+  <link rel="canonical" href="https://know.help/pack/brand-designer-clone" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="The Brand Designer Clone — know.help" />
+  <meta property="og:description" content="15 years of refined brand taste, loaded into your AI. Not a persona — a specific point of view on logo systems, typography, color, and identity." />
+  <meta property="og:url" content="https://know.help/pack/brand-designer-clone" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="know.help" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="The Brand Designer Clone — know.help" />
+  <meta name="twitter:description" content="15 years of refined brand taste, loaded into your AI. Not a persona — a specific point of view on logo systems, typography, color, and identity." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+
+  <!--
+    Pack Theme Configuration
+    This page reads its aesthetic from the pack's theme config:
+    {
+      "mode": "dark",
+      "accent": "#b8965a",
+      "fonts": { "serif": "Cormorant Garamond", "mono": "DM Mono" }
+    }
+    The CSS variables below are derived from the theme.mode and theme.accent values.
+    When the publish CLI generates pack pages, it reads pack.json.theme and
+    injects the appropriate variable set.
+  -->
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* ─── Theme: dark ─── */
+      --ink: #0d0c0a;
+      --ink2: #1a1916;
+      --ink3: #242320;
+      --rule: #2e2c29;
+      --rule-light: #3d3b37;
+      --dim: #6b6860;
+      --mid: #9a9690;
+      --parchment: #e8e4db;
+      --warm: #c8c3b8;
+      /* ─── Accent from pack.json theme.accent ─── */
+      --gold: #b8965a;
+      --gold-dim: #7a6238;
+      /* ─── Fonts from pack.json theme.fonts ─── */
+      --serif: 'Cormorant Garamond', 'Georgia', serif;
+      --mono: 'DM Mono', 'Courier New', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--ink);
+      color: var(--parchment);
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.65;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Grain */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 80;
+      padding: 20px 48px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(13,12,10,0.92);
+      backdrop-filter: blur(16px);
+      border-color: var(--rule);
+    }
+    .logo { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; color: var(--mid); text-decoration: none; }
+    .logo em { font-style: normal; color: var(--warm); }
+    .nav-r { display: flex; gap: 24px; align-items: center; }
+    .nav-a { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); text-decoration: none; transition: color 0.2s; }
+    .nav-a:hover { color: var(--warm); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 0 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+      border-left: 1px solid var(--rule);
+      border-right: 1px solid var(--rule);
+    }
+
+    .hero-top {
+      padding-top: 120px;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .breadcrumb {
+      font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--dim);
+    }
+    .breadcrumb a { color: var(--dim); text-decoration: none; }
+    .breadcrumb span { color: var(--rule-light); margin: 0 8px; }
+
+    .hero-meta-top { text-align: right; }
+    .pack-id { font-size: 10px; letter-spacing: 0.1em; color: var(--gold-dim); }
+
+    .hero-main {
+      padding: 64px 0;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .pack-category {
+      font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .pack-category::before {
+      content: '';
+      display: block; width: 24px; height: 1px;
+      background: var(--gold-dim);
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(52px, 7vw, 100px);
+      font-weight: 300;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      margin-bottom: 32px;
+      color: var(--parchment);
+    }
+    h1 em { font-style: italic; color: var(--warm); }
+
+    .tagline {
+      font-size: 15px;
+      color: var(--mid);
+      line-height: 1.7;
+      max-width: 420px;
+      margin-bottom: 48px;
+      font-weight: 300;
+    }
+
+    .install-block {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .install-label {
+      font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    .install-cmd {
+      display: flex; gap: 0;
+    }
+
+    .install-pre {
+      background: var(--ink2);
+      border: 1px solid var(--rule-light);
+      border-right: none;
+      padding: 14px 20px;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--warm);
+      white-space: nowrap;
+    }
+    .install-pre .p { color: var(--dim); }
+    .install-pre .cmd { color: var(--gold); }
+    .install-pre .arg { color: var(--parchment); }
+
+    .install-copy {
+      background: none;
+      border: 1px solid var(--rule-light);
+      border-left: 1px solid var(--rule);
+      padding: 14px 16px;
+      cursor: pointer;
+      color: var(--dim);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .install-copy:hover { color: var(--gold); border-color: var(--gold-dim); }
+
+    .install-alt {
+      font-size: 11px;
+      color: var(--dim);
+    }
+    .install-alt a { color: var(--mid); text-decoration: none; border-bottom: 1px solid var(--rule-light); padding-bottom: 1px; transition: color 0.2s; }
+    .install-alt a:hover { color: var(--warm); }
+
+    /* HERO RIGHT — stat block */
+    .hero-right {
+      border: 1px solid var(--rule);
+      padding: 0;
+      min-width: 240px;
+    }
+
+    .stat-row {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+    .stat-val { font-family: var(--serif); font-size: 28px; font-weight: 300; color: var(--warm); line-height: 1; }
+    .stat-val.mono { font-family: var(--mono); font-size: 13px; color: var(--mid); }
+    .stat-val.gold { color: var(--gold); }
+
+    /* Hero bottom */
+    .hero-bottom {
+      border-top: 1px solid var(--rule);
+      padding: 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .hero-bottom-l { font-size: 11px; color: var(--dim); }
+    .hero-bottom-l strong { color: var(--mid); font-weight: 400; }
+    .hero-bottom-r { display: flex; gap: 32px; }
+    .h-tag {
+      font-size: 10px; letter-spacing: 0.1em;
+      color: var(--dim);
+      padding: 4px 10px;
+      border: 1px solid var(--rule);
+    }
+
+    /* ─── FULL-WIDTH RULE ─── */
+    .full-rule {
+      width: 100%; height: 1px;
+      background: var(--rule);
+    }
+
+    /* ─── WHAT IT IS ─── */
+    .what-section {
+      max-width: 1200px; margin: 0 auto;
+      border-left: 1px solid var(--rule);
+      border-right: 1px solid var(--rule);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .what-left {
+      padding: 80px;
+      border-right: 1px solid var(--rule);
+    }
+
+    .section-eyebrow {
+      font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 24px;
+    }
+
+    .what-left h2 {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 300;
+      line-height: 1.15;
+      margin-bottom: 32px;
+      color: var(--parchment);
+    }
+    .what-left h2 em { font-style: italic; color: var(--warm); }
+
+    .what-left p {
+      font-size: 13px; color: var(--mid); line-height: 1.85;
+      margin-bottom: 20px;
+    }
+
+    .distinction {
+      margin-top: 40px;
+      border-top: 1px solid var(--rule);
+      padding-top: 32px;
+    }
+
+    .distinction-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1px; background: var(--rule);
+      margin-top: 16px;
+    }
+    .d-cell {
+      background: var(--ink);
+      padding: 20px;
+    }
+    .d-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; }
+    .d-bad { font-size: 12px; color: var(--dim); text-decoration: line-through; line-height: 1.6; }
+    .d-good { font-size: 12px; color: var(--mid); line-height: 1.6; }
+
+    .what-right {
+      padding: 80px;
+    }
+
+    .files-list { list-style: none; }
+    .file-item {
+      border-bottom: 1px solid var(--rule);
+      padding: 20px 0;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 20px;
+      align-items: start;
+      cursor: default;
+      transition: background 0.15s;
+    }
+    .file-item:first-child { border-top: 1px solid var(--rule); }
+    .file-item:hover { background: var(--ink2); margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+
+    .file-path {
+      font-family: var(--mono); font-size: 11px;
+      color: var(--gold-dim); white-space: nowrap;
+      padding-top: 2px;
+    }
+    .file-name { font-size: 12px; color: var(--warm); margin-bottom: 4px; font-weight: 400; }
+    .file-desc { font-size: 11px; color: var(--dim); line-height: 1.6; }
+    .file-trigger {
+      margin-top: 8px;
+      display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .trigger-tag {
+      font-size: 9px; letter-spacing: 0.08em;
+      border: 1px solid var(--rule); color: var(--dim);
+      padding: 2px 7px;
+    }
+
+    /* ─── PREVIEW ─── */
+    .preview-section {
+      max-width: 1200px; margin: 0 auto;
+      border-left: 1px solid var(--rule);
+      border-right: 1px solid var(--rule);
+      border-top: 1px solid var(--rule);
+    }
+
+    .preview-header {
+      padding: 48px 80px;
+      border-bottom: 1px solid var(--rule);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .preview-header h2 {
+      font-family: var(--serif);
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 300; color: var(--parchment);
+    }
+    .preview-header h2 em { font-style: italic; color: var(--warm); }
+
+    .preview-nav { display: flex; gap: 0; }
+    .prev-tab {
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 10px 18px; cursor: pointer;
+      border: 1px solid var(--rule);
+      border-right: none;
+      color: var(--dim);
+      background: none;
+      font-family: var(--mono);
+      transition: color 0.2s, background 0.2s;
+    }
+    .prev-tab:last-child { border-right: 1px solid var(--rule); }
+    .prev-tab.active { background: var(--ink2); color: var(--warm); border-color: var(--rule-light); }
+
+    .preview-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .preview-pane {
+      display: none;
+      padding: 56px 80px;
+      border-right: 1px solid var(--rule);
+    }
+    .preview-pane:last-child { border-right: none; }
+    .preview-pane.active { display: block; }
+
+    .preview-pane h3 {
+      font-family: var(--serif);
+      font-size: 22px; font-weight: 300;
+      color: var(--warm); margin-bottom: 24px;
+    }
+
+    .preview-pane p, .preview-pane li {
+      font-size: 13px; color: var(--mid); line-height: 1.85;
+      margin-bottom: 16px;
+    }
+
+    .preview-pane ul { list-style: none; }
+    .preview-pane li::before { content: '\2014'; color: var(--dim); margin-right: 10px; }
+
+    .filter-list { list-style: none; margin: 0; }
+    .filter-item {
+      border-bottom: 1px solid var(--rule);
+      padding: 20px 0;
+    }
+    .filter-item:first-child { border-top: 1px solid var(--rule); }
+    .filter-num {
+      font-family: var(--serif); font-size: 11px;
+      color: var(--dim); margin-bottom: 8px; font-style: italic;
+    }
+    .filter-q { font-size: 13px; color: var(--warm); margin-bottom: 8px; font-weight: 400; }
+    .filter-desc { font-size: 12px; color: var(--dim); line-height: 1.7; }
+
+    .redline-list { list-style: none; margin: 0; }
+    .redline-item {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--rule);
+      font-size: 12px; color: var(--dim); line-height: 1.6;
+      display: grid; grid-template-columns: auto 1fr; gap: 12px;
+    }
+    .redline-item::before { content: '\2715'; color: #7a3030; flex-shrink: 0; }
+
+    /* ─── HOW SHARING WORKS ─── */
+    .share-section {
+      max-width: 1200px; margin: 0 auto;
+      border: 1px solid var(--rule);
+      border-top: none;
+      padding: 80px;
+    }
+
+    .share-section h2 {
+      font-family: var(--serif);
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 300; line-height: 1.2;
+      color: var(--parchment);
+      margin-bottom: 16px;
+    }
+    .share-section h2 em { font-style: italic; color: var(--warm); }
+
+    .share-section > p { font-size: 13px; color: var(--mid); line-height: 1.8; max-width: 540px; margin-bottom: 56px; }
+
+    .share-steps {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--rule);
+    }
+
+    .share-step {
+      background: var(--ink);
+      padding: 40px 32px;
+    }
+    .share-step-n {
+      font-family: var(--serif); font-size: 52px; font-weight: 300;
+      color: var(--rule-light); line-height: 1; margin-bottom: 20px;
+    }
+    .share-step h3 {
+      font-family: var(--serif); font-size: 20px; font-weight: 300;
+      color: var(--warm); margin-bottom: 12px; line-height: 1.3;
+    }
+    .share-step p { font-size: 12px; color: var(--dim); line-height: 1.75; }
+    .share-step code {
+      display: block; margin-top: 16px;
+      background: var(--ink2); padding: 12px 16px;
+      font-family: var(--mono); font-size: 11px;
+      color: var(--gold); border: 1px solid var(--rule);
+      line-height: 1.8;
+    }
+
+    /* ─── INSTALL CTA ─── */
+    .cta-section {
+      max-width: 1200px; margin: 0 auto;
+      border: 1px solid var(--rule);
+      border-top: none;
+      padding: 100px 80px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 80px;
+    }
+
+    .cta-left h2 {
+      font-family: var(--serif);
+      font-size: clamp(42px, 6vw, 80px);
+      font-weight: 300; line-height: 1;
+      color: var(--parchment);
+    }
+    .cta-left h2 em { font-style: italic; color: var(--warm); opacity: 0.45; }
+
+    .cta-right { flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; }
+
+    .cta-btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      border: 1px solid var(--rule-light); background: none;
+      padding: 16px 28px; cursor: pointer;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--warm); text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .cta-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+    .cta-btn.primary {
+      background: var(--ink2); border-color: var(--rule-light);
+    }
+    .cta-btn.primary:hover { border-color: var(--gold); color: var(--gold); }
+
+    .cta-note { font-size: 11px; color: var(--dim); text-align: center; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      max-width: 1200px; margin: 0 auto;
+      border: 1px solid var(--rule);
+      border-top: 1px solid var(--rule);
+      padding: 24px 48px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-logo { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; color: var(--dim); text-decoration: none; }
+    .footer-logo em { font-style: normal; color: var(--mid); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 11px; color: var(--dim); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--warm); }
+    .footer-r { font-size: 11px; color: var(--rule-light); }
+
+    /* ─── REVEAL ─── */
+    .reveal { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 18px 24px; }
+      .hero, .what-section, .preview-section, .share-section, .cta-section, footer {
+        padding-left: 24px; padding-right: 24px;
+      }
+      .hero { border: none; padding: 0; }
+      .hero, .hero-top, .hero-main { padding-left: 24px; padding-right: 24px; }
+      .hero-main { grid-template-columns: 1fr; }
+      .hero-right { display: none; }
+      .what-section { grid-template-columns: 1fr; }
+      .what-left { border-right: none; border-bottom: 1px solid var(--rule); }
+      .preview-body { grid-template-columns: 1fr; }
+      .preview-pane { border-right: none; }
+      .share-steps { grid-template-columns: 1fr; }
+      .cta-section { flex-direction: column; gap: 40px; padding: 60px 24px; }
+      .distinction-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="/" class="logo">know<em>.help</em></a>
+  <div class="nav-r">
+    <a href="/packs" class="nav-a">Marketplace</a>
+    <a href="/#pricing" class="nav-a">Pricing</a>
+    <a href="https://github.com/Kuleana808/Know-Help" class="nav-a">GitHub</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+
+<div style="border-bottom:1px solid var(--rule)">
+<div class="hero">
+
+  <div class="hero-top">
+    <div class="breadcrumb">
+      <a href="/">know.help</a>
+      <span>/</span>
+      <a href="/packs">packs</a>
+      <span>/</span>
+      brand-designer-clone
+    </div>
+    <div class="hero-meta-top">
+      <div class="pack-id">pack v1.0 &middot; free</div>
+    </div>
+  </div>
+
+  <div class="hero-main">
+    <div class="hero-left">
+      <p class="pack-category">Design</p>
+      <h1>The Brand<br>Designer<br><em>Clone.</em></h1>
+      <p class="tagline">15 years of refined brand taste, loaded into your AI. Not a persona &mdash; a specific point of view on logos, type, color, and identity that loads contextually when you need it.</p>
+
+      <div class="install-block">
+        <p class="install-label">Install in Claude Desktop</p>
+        <div class="install-cmd">
+          <div class="install-pre">
+            <span class="p">$ </span><span class="cmd">know install</span> <span class="arg">brand-designer-clone</span>
+          </div>
+          <button class="install-copy" onclick="navigator.clipboard.writeText('know install brand-designer-clone').then(()=>{this.textContent='Copied';setTimeout(()=>this.textContent='Copy',2000)})">Copy</button>
+        </div>
+        <p class="install-alt">or: <a href="/setup">tell Claude to visit this page</a> and install it for you</p>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="stat-row">
+        <div class="stat-label">Files in pack</div>
+        <div class="stat-val">8</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">Trigger contexts</div>
+        <div class="stat-val">11</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">Category</div>
+        <div class="stat-val mono">Design / Brand</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">Price</div>
+        <div class="stat-val gold">Free</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">Compatible with</div>
+        <div class="stat-val mono">Claude Desktop<br>Cursor, any MCP</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">Shared by</div>
+        <div class="stat-val mono">Brent A.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-bottom">
+    <div class="hero-bottom-l">Triggers when you mention: <strong>logo &middot; brand &middot; typeface &middot; color &middot; identity &middot; design</strong></div>
+    <div class="hero-bottom-r">
+      <span class="h-tag">Design</span>
+      <span class="h-tag">Free</span>
+      <span class="h-tag">Claude Desktop</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- WHAT IT IS -->
+
+<div class="what-section">
+  <div class="what-left reveal">
+    <p class="section-eyebrow">What this is</p>
+    <h2>Not a persona.<br><em>A point of view.</em></h2>
+
+    <p>A Clone pack is different from a system prompt or a Claude Project. It's a structured knowledge base of how a specific person thinks &mdash; their taste filters, decision criteria, red lines, and the references they trust. Claude doesn't roleplay this person. Claude reasons from their actual knowledge.</p>
+
+    <p>When Austin works on his brand and asks "is this logo working?" &mdash; Claude doesn't say "a good designer might consider..." It evaluates against the actual taste filters in this pack: does it own something, does it work in one color, does it survive at 16px, does it feel like the company or just like design.</p>
+
+    <p>The files load contextually. Logo work loads the logo and taste filter files. Type selection loads the typography file. Color decisions load the color file. Not everything at once &mdash; only what's relevant.</p>
+
+    <div class="distinction">
+      <p style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);">This vs. Claude Skills / Projects</p>
+      <div class="distinction-row">
+        <div class="d-cell">
+          <div class="d-label">Claude Project / Skill</div>
+          <div class="d-bad">"Act like an expert brand designer and help me with brand strategy"</div>
+        </div>
+        <div class="d-cell">
+          <div class="d-label">This pack</div>
+          <div class="d-good">Specific criteria: 6 taste filters, named typeface opinions, exact red lines, named references with reasons</div>
+        </div>
+      </div>
+      <div class="distinction-row" style="margin-top:1px">
+        <div class="d-cell">
+          <div class="d-label">Result</div>
+          <div class="d-bad">Generic design advice any AI could give</div>
+        </div>
+        <div class="d-cell">
+          <div class="d-label">Result</div>
+          <div class="d-good">Feedback as specific as: "this typeface is neutral to the point of disappearing &mdash; try GT Sectra"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="what-right reveal">
+    <p class="section-eyebrow" style="margin-bottom:24px;">Files in this pack</p>
+    <ul class="files-list">
+      <li class="file-item">
+        <span class="file-path">design/</span>
+        <div class="file-info">
+          <div class="file-name">philosophy.md</div>
+          <div class="file-desc">What brand actually is. What makes a system work over time vs. just in a mockup. On simplicity, trends, and the difference between looking good and being right.</div>
+          <div class="file-trigger">
+            <span class="trigger-tag">brand</span>
+            <span class="trigger-tag">identity</span>
+            <span class="trigger-tag">visual</span>
+          </div>
+        </div>
+      </li>
+      <li class="file-item">
+        <span class="file-path">design/</span>
+        <div class="file-info">
+          <div class="file-name">taste-filters.md</div>
+          <div class="file-desc">6 sequential filters to evaluate any brand element. Instant disqualifiers applied before evaluation begins. The rapid decision framework.</div>
+          <div class="file-trigger">
+            <span class="trigger-tag">evaluate</span>
+            <span class="trigger-tag">review</span>
+            <span class="trigger-tag">critique</span>
+          </div>
+        </div>
+      </li>
+      <li class="file-item">
+        <span class="file-path">design/</span>
+        <div class="file-info">
+          <div class="file-name">typography.md</div>
+          <div class="file-desc">Type selection criteria. Named trusted typefaces with reasons. What to avoid and why. Pairing logic for brand systems.</div>
+          <div class="file-trigger">
+            <span class="trigger-tag">font</span>
+            <span class="trigger-tag">typeface</span>
+            <span class="trigger-tag">type</span>
+          </div>
+        </div>
+      </li>
+      <li class="file-item">
+        <span class="file-path">design/</span>
+        <div class="file-info">
+          <div class="file-name">color.md</div>
+          <div class="file-desc">How to build an ownable color system, not a collection. Common mistakes. The primary color test.</div>
+          <div class="file-trigger">
+            <span class="trigger-tag">color</span>
+            <span class="trigger-tag">palette</span>
+          </div>
+        </div>
+      </li>
+      <li class="file-item">
+        <span class="file-path">design/</span>
+        <div class="file-info">
+          <div class="file-name">logo.md</div>
+          <div class="file-desc">Logo type hierarchy, what makes a mark work, the mark construction test, and what almost never works despite designers thinking it will.</div>
+          <div class="file-trigger">
+            <span class="trigger-tag">logo</span>
+            <span class="trigger-tag">mark</span>
+            <span class="trigger-tag">wordmark</span>
+          </div>
+        </div>
+      </li>
+      <li class="file-item">
+        <span class="file-path">design/</span>
+        <div class="file-info">
+          <div class="file-name">references.md</div>
+          <div class="file-desc">Named brands and designers that calibrate the taste in this pack. How to use references without copying. Why each one is on the list.</div>
+          <div class="file-trigger">
+            <span class="trigger-tag">reference</span>
+            <span class="trigger-tag">inspiration</span>
+            <span class="trigger-tag">similar to</span>
+          </div>
+        </div>
+      </li>
+      <li class="file-item">
+        <span class="file-path">design/</span>
+        <div class="file-info">
+          <div class="file-name">red-lines.md</div>
+          <div class="file-desc">What never gets approved. Hard stops by category: logo, typography, color, system-level. No exceptions.</div>
+          <div class="file-trigger">
+            <span class="trigger-tag">approve</span>
+            <span class="trigger-tag">problem</span>
+            <span class="trigger-tag">concern</span>
+          </div>
+        </div>
+      </li>
+      <li class="file-item">
+        <span class="file-path">design/</span>
+        <div class="file-info">
+          <div class="file-name">critique-voice.md</div>
+          <div class="file-desc">How this designer gives feedback. Direct, specific, actionable. With examples of what useful critique sounds like versus what never gets said.</div>
+          <div class="file-trigger">
+            <span class="trigger-tag">feedback</span>
+            <span class="trigger-tag">what do you think</span>
+            <span class="trigger-tag">honest</span>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- PREVIEW -->
+
+<div class="preview-section">
+  <div class="preview-header">
+    <h2>Preview the <em>content</em></h2>
+    <div class="preview-nav">
+      <button class="prev-tab active" onclick="switchTab('filters')">Taste Filters</button>
+      <button class="prev-tab" onclick="switchTab('redlines')">Red Lines</button>
+      <button class="prev-tab" onclick="switchTab('critique')">Critique Voice</button>
+    </div>
+  </div>
+
+  <div class="preview-body">
+    <!-- FILTERS -->
+    <div class="preview-pane active" id="tab-filters" style="grid-column:1/-1">
+      <h3>The 6 Taste Filters</h3>
+      <p style="margin-bottom:32px">Applied in order. Most work fails at filter 1 or 2. Getting to filter 5 means you have something worth refining.</p>
+      <ul class="filter-list">
+        <li class="filter-item">
+          <div class="filter-num">Filter 1</div>
+          <div class="filter-q">Does it own something?</div>
+          <div class="filter-desc">Can this be mistaken for a competitor? If yes, stop. Refinement won't fix it. What does it own that nothing else in this category owns?</div>
+        </li>
+        <li class="filter-item">
+          <div class="filter-num">Filter 2</div>
+          <div class="filter-q">Does it work without color?</div>
+          <div class="filter-desc">Show it in black and white. If it falls apart, the mark itself isn't strong enough. Color is a modifier, not a structural element.</div>
+        </li>
+        <li class="filter-item">
+          <div class="filter-num">Filter 3</div>
+          <div class="filter-q">Does it survive scale?</div>
+          <div class="filter-desc">Show it at 16px &times; 16px and at 2000px wide. Both must work. The 16px test kills intricate marks. The 2000px test kills marks that hide weaknesses at small scale.</div>
+        </li>
+        <li class="filter-item">
+          <div class="filter-num">Filter 4</div>
+          <div class="filter-q">Would a layperson recognize it as intentional?</div>
+          <div class="filter-desc">Not "does a layperson like it?" &mdash; whether it reads as a considered choice, not an accident. If it doesn't read as intentional to a non-designer, the communication has failed.</div>
+        </li>
+        <li class="filter-item">
+          <div class="filter-num">Filter 5</div>
+          <div class="filter-q">Can the company actually use this?</div>
+          <div class="filter-desc">PowerPoint slide background. Email footer. Embroidered on a hat. Printed in one color on a coffee cup. Dark AND light backgrounds. All of these.</div>
+        </li>
+        <li class="filter-item">
+          <div class="filter-num">Filter 6</div>
+          <div class="filter-q">Does it feel like the company, or like design?</div>
+          <div class="filter-desc">Work that feels like design &mdash; that looks like a designer made something &mdash; is often not the right answer. The goal is work that feels like the company.</div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- RED LINES (hidden by default) -->
+    <div class="preview-pane" id="tab-redlines" style="grid-column:1/-1">
+      <h3>Logo Red Lines</h3>
+      <p style="margin-bottom:32px">These are not preferences. No amount of execution quality redeems a direction that crosses these.</p>
+      <ul class="redline-list">
+        <li class="redline-item">Drop shadows on marks. A shadow signals the mark cannot hold its own. The mark must work without it.</li>
+        <li class="redline-item">Gradients in primary logo files. A brand that can't render in one color isn't a brand &mdash; it's a file.</li>
+        <li class="redline-item">Bevels, emboss effects, or gloss applied to marks in brand guidelines. These are production treatments, not brand assets.</li>
+        <li class="redline-item">Literal representation of what the company does. A tech company with a circuit board. A finance company with a graph. These categorize; they don't differentiate.</li>
+        <li class="redline-item">Marks that require explanation. "When you look closely you'll see a hidden X" &mdash; hidden meanings that need a paragraph contribute nothing to real-world brand perception.</li>
+        <li class="redline-item">More than 3 typefaces in a brand system. Three is the limit and requires justification. Four is never right.</li>
+        <li class="redline-item">A primary logo system where the mark requires a simplified version for digital use. This means the primary mark failed the scale test. Fix the mark.</li>
+        <li class="redline-item">Colors that exist in competitors' brand systems without meaningful differentiation. You're strengthening them, not differentiating yourself.</li>
+      </ul>
+    </div>
+
+    <!-- CRITIQUE VOICE (hidden by default) -->
+    <div class="preview-pane" id="tab-critique" style="grid-column:1/-1">
+      <h3>What useful critique sounds like</h3>
+      <p style="margin-bottom:32px">Feedback that hedges helps no one. These are examples of what this pack produces when evaluating brand work.</p>
+
+      <div style="display:flex;flex-direction:column;gap:1px;background:var(--rule);margin-bottom:32px">
+        <div style="background:var(--ink);padding:24px 28px">
+          <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:12px">On a logo mark</div>
+          <p style="font-size:13px;color:var(--mid);line-height:1.85;">"The concept is working &mdash; you're communicating precision clearly. The weight of the mark is too heavy relative to the wordmark &mdash; they're fighting for dominance when the wordmark should lead. Try the mark at 60% of its current size and see if the balance resolves."</p>
+        </div>
+        <div style="background:var(--ink);padding:24px 28px">
+          <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:12px">On a typeface choice</div>
+          <p style="font-size:13px;color:var(--mid);line-height:1.85;">"This typeface is technically competent but neutral to the point of disappearing. The brief calls for authority without coldness and this achieves neither. Look at GT Sectra or Freight Display &mdash; both have warmth at display size that this doesn't."</p>
+        </div>
+        <div style="background:var(--ink);padding:24px 28px">
+          <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:12px">On a color choice</div>
+          <p style="font-size:13px;color:var(--mid);line-height:1.85;">"This blue is too close to the competitor's blue to be meaningfully differentiated. We need to go further &mdash; more saturated, shifted warmer, or into different territory entirely. The goal is ownable, and this isn't."</p>
+        </div>
+        <div style="background:var(--ink);padding:24px 28px">
+          <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:12px">What never gets said</div>
+          <ul style="list-style:none;font-size:12px;color:var(--dim);line-height:2">
+            <li style="text-decoration:line-through">&mdash; "I'd explore other directions"</li>
+            <li style="text-decoration:line-through">&mdash; "It just doesn't feel right"</li>
+            <li style="text-decoration:line-through">&mdash; "Can we make it pop more"</li>
+            <li style="text-decoration:line-through">&mdash; "The client will love this" (as a compliment)</li>
+            <li style="text-decoration:line-through">&mdash; "Nice work" before identifying what isn't working</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW SHARING WORKS -->
+
+<div class="share-section reveal">
+  <p class="section-eyebrow">How it works</p>
+  <h2>Shared as a link.<br><em>Installed in one command.</em></h2>
+  <p>Clone packs are published artifacts &mdash; a URL with a preview page and the actual knowledge files behind it. Anyone with the link can install it into their own Claude setup. The creator can update the pack; installers get the update.</p>
+
+  <div class="share-steps">
+    <div class="share-step">
+      <div class="share-step-n">01</div>
+      <h3>Creator builds the pack</h3>
+      <p>Brent interviews the designer &mdash; or builds the knowledge files directly. Publishes to know.help/pack/[slug] with a preview page.</p>
+      <code>know publish brand-designer-clone<br>&rarr; know.help/pack/brand-designer-clone</code>
+    </div>
+    <div class="share-step">
+      <div class="share-step-n">02</div>
+      <h3>Austin gets the link</h3>
+      <p>Brent sends the URL. Austin sees the preview page &mdash; exactly what he's installing, what files are in it, what it does and doesn't do. No black box.</p>
+      <code>know.help/pack/brand-designer-clone<br>&uarr; this page</code>
+    </div>
+    <div class="share-step">
+      <div class="share-step-n">03</div>
+      <h3>One command, immediately useful</h3>
+      <p>Austin runs the install. The pack merges into his knowledge base alongside his own identity files. Now when he works on his brand, this designer's judgment is in the room.</p>
+      <code>know install brand-designer-clone<br>&check; 8 files installed &middot; triggers active</code>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+
+<div class="cta-section">
+  <div class="cta-left">
+    <h2>Install<br>this pack.<br><em>Or build one.</em></h2>
+  </div>
+  <div class="cta-right">
+    <a href="#" class="cta-btn primary" onclick="navigator.clipboard.writeText('know install brand-designer-clone');this.textContent='Command copied';setTimeout(()=>this.textContent='Copy install command',2000);return false">Copy install command</a>
+    <a href="/setup" class="cta-btn">Let Claude install it for me &rarr;</a>
+    <a href="/packs" class="cta-btn">Browse all packs</a>
+    <p class="cta-note">Free &middot; No account required &middot; Works with Claude Desktop</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+
+<footer>
+  <a href="/" class="footer-logo">know<em>.help</em></a>
+  <div class="footer-links">
+    <a href="/packs">Marketplace</a>
+    <a href="/setup">Setup</a>
+    <a href="https://github.com/Kuleana808/Know-Help">GitHub</a>
+    <a href="mailto:hello@know.help">Contact</a>
+  </div>
+  <span class="footer-r">&copy; 2026 know.help</span>
+</footer>
+
+<!-- JSON-LD Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "The Brand Designer Clone",
+  "description": "15 years of refined brand taste, loaded into your AI. Not a persona — a specific point of view on logo systems, typography, color, and identity.",
+  "url": "https://know.help/pack/brand-designer-clone",
+  "applicationCategory": "DesignApplication",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Brent A."
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "know.help",
+    "url": "https://know.help"
+  }
+}
+</script>
+
+<script>
+  // Nav scroll
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 40));
+
+  // Reveal
+  document.querySelectorAll('.reveal').forEach(el => {
+    new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); } });
+    }, { threshold: 0.06 }).observe(el);
+  });
+
+  // Tab switching
+  function switchTab(tab) {
+    document.querySelectorAll('.prev-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.preview-pane').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
