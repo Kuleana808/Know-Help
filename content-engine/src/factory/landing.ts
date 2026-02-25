@@ -48,7 +48,7 @@ Include meta tags:
 - description: 155 chars max, include the keyword "${vertical.keyword_opportunity}"
 - og:title and og:description
 
-The install CTA link should be: https://github.com/know-help/know-help
+The install CTA link should be: https://github.com/Kuleana808/Know-Help
 The Pro notify link should anchor to: #notify
 
 Output ONLY the complete HTML document, nothing else.`;
