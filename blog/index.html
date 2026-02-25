@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — know.help | Context Engineering for AI</title>
+  <meta name="description" content="Articles on context engineering, MCP servers, personal AI knowledge bases, and how to give your AI persistent memory. By the team building know.help." />
+  <meta name="keywords" content="context engineering, MCP server, AI memory, Claude Desktop, personal knowledge base, AI context management" />
+  <link rel="canonical" href="https://know.help/blog" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Blog — know.help | Context Engineering for AI" />
+  <meta property="og:description" content="Articles on context engineering, MCP servers, and personal AI knowledge bases." />
+  <meta property="og:url" content="https://know.help/blog" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="know.help" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Blog — know.help" />
+  <meta name="twitter:description" content="Articles on context engineering, MCP servers, and personal AI knowledge bases." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f2eb;
+      --bg2: #ede9e0;
+      --surface: #ffffff;
+      --border: #d8d3c8;
+      --border-dark: #b8b2a6;
+      --text: #111009;
+      --muted: #4a4642;
+      --accent: #1a4a2e;
+      --accent-light: #e8f0ea;
+      --accent-mid: #1f6038;
+      --serif: 'Playfair Display', Georgia, serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.7;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 100;
+    }
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      padding: 24px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      background: rgba(245, 242, 235, 0.92);
+      backdrop-filter: blur(12px);
+    }
+    .logo { font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em; color: var(--text); text-decoration: none; }
+    .logo span { color: var(--accent-mid); }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { font-size: 12px; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--surface); background: var(--accent); padding: 9px 22px; text-decoration: none; transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--accent-mid); }
+
+    .blog-header {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 140px 48px 60px;
+    }
+    .blog-header h1 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 5vw, 52px);
+      font-weight: 400;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .blog-header p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+      max-width: 540px;
+    }
+    hr.divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0 48px;
+    }
+    .blog-list {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 48px 100px;
+    }
+    .blog-card {
+      display: block;
+      padding: 40px 0;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.2s;
+    }
+    .blog-card:first-child { padding-top: 0; }
+    .blog-card:hover .blog-card-title { color: var(--accent-mid); }
+    .blog-card-meta {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent-mid);
+      margin-bottom: 12px;
+    }
+    .blog-card-title {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      transition: color 0.2s;
+    }
+    .blog-card-excerpt {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+      max-width: 600px;
+    }
+    .blog-card-read {
+      display: inline-block;
+      margin-top: 16px;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-mid);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo { font-family: var(--mono); font-size: 13px; color: var(--muted); text-decoration: none; }
+    .footer-logo span { color: var(--accent-mid); }
+    .footer-links { display: flex; gap: 32px; }
+    .footer-links a { font-size: 12px; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      .blog-header { padding: 120px 24px 48px; }
+      .blog-list { padding: 32px 24px 72px; }
+      hr.divider { margin: 0 24px; }
+      footer { padding: 24px; flex-direction: column; gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="logo">know<span>.help</span></a>
+    <div class="nav-links">
+      <a href="/blog">Blog</a>
+      <a href="/packs">Packs</a>
+      <a href="https://github.com/Kuleana808/Know-Help">GitHub</a>
+      <a href="/#waitlist" class="nav-cta">Early access</a>
+    </div>
+  </nav>
+
+  <div class="blog-header">
+    <h1>Context Engineering</h1>
+    <p>How to give your AI the right information at the right time. Guides, tutorials, and thinking on the future of AI context management.</p>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="blog-list">
+
+    <a href="/blog/what-is-context-engineering" class="blog-card">
+      <div class="blog-card-meta">Defining the field &middot; February 2026</div>
+      <h2 class="blog-card-title">What Is Context Engineering? The Discipline That Makes AI Actually Useful</h2>
+      <p class="blog-card-excerpt">Prompt engineering asks the right question. Context engineering provides the right information before the question is even asked. Here's why it matters and how to think about it architecturally.</p>
+      <span class="blog-card-read">Read article</span>
+    </a>
+
+    <a href="/blog/claude-desktop-mcp-setup" class="blog-card">
+      <div class="blog-card-meta">Tutorial &middot; February 2026</div>
+      <h2 class="blog-card-title">How to Set Up an MCP Server for Claude Desktop: A Complete Guide</h2>
+      <p class="blog-card-excerpt">Step-by-step instructions for building a personal knowledge base that connects to Claude Desktop via MCP. From installation to your first trigger-loaded conversation.</p>
+      <span class="blog-card-read">Read article</span>
+    </a>
+
+    <a href="/blog/context-engineering-vs-prompt-engineering" class="blog-card">
+      <div class="blog-card-meta">Comparison &middot; February 2026</div>
+      <h2 class="blog-card-title">Context Engineering vs. Prompt Engineering: Why What Your AI Knows Matters More Than How You Ask</h2>
+      <p class="blog-card-excerpt">The AI industry spent two years optimizing prompts. The next wave is optimizing context. Here's the fundamental difference and why it changes everything about how you work with AI.</p>
+      <span class="blog-card-read">Read article</span>
+    </a>
+
+  </div>
+
+  <footer>
+    <a href="/" class="footer-logo">know<span>.help</span></a>
+    <div class="footer-links">
+      <a href="https://github.com/Kuleana808/Know-Help">GitHub</a>
+      <a href="/blog">Blog</a>
+      <a href="mailto:hello@know.help">hello@know.help</a>
+    </div>
+  </footer>
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "know.help Blog",
+    "description": "Articles on context engineering, MCP servers, and personal AI knowledge bases",
+    "url": "https://know.help/blog",
+    "publisher": {
+      "@type": "Organization",
+      "name": "know.help",
+      "url": "https://know.help"
+    }
+  }
+  </script>
+
+</body>
+</html>

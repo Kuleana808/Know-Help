@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What Is Context Engineering? The Discipline That Makes AI Actually Useful — know.help</title>
+  <meta name="description" content="Context engineering is the discipline of architecting the right information into AI context at the right time. It's the difference between an AI that gives generic answers and one that knows your business. A definitive guide." />
+  <meta name="keywords" content="context engineering, what is context engineering, AI context, MCP server, AI memory, personal knowledge base, context engineering definition, context engineering explained" />
+  <link rel="canonical" href="https://know.help/blog/what-is-context-engineering" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="What Is Context Engineering? The Discipline That Makes AI Actually Useful" />
+  <meta property="og:description" content="Context engineering is the discipline of architecting the right information into AI context at the right time. Here's why it matters and how to think about it." />
+  <meta property="og:url" content="https://know.help/blog/what-is-context-engineering" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="know.help" />
+  <meta property="article:published_time" content="2026-02-25T00:00:00Z" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="What Is Context Engineering?" />
+  <meta name="twitter:description" content="The discipline of architecting the right information into AI context at the right time." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f2eb;
+      --bg2: #ede9e0;
+      --surface: #ffffff;
+      --border: #d8d3c8;
+      --border-dark: #b8b2a6;
+      --text: #111009;
+      --muted: #4a4642;
+      --accent: #1a4a2e;
+      --accent-light: #e8f0ea;
+      --accent-mid: #1f6038;
+      --serif: 'Playfair Display', Georgia, serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.7;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 100;
+    }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      padding: 24px 48px; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--border); background: rgba(245, 242, 235, 0.92); backdrop-filter: blur(12px);
+    }
+    .logo { font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em; color: var(--text); text-decoration: none; }
+    .logo span { color: var(--accent-mid); }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { font-size: 12px; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--surface); background: var(--accent); padding: 9px 22px; text-decoration: none; transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--accent-mid); }
+
+    .article-header {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 140px 48px 48px;
+    }
+    .article-meta {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent-mid);
+      margin-bottom: 24px;
+    }
+    .article-header h1 {
+      font-family: var(--serif);
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 400;
+      line-height: 1.15;
+      margin-bottom: 24px;
+    }
+    .article-header h1 em { font-style: italic; color: var(--muted); }
+    .article-lede {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--muted);
+      max-width: 600px;
+    }
+    hr.divider { border: none; border-top: 1px solid var(--border); margin: 0 48px; }
+
+    .article-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 48px 100px;
+    }
+    .article-body h2 {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 1.25;
+      margin-top: 56px;
+      margin-bottom: 20px;
+    }
+    .article-body h3 {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1.3;
+      margin-top: 40px;
+      margin-bottom: 16px;
+    }
+    .article-body p {
+      font-size: 14px;
+      line-height: 1.85;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .article-body p strong { color: var(--text); font-weight: 400; }
+    .article-body blockquote {
+      border-left: 2px solid var(--accent-mid);
+      padding: 16px 0 16px 24px;
+      margin: 32px 0;
+      font-family: var(--serif);
+      font-size: 20px;
+      line-height: 1.5;
+      color: var(--text);
+      font-style: italic;
+    }
+    .article-body ul, .article-body ol {
+      margin: 0 0 20px 24px;
+      color: var(--muted);
+    }
+    .article-body li {
+      margin-bottom: 8px;
+      line-height: 1.8;
+      font-size: 14px;
+    }
+    .article-body code {
+      font-family: var(--mono);
+      font-size: 13px;
+      background: var(--bg2);
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+    }
+    .article-body pre {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin: 24px 0;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 2;
+      color: var(--muted);
+    }
+    .article-body pre code { background: none; border: none; padding: 0; }
+    .info-box {
+      background: var(--accent-light);
+      border: 1px solid var(--accent-mid);
+      padding: 24px 28px;
+      margin: 32px 0;
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+    .info-box strong { display: block; margin-bottom: 8px; font-family: var(--serif); font-size: 16px; font-weight: 400; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 13px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+    }
+    th { background: var(--bg2); font-weight: 400; color: var(--text); }
+    td { color: var(--muted); }
+
+    .cta-block {
+      background: var(--accent);
+      padding: 48px;
+      margin: 56px 0 0;
+      text-align: center;
+    }
+    .cta-block h3 { font-family: var(--serif); font-size: 28px; font-weight: 400; color: #f5f2eb; margin-bottom: 12px; }
+    .cta-block p { font-size: 13px; color: rgba(245,242,235,0.6); margin-bottom: 24px; }
+    .cta-block a {
+      display: inline-block; background: #f5f2eb; color: var(--accent); font-family: var(--mono);
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 14px 32px;
+      text-decoration: none; transition: background 0.2s;
+    }
+    .cta-block a:hover { background: var(--bg2); }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo { font-family: var(--mono); font-size: 13px; color: var(--muted); text-decoration: none; }
+    .footer-logo span { color: var(--accent-mid); }
+    .footer-links { display: flex; gap: 32px; }
+    .footer-links a { font-size: 12px; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      .article-header { padding: 120px 24px 36px; }
+      .article-body { padding: 36px 24px 72px; }
+      hr.divider { margin: 0 24px; }
+      footer { padding: 24px; flex-direction: column; gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="logo">know<span>.help</span></a>
+    <div class="nav-links">
+      <a href="/blog">Blog</a>
+      <a href="/packs">Packs</a>
+      <a href="https://github.com/Kuleana808/Know-Help">GitHub</a>
+      <a href="/#waitlist" class="nav-cta">Early access</a>
+    </div>
+  </nav>
+
+  <div class="article-header">
+    <div class="article-meta">Defining the field &middot; February 25, 2026</div>
+    <h1>What Is Context Engineering? <em>The Discipline That Makes AI Actually Useful</em></h1>
+    <p class="article-lede">Everyone talks about prompt engineering. But the teams and individuals getting the best results from AI have moved past it. They're practicing something fundamentally different: context engineering.</p>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="article-body">
+
+    <h2>A Definition</h2>
+
+    <p><strong>Context engineering is the discipline of architecting the right information into AI context at the right time.</strong> It's the practice of designing systems that ensure an AI model has access to precisely the knowledge it needs for a given interaction — not too much, not too little, not too late.</p>
+
+    <p>Where prompt engineering asks "how do I phrase this question?", context engineering asks "what does the AI need to know before I even ask?"</p>
+
+    <p>The distinction matters because the quality of AI output is bounded by the quality of its context. A perfectly crafted prompt with poor context produces poor results. A simple question with excellent context produces excellent results.</p>
+
+    <blockquote>The best AI users aren't writing better prompts. They're building better context.</blockquote>
+
+    <h2>Why Context Engineering Matters Now</h2>
+
+    <p>Three developments have made context engineering both possible and necessary:</p>
+
+    <h3>1. Context windows are large enough to be dangerous</h3>
+
+    <p>Claude's 200K token context window can hold an entire codebase or a year of meeting notes. But large context windows create a new problem: <strong>what do you put in them?</strong> Dumping everything in is worse than having nothing at all. Models have a U-shaped attention curve — they recall the beginning and end of context well, but the middle blurs. Context engineering is the practice of being intentional about what goes where.</p>
+
+    <h3>2. MCP makes persistent context possible</h3>
+
+    <p>Anthropic's <strong>Model Context Protocol (MCP)</strong> allows external tools and knowledge bases to connect directly to AI models. This means your AI can pull from structured, persistent knowledge — not just what you paste into a chat window. MCP is the infrastructure layer that makes context engineering practical at scale.</p>
+
+    <h3>3. The gap between "uses AI" and "uses AI well" is widening</h3>
+
+    <p>Everyone has access to the same models. The differentiator is no longer which model you use — it's what context you give it. Two founders using Claude will get dramatically different results based on whether their AI knows their business, their relationships, their methodology, and their communication style.</p>
+
+    <h2>The Architecture of Context Engineering</h2>
+
+    <p>Good context engineering follows specific architectural principles:</p>
+
+    <h3>Progressive disclosure</h3>
+
+    <p>Never load everything at once. Structure your context in layers:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Level</th>
+          <th>What</th>
+          <th>When it loads</th>
+          <th>Size</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Level 1</strong></td>
+          <td>Routing index</td>
+          <td>Always</td>
+          <td>&lt;100 lines</td>
+        </tr>
+        <tr>
+          <td><strong>Level 2</strong></td>
+          <td>Domain modules</td>
+          <td>On keyword match</td>
+          <td>40-100 lines each</td>
+        </tr>
+        <tr>
+          <td><strong>Level 3</strong></td>
+          <td>Specific data</td>
+          <td>On explicit trigger</td>
+          <td>Variable</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>This mirrors how human memory works — you don't load your entire life history to answer a question about lunch. You retrieve relevant context on demand. AI should work the same way.</p>
+
+    <h3>Front-loading critical information</h3>
+
+    <p>The U-shaped attention curve means content at the beginning and end of context gets the most attention. <strong>Put your most important information first.</strong> Identity, core rules, critical constraints — these go in the opening lines. Supporting details come after.</p>
+
+    <h3>Trigger-based loading</h3>
+
+    <p>Instead of manually deciding what context to include, well-engineered context systems use triggers — keywords or patterns that automatically load relevant information. Mention a person's name, and their relationship file loads. Start discussing sales, and your methodology appears. The user shouldn't have to think about context management.</p>
+
+    <h3>Append-only data integrity</h3>
+
+    <p>When AI agents write to your context (logging decisions, updating contacts, recording failures), the system must prevent accidental data destruction. Append-only formats like JSONL ensure that new information gets added without overwriting what existed before.</p>
+
+    <h2>Context Engineering in Practice</h2>
+
+    <p>Here's what context engineering looks like for a founder using AI daily:</p>
+
+    <p><strong>Without context engineering:</strong> Every new Claude conversation starts from zero. You paste in background, re-explain your company, describe the person you're emailing, specify your communication style. 10 minutes of setup for a 2-minute task.</p>
+
+    <p><strong>With context engineering:</strong> You open Claude and say "draft an email to Sarah about the Series A." Claude already knows who Sarah is (your lead investor), what the Series A terms look like (from your venture file), and how you write emails (from your communication style guide). The email is ready in seconds, and it sounds like you.</p>
+
+    <p>The difference is not a better prompt. The difference is better context.</p>
+
+    <h2>How to Start</h2>
+
+    <p>Context engineering doesn't require complex infrastructure. Start with these fundamentals:</p>
+
+    <ol>
+      <li><strong>Audit your repetition.</strong> What do you explain to AI over and over? That's your first context file.</li>
+      <li><strong>Write it once.</strong> Create a structured knowledge base — your identity, your team, your methodology, your voice. Markdown is the ideal format because LLMs read it natively.</li>
+      <li><strong>Connect it via MCP.</strong> Use an MCP server to make your knowledge base accessible to Claude Desktop. Tools like <a href="https://github.com/Kuleana808/Know-Help">know.help</a> provide this out of the box.</li>
+      <li><strong>Add triggers.</strong> Tag each file with the keywords that should activate it. "Sales, methodology, close" triggers your sales playbook. "LinkedIn, post, professional" triggers your LinkedIn voice guide.</li>
+      <li><strong>Iterate based on output quality.</strong> When Claude's output is off, don't rewrite the prompt — update the context. Did it miss your tone? Improve your style guide. Did it not know a relationship? Update your network file.</li>
+    </ol>
+
+    <div class="info-box">
+      <strong>know.help is a context engineering tool.</strong>
+      It's an open-source MCP server that gives Claude Desktop a persistent, trigger-based knowledge base. Your AI knows who you are, what you're building, and who matters — automatically, in every conversation. <a href="https://github.com/Kuleana808/Know-Help">View on GitHub</a>.
+    </div>
+
+    <h2>The Window Is Now</h2>
+
+    <p>Context engineering as a discipline is forming right now. The term is nascent, the tools are early, and the practices are being established by the people building them. In two years, context engineering will be as recognized as prompt engineering is today.</p>
+
+    <p>The people who build their context systems now — who write their knowledge bases, set up their MCP servers, and design their trigger architectures — will have a compounding advantage over everyone who waits. Because context, like compound interest, gets more valuable the earlier you start building it.</p>
+
+    <p><strong>Your AI should already know who you are.</strong> Context engineering is how you make that happen.</p>
+
+    <div class="cta-block">
+      <h3>Start building your context</h3>
+      <p>know.help gives Claude Desktop persistent memory about you. Open source, free during beta.</p>
+      <a href="/#waitlist">Get early access</a>
+    </div>
+
+  </div>
+
+  <footer>
+    <a href="/" class="footer-logo">know<span>.help</span></a>
+    <div class="footer-links">
+      <a href="https://github.com/Kuleana808/Know-Help">GitHub</a>
+      <a href="/blog">Blog</a>
+      <a href="mailto:hello@know.help">hello@know.help</a>
+    </div>
+  </footer>
+
+  <!-- JSON-LD Article Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "What Is Context Engineering? The Discipline That Makes AI Actually Useful",
+    "description": "Context engineering is the discipline of architecting the right information into AI context at the right time. A definitive guide to the practice that's replacing prompt engineering.",
+    "datePublished": "2026-02-25",
+    "dateModified": "2026-02-25",
+    "author": {
+      "@type": "Organization",
+      "name": "know.help",
+      "url": "https://know.help"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "know.help",
+      "url": "https://know.help"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://know.help/blog/what-is-context-engineering"
+    },
+    "keywords": ["context engineering", "AI context", "MCP server", "personal knowledge base", "Claude Desktop", "AI memory"]
+  }
+  </script>
+
+  <!-- FAQ Structured Data for Featured Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is context engineering?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Context engineering is the discipline of architecting the right information into AI context at the right time. It's the practice of designing systems that ensure an AI model has access to precisely the knowledge it needs for a given interaction. Where prompt engineering asks 'how do I phrase this question?', context engineering asks 'what does the AI need to know before I even ask?'"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the difference between context engineering and prompt engineering?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Prompt engineering focuses on how you ask the question. Context engineering focuses on what information the AI has access to before you ask. The quality of AI output is bounded by the quality of its context — a perfectly crafted prompt with poor context produces poor results, while a simple question with excellent context produces excellent results."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does context engineering work with MCP?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "MCP (Model Context Protocol) is the infrastructure layer that makes context engineering practical. It allows external knowledge bases to connect directly to AI models like Claude. An MCP server like know.help provides persistent, trigger-based context loading — when you mention a topic, the relevant knowledge files load automatically into the AI's context."
+        }
+      }
+    ]
+  }
+  </script>
+
+</body>
+</html>
