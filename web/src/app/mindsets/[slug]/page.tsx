@@ -282,6 +282,9 @@ export default function MindsetDetailPage() {
         </div>
       </div>
 
+      {/* Preview Section (Tabbed) */}
+      <PreviewSection />
+
       {/* Files List */}
       <div className="max-w-[1280px] mx-auto px-20 py-20 border-b border-dk-border">
         <div className="grid grid-cols-2 gap-20 mb-12">
@@ -298,18 +301,28 @@ export default function MindsetDetailPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-px bg-dk-border border border-dk-border">
-          {mindset.files.map((f) => (
-            <div key={f.filepath} className="bg-dk-bg p-6 hover:bg-dk-surface transition-colors">
-              <p className="text-[11px] text-warm mb-1.5">{f.filepath}</p>
-              <p className="text-sm text-dk-text mb-2">{f.name}</p>
-              <p className="text-[10px] text-dk-dim mb-2.5">
-                Load for: <span className="text-dk-mid">{f.load_for}</span>
-              </p>
-              <p className="text-xs text-dk-mid leading-[1.65]">{f.description}</p>
-            </div>
+        <ul className="list-none">
+          {mindset.files.map((f, i) => (
+            <li key={f.filepath} className={`py-5 grid grid-cols-[auto_1fr] gap-5 items-start cursor-default hover:bg-dk-surface hover:-mx-4 hover:px-4 transition-colors ${
+              i === 0 ? "border-t border-dk-border" : ""
+            } border-b border-dk-border`}>
+              <span className="font-mono text-[11px] text-warm-dim whitespace-nowrap pt-0.5">
+                {f.filepath.split("/").slice(0, -1).join("/")}/
+              </span>
+              <div>
+                <div className="text-xs text-warm mb-1 font-normal">{f.name}</div>
+                <div className="text-[11px] text-dk-dim leading-[1.6]">{f.description}</div>
+                <div className="mt-2 flex gap-1.5 flex-wrap">
+                  {f.load_for.split(", ").map((tag) => (
+                    <span key={tag} className="text-[9px] tracking-[0.08em] border border-dk-border text-dk-dim px-1.5 py-0.5">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
 
       {/* How It Works */}
@@ -425,6 +438,115 @@ export default function MindsetDetailPage() {
         domain={mindset.domain}
         fileCount={mindset.file_count}
       />
+    </div>
+  );
+}
+
+function PreviewSection() {
+  const [activeTab, setActiveTab] = useState<"filters" | "redlines" | "critique">("filters");
+
+  return (
+    <div className="max-w-[1280px] mx-auto border-b border-dk-border">
+      <div className="px-20 py-12 border-b border-dk-border flex justify-between items-center">
+        <h2 className="font-serif text-[clamp(24px,3vw,36px)] font-normal text-dk-text">
+          Preview the <em className="italic text-warm">content</em>
+        </h2>
+        <div className="flex">
+          {(["filters", "redlines", "critique"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`text-[10px] tracking-[0.1em] uppercase px-4 py-2.5 border border-dk-border border-r-0 last:border-r cursor-pointer transition-colors ${
+                activeTab === tab ? "bg-dk-bg2 text-warm border-dk-border-light" : "bg-transparent text-dk-dim"
+              }`}
+            >
+              {tab === "filters" ? "Taste Filters" : tab === "redlines" ? "Red Lines" : "Critique Voice"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="px-20 py-14">
+        {activeTab === "filters" && (
+          <div>
+            <h3 className="font-serif text-[22px] font-normal text-warm mb-6">The 6 Taste Filters</h3>
+            <p className="text-[13px] text-dk-mid leading-[1.85] mb-8">Applied in order. Most work fails at filter 1 or 2. Getting to filter 5 means you have something worth refining.</p>
+            <div className="space-y-0">
+              {[
+                { q: "Does it own something?", desc: "Can this be mistaken for a competitor? If yes, stop. Refinement won't fix it. What does it own that nothing else in this category owns?" },
+                { q: "Does it work without color?", desc: "Show it in black and white. If it falls apart, the mark itself isn't strong enough. Color is a modifier, not a structural element." },
+                { q: "Does it survive scale?", desc: "Show it at 16px × 16px and at 2000px wide. Both must work. The 16px test kills intricate marks. The 2000px test kills marks that hide weaknesses at small scale." },
+                { q: "Would a layperson recognize it as intentional?", desc: 'Not "does a layperson like it?" — whether it reads as a considered choice, not an accident. If it doesn\'t read as intentional to a non-designer, the communication has failed.' },
+                { q: "Can the company actually use this?", desc: "PowerPoint slide background. Email footer. Embroidered on a hat. Printed in one color on a coffee cup. Dark AND light backgrounds. All of these." },
+                { q: "Does it feel like the company, or like design?", desc: "Work that feels like design — that looks like a designer made something — is often not the right answer. The goal is work that feels like the company." },
+              ].map((f, i) => (
+                <div key={i} className={`py-5 ${i === 0 ? "border-t" : ""} border-b border-dk-border`}>
+                  <div className="font-serif text-[11px] text-dk-dim italic mb-2">Filter {i + 1}</div>
+                  <div className="text-[13px] text-warm mb-2 font-normal">{f.q}</div>
+                  <div className="text-xs text-dk-dim leading-[1.7]">{f.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "redlines" && (
+          <div>
+            <h3 className="font-serif text-[22px] font-normal text-warm mb-6">Logo Red Lines</h3>
+            <p className="text-[13px] text-dk-mid leading-[1.85] mb-8">These are not preferences. No amount of execution quality redeems a direction that crosses these.</p>
+            <ul className="list-none space-y-0">
+              {[
+                "Drop shadows on marks. A shadow signals the mark cannot hold its own. The mark must work without it.",
+                "Gradients in primary logo files. A brand that can't render in one color isn't a brand — it's a file.",
+                "Bevels, emboss effects, or gloss applied to marks in brand guidelines. These are production treatments, not brand assets.",
+                "Literal representation of what the company does. A tech company with a circuit board. A finance company with a graph. These categorize; they don't differentiate.",
+                "Marks that require explanation. \"When you look closely you'll see a hidden X\" — hidden meanings that need a paragraph contribute nothing to real-world brand perception.",
+                "More than 3 typefaces in a brand system. Three is the limit and requires justification. Four is never right.",
+                "A primary logo system where the mark requires a simplified version for digital use. This means the primary mark failed the scale test. Fix the mark.",
+                "Colors that exist in competitors' brand systems without meaningful differentiation. You're strengthening them, not differentiating yourself.",
+              ].map((item, i) => (
+                <li key={i} className="py-3.5 border-b border-dk-border text-xs text-dk-dim leading-[1.6] grid grid-cols-[auto_1fr] gap-3">
+                  <span className="text-[#7a3030] flex-shrink-0">&times;</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {activeTab === "critique" && (
+          <div>
+            <h3 className="font-serif text-[22px] font-normal text-warm mb-6">What useful critique sounds like</h3>
+            <p className="text-[13px] text-dk-mid leading-[1.85] mb-8">Feedback that hedges helps no one. These are examples of what this Mindset produces when evaluating brand work.</p>
+            <div className="flex flex-col gap-px bg-dk-border mb-8">
+              {[
+                { label: "On a logo mark", text: "\"The concept is working — you're communicating precision clearly. The weight of the mark is too heavy relative to the wordmark — they're fighting for dominance when the wordmark should lead. Try the mark at 60% of its current size and see if the balance resolves.\"" },
+                { label: "On a typeface choice", text: "\"This typeface is technically competent but neutral to the point of disappearing. The brief calls for authority without coldness and this achieves neither. Look at GT Sectra or Freight Display — both have warmth at display size that this doesn't.\"" },
+                { label: "On a color choice", text: "\"This blue is too close to the competitor's blue to be meaningfully differentiated. We need to go further — more saturated, shifted warmer, or into different territory entirely. The goal is ownable, and this isn't.\"" },
+              ].map((ex) => (
+                <div key={ex.label} className="bg-dk-bg p-6 px-7">
+                  <div className="text-[10px] tracking-[0.12em] uppercase text-dk-dim mb-3">{ex.label}</div>
+                  <p className="text-[13px] text-dk-mid leading-[1.85]">{ex.text}</p>
+                </div>
+              ))}
+              <div className="bg-dk-bg p-6 px-7">
+                <div className="text-[10px] tracking-[0.12em] uppercase text-dk-dim mb-3">What never gets said</div>
+                <ul className="list-none text-xs text-dk-dim leading-[2]">
+                  {[
+                    "\"I'd explore other directions\"",
+                    "\"It just doesn't feel right\"",
+                    "\"Can we make it pop more\"",
+                    "\"The client will love this\" (as a compliment)",
+                    "\"Nice work\" before identifying what isn't working",
+                  ].map((line) => (
+                    <li key={line} className="line-through">&mdash; {line}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
