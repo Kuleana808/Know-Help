@@ -4,6 +4,7 @@ import * as path from "path";
 import { db } from "../db/database";
 import { requestMagicLink, verifyOtp, requireAuth } from "../auth/magic-link";
 import { sendAdminNotification } from "../payments/email";
+import { provisionUser } from "../hosted/onboarding";
 
 const router = Router();
 
@@ -34,7 +35,17 @@ router.post("/auth/verify", async (req: Request, res: Response) => {
   if (!result.success) {
     return res.status(401).json(result);
   }
-  res.json(result);
+
+  // Also provision a hosted user account (idempotent)
+  let isNew = false;
+  try {
+    const provision = await provisionUser(email);
+    isNew = provision.isNew;
+  } catch {
+    // Non-fatal — creator can still use portal without hosted account
+  }
+
+  res.json({ ...result, is_new: isNew });
 });
 
 // ── Pack submission ─────────────────────────────────────────────────────────

@@ -15,17 +15,22 @@ interface HealthData {
 }
 
 interface FileTree {
-  tree: { path: string; type: string; size?: number; modified?: string }[];
+  files: { path: string; type: string; size?: number; modified?: string }[];
 }
 
 export default function DashboardOverview() {
   const { data: health } = useApi<HealthData>("/health");
   const { data: files } = useApi<FileTree>("/api/files/tree");
-  const { data: intel } = useApi<{ status: string; last_crawl?: string }>(
+  const { data: intel } = useApi<{ sources: Record<string, any>; last_crawl?: any }>(
     "/api/intelligence/status"
   );
 
-  const fileCount = files?.tree?.length || 0;
+  const fileCount = files?.files?.length || 0;
+  const enabledSources = intel?.sources
+    ? Object.entries(intel.sources).filter(([, v]) => v.enabled).map(([k]) => k)
+    : [];
+  const intelStatus = enabledSources.length > 0 ? "Active" : "Inactive";
+  const lastCrawlTime = intel?.last_crawl?.start_time;
 
   return (
     <div>
@@ -66,11 +71,11 @@ export default function DashboardOverview() {
         <div className="card">
           <p className="text-sm text-muted mb-1">Intelligence</p>
           <p className="text-2xl font-mono capitalize">
-            {intel?.status || "Inactive"}
+            {intelStatus}
           </p>
-          {intel?.last_crawl && (
+          {lastCrawlTime && (
             <p className="text-xs text-muted mt-2">
-              Last crawl: {new Date(intel.last_crawl).toLocaleString()}
+              Last crawl: {new Date(lastCrawlTime).toLocaleString()}
             </p>
           )}
         </div>

@@ -5,16 +5,16 @@ import { useApi } from "@/lib/hooks";
 import { apiFetch } from "@/lib/api";
 
 interface IntelStatus {
-  status: string;
-  last_crawl?: string;
-  sources_enabled: string[];
+  sources: Record<string, { enabled: boolean; last_run?: string }>;
+  last_crawl?: { start_time?: string; end_time?: string; signals_written?: number };
 }
 
 interface Signal {
   venture: string;
   summary: string;
   source_url: string;
-  confidence: number;
+  signal_type: string;
+  action: string;
   date: string;
 }
 
@@ -89,28 +89,37 @@ export default function IntelligencePage() {
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <div className="card">
           <h2 className="font-serif text-lg mb-3">Status</h2>
-          <p className="text-sm">
-            <span className="text-muted">Status:</span>{" "}
-            <span className="capitalize">{status?.status || "unknown"}</span>
-          </p>
-          {status?.last_crawl && (
-            <p className="text-sm mt-1">
-              <span className="text-muted">Last crawl:</span>{" "}
-              {new Date(status.last_crawl).toLocaleString()}
-            </p>
-          )}
-          {status?.sources_enabled && status.sources_enabled.length > 0 && (
-            <div className="flex gap-1 mt-3">
-              {status.sources_enabled.map((s) => (
-                <span
-                  key={s}
-                  className="text-xs bg-accent-light text-accent px-2 py-0.5 rounded"
-                >
-                  {s}
-                </span>
-              ))}
-            </div>
-          )}
+          {(() => {
+            const enabledSources = status?.sources
+              ? Object.entries(status.sources).filter(([, v]) => v.enabled).map(([k]) => k)
+              : [];
+            return (
+              <>
+                <p className="text-sm">
+                  <span className="text-muted">Status:</span>{" "}
+                  <span className="capitalize">{enabledSources.length > 0 ? "Active" : "Inactive"}</span>
+                </p>
+                {status?.last_crawl?.start_time && (
+                  <p className="text-sm mt-1">
+                    <span className="text-muted">Last crawl:</span>{" "}
+                    {new Date(status.last_crawl.start_time).toLocaleString()}
+                  </p>
+                )}
+                {enabledSources.length > 0 && (
+                  <div className="flex gap-1 mt-3">
+                    {enabledSources.map((s) => (
+                      <span
+                        key={s}
+                        className="text-xs bg-accent-light text-accent px-2 py-0.5 rounded"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
 
         <div className="card">
@@ -152,7 +161,7 @@ export default function IntelligencePage() {
                 <p className="text-sm">{signal.summary}</p>
                 <div className="flex gap-3 mt-1 text-xs text-muted">
                   <span>{signal.venture}</span>
-                  <span>confidence: {signal.confidence}</span>
+                  <span>{signal.signal_type}</span>
                   {signal.source_url && (
                     <a
                       href={signal.source_url}

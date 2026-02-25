@@ -30,6 +30,26 @@ function getTeamMember(teamId: string, userId: string): any {
     .get(teamId, userId);
 }
 
+// ── List user's teams ──────────────────────────────────────────────────────
+
+router.get("/teams/mine", (req: Request, res: Response) => {
+  const userId = (req as any).auth?.userId;
+  if (!userId) return res.status(401).json({ error: "Auth required" });
+
+  const teams = db
+    .prepare(
+      `SELECT t.*, tm.role as user_role,
+              (SELECT COUNT(*) FROM team_members WHERE team_id = t.id AND status = 'active') as member_count
+       FROM teams t
+       JOIN team_members tm ON t.id = tm.team_id
+       WHERE tm.user_id = ? AND tm.status = 'active'
+       ORDER BY t.created_at DESC`
+    )
+    .all(userId);
+
+  res.json({ teams });
+});
+
 // ── Create team ─────────────────────────────────────────────────────────────
 
 router.post("/teams/create", async (req: Request, res: Response) => {

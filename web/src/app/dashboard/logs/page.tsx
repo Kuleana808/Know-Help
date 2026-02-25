@@ -28,10 +28,10 @@ export default function LogsPage() {
     new Date().toISOString().split("T")[0]
   );
 
-  const { data: decisions } = useApi<{ entries: Decision[] }>(
+  const { data: decisions } = useApi<{ decisions: Decision[] }>(
     tab === "decisions" ? "/api/log/decisions" : null
   );
-  const { data: failures } = useApi<{ entries: Failure[] }>(
+  const { data: failures } = useApi<{ failures: Failure[] }>(
     tab === "failures" ? "/api/log/failures" : null
   );
   const { data: activity } = useApi<{ content: string }>(
@@ -68,10 +68,10 @@ export default function LogsPage() {
       {/* Decisions tab */}
       {tab === "decisions" && (
         <div className="space-y-4">
-          {!decisions?.entries?.length ? (
+          {!decisions?.decisions?.length ? (
             <p className="text-sm text-muted">No decisions logged yet.</p>
           ) : (
-            decisions.entries
+            decisions.decisions
               .slice()
               .reverse()
               .map((d, i) => (
@@ -109,10 +109,10 @@ export default function LogsPage() {
       {/* Failures tab */}
       {tab === "failures" && (
         <div className="space-y-4">
-          {!failures?.entries?.length ? (
+          {!failures?.failures?.length ? (
             <p className="text-sm text-muted">No failures logged yet.</p>
           ) : (
-            failures.entries
+            failures.failures
               .slice()
               .reverse()
               .map((f, i) => (

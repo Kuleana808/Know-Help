@@ -13,7 +13,7 @@ interface FileNode {
 }
 
 interface FileTree {
-  tree: FileNode[];
+  files: FileNode[];
 }
 
 export default function FilesPage() {
@@ -53,7 +53,7 @@ export default function FilesPage() {
 
   // Group files by directory
   const groups: Record<string, FileNode[]> = {};
-  for (const file of data?.tree || []) {
+  for (const file of data?.files || []) {
     const dir = file.path.includes("/")
       ? file.path.split("/").slice(0, -1).join("/")
       : ".";
@@ -66,7 +66,7 @@ export default function FilesPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-serif text-3xl">Files</h1>
         <span className="text-sm text-muted">
-          {data?.tree?.length || 0} files
+          {data?.files?.length || 0} files
         </span>
       </div>
 

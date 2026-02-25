@@ -8,7 +8,7 @@ interface Contact {
   slug: string;
   name: string;
   last_interaction: string;
-  interaction_count: number;
+  entry_count: number;
 }
 
 interface ContactDetail {
@@ -81,8 +81,8 @@ export default function NetworkPage() {
               >
                 <p className="text-sm font-medium">{c.name}</p>
                 <p className="text-xs text-muted">
-                  {c.interaction_count} interaction
-                  {c.interaction_count !== 1 ? "s" : ""}
+                  {c.entry_count} interaction
+                  {c.entry_count !== 1 ? "s" : ""}
                 </p>
               </button>
             ))
