@@ -4,17 +4,34 @@
  */
 
 import { Router } from "express";
+import * as crypto from "crypto";
 import { getSecurityEvents, getSecurityEventCounts } from "../lib/security-logger";
 
 const router = Router();
+
+/**
+ * Timing-safe comparison for admin key to prevent timing attacks.
+ */
+function verifyAdminKey(provided: string | string[] | undefined): boolean {
+  const expected = process.env.ADMIN_KEY;
+  if (!expected || !provided || typeof provided !== "string") return false;
+  if (provided.length !== expected.length) return false;
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(provided, "utf-8"),
+      Buffer.from(expected, "utf-8")
+    );
+  } catch {
+    return false;
+  }
+}
 
 /**
  * GET /api/admin/security/events
  * List security events with optional filters.
  */
 router.get("/events", (req, res) => {
-  const adminKey = req.headers["x-admin-key"];
-  if (adminKey !== process.env.ADMIN_KEY) {
+  if (!verifyAdminKey(req.headers["x-admin-key"])) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
@@ -35,8 +52,7 @@ router.get("/events", (req, res) => {
  * Aggregated event counts by type.
  */
 router.get("/counts", (req, res) => {
-  const adminKey = req.headers["x-admin-key"];
-  if (adminKey !== process.env.ADMIN_KEY) {
+  if (!verifyAdminKey(req.headers["x-admin-key"])) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
@@ -51,8 +67,7 @@ router.get("/counts", (req, res) => {
  * Dashboard summary: totals by severity.
  */
 router.get("/summary", (req, res) => {
-  const adminKey = req.headers["x-admin-key"];
-  if (adminKey !== process.env.ADMIN_KEY) {
+  if (!verifyAdminKey(req.headers["x-admin-key"])) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 

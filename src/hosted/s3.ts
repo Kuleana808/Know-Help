@@ -21,8 +21,21 @@ export interface S3FileOps {
   exists(userPrefix: string, filePath: string): Promise<boolean>;
 }
 
+/**
+ * Validate that a resolved path stays within its base directory.
+ * Prevents path traversal attacks via ".." segments.
+ */
+function safePath(base: string, ...segments: string[]): string {
+  const resolved = path.resolve(base, ...segments);
+  const resolvedBase = path.resolve(base);
+  if (!resolved.startsWith(resolvedBase + path.sep) && resolved !== resolvedBase) {
+    throw new Error("Path traversal detected");
+  }
+  return resolved;
+}
+
 function localPath(userPrefix: string, filePath: string): string {
-  return path.join(LOCAL_STORAGE_DIR, userPrefix, filePath);
+  return safePath(LOCAL_STORAGE_DIR, userPrefix, filePath);
 }
 
 function ensureDir(filePath: string): void {
@@ -62,7 +75,7 @@ export const s3Ops: S3FileOps = {
   },
 
   async list(userPrefix: string, prefix?: string): Promise<string[]> {
-    const baseDir = path.join(LOCAL_STORAGE_DIR, userPrefix, prefix || "");
+    const baseDir = safePath(LOCAL_STORAGE_DIR, userPrefix, prefix || "");
     if (!fs.existsSync(baseDir)) return [];
 
     const results: string[] = [];

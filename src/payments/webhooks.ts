@@ -5,12 +5,60 @@ import { sendPurchaseConfirmation } from "./email";
 import { db } from "../db/database";
 import { handleMindsetSubscriptionEvent } from "../mindsets/checkout";
 
-const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
+const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
+
+if (!WEBHOOK_SECRET) {
+  console.error("FATAL: STRIPE_WEBHOOK_SECRET is not set. Webhooks will be rejected.");
+}
+
+/**
+ * Idempotency: track processed Stripe event IDs to prevent duplicate processing.
+ * Uses an in-memory Set with a DB table fallback for durability across restarts.
+ */
+const processedEvents = new Set<string>();
+const MAX_PROCESSED_CACHE = 10000;
+
+function isEventProcessed(eventId: string): boolean {
+  if (processedEvents.has(eventId)) return true;
+  try {
+    const row = db.prepare("SELECT 1 FROM webhook_events WHERE event_id = ?").get(eventId);
+    if (row) {
+      processedEvents.add(eventId);
+      return true;
+    }
+  } catch {
+    // Table may not exist yet — non-fatal
+  }
+  return false;
+}
+
+function markEventProcessed(eventId: string): void {
+  processedEvents.add(eventId);
+  // Evict oldest entries to prevent unbounded growth
+  if (processedEvents.size > MAX_PROCESSED_CACHE) {
+    const first = processedEvents.values().next().value;
+    if (first) processedEvents.delete(first);
+  }
+  try {
+    db.prepare("INSERT OR IGNORE INTO webhook_events (event_id, processed_at) VALUES (?, ?)").run(
+      eventId,
+      new Date().toISOString()
+    );
+  } catch {
+    // Table may not exist yet — non-fatal, in-memory set is sufficient
+  }
+}
 
 export async function handleStripeWebhook(
   req: Request,
   res: Response
 ): Promise<void> {
+  if (!WEBHOOK_SECRET) {
+    console.error("Webhook rejected: STRIPE_WEBHOOK_SECRET not configured");
+    res.status(500).json({ error: "Webhook endpoint not configured" });
+    return;
+  }
+
   const sig = req.headers["stripe-signature"] as string;
 
   if (!sig) {
@@ -24,6 +72,12 @@ export async function handleStripeWebhook(
   } catch (err: any) {
     console.error("Webhook signature verification failed:", err.message);
     res.status(400).json({ error: "Invalid signature" });
+    return;
+  }
+
+  // Idempotency check — skip already-processed events
+  if (isEventProcessed(event.id)) {
+    res.status(200).json({ received: true, deduplicated: true });
     return;
   }
 
@@ -117,9 +171,12 @@ export async function handleStripeWebhook(
         break;
     }
 
+    // Mark event as processed after successful handling
+    markEventProcessed(event.id);
     res.status(200).json({ received: true });
   } catch (err: any) {
     console.error("Webhook handler error:", err.message);
+    // Don't mark as processed on error — allow Stripe to retry
     res.status(500).json({ error: "Internal error" });
   }
 }

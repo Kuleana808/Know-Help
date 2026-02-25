@@ -217,4 +217,35 @@ export function runMigrations(db: DatabaseType): void {
     CREATE INDEX IF NOT EXISTS idx_security_events_type ON security_events(type, timestamp);
     CREATE INDEX IF NOT EXISTS idx_security_events_creator ON security_events(creator_id, timestamp);
   `);
+
+  // --- Add download_count to purchases ---
+  const purchaseCols = db
+    .prepare("PRAGMA table_info(purchases)")
+    .all()
+    .map((c: any) => c.name);
+
+  if (!purchaseCols.includes("download_count")) {
+    db.exec("ALTER TABLE purchases ADD COLUMN download_count INTEGER DEFAULT 0");
+  }
+
+  // --- Webhook idempotency ---
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS webhook_events (
+      event_id TEXT PRIMARY KEY,
+      processed_at TEXT NOT NULL
+    );
+  `);
+
+  // --- OTP rate limiting ---
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS otp_attempts (
+      email TEXT NOT NULL,
+      attempted_at TEXT NOT NULL,
+      ip_address TEXT
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_otp_attempts_email ON otp_attempts(email, attempted_at);
+  `);
 }

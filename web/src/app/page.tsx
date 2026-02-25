@@ -122,8 +122,8 @@ export default function LandingPage() {
             </StepCard>
             <StepCard num="03" title="Claude knows, from now on" description="Once set up, Claude loads your context automatically at the start of every conversation. Trigger-based loading means the right files appear at the right moment — without you asking. Your AI is permanently briefed." last>
               <div className="mt-6 bg-text p-4 text-[11px] leading-[1.9] text-[#8a8478]">
-                <div><span className="text-[#3a3630]">{`// mention "Brent" → identity.md loads`}</span></div>
-                <div><span className="text-[#3a3630]">{`// mention "Vinovest" → venture.md loads`}</span></div>
+                <div><span className="text-[#3a3630]">{`// mention "Alex" → identity.md loads`}</span></div>
+                <div><span className="text-[#3a3630]">{`// mention "TerraVault" → venture.md loads`}</span></div>
                 <div><span className="text-[#3a3630]">{`// say "write a post" → voice.md loads`}</span></div>
                 <div><span className="text-[#3a3630]">{`// No prompting. No re-explaining.`}</span></div>
                 <div><span className="text-[#3a3630]">{`// Just context, automatically.`}</span></div>
@@ -148,9 +148,9 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="grid grid-cols-4 gap-px bg-border">
-            <KnowsCard icon="core/" title="Who you are" desc="Role, background, how you operate, what you care about." example='"You are Brent Akamine, CEO of Vinovest, based in Honolulu..."' />
-            <KnowsCard icon="network/" title="Who matters" desc="Every key relationship — history, context, open threads, how you work with them." example='"Anthony Zhang — co-founder, handling sales, medical leave Jan–Mar..."' />
-            <KnowsCard icon="venture/" title="What you build" desc="Your companies, products, status, strategy, revenue, key contacts." example='"Vinovest — $100M AUM, 14K customers, M&A process active..."' />
+            <KnowsCard icon="core/" title="Who you are" desc="Role, background, how you operate, what you care about." example='"You are a CEO running a tech company from Austin..."' />
+            <KnowsCard icon="network/" title="Who matters" desc="Every key relationship — history, context, open threads, how you work with them." example='"Jordan Chen — co-founder, handling partnerships, traveling in Q1..."' />
+            <KnowsCard icon="venture/" title="What you build" desc="Your companies, products, status, strategy, revenue, key contacts." example='"TerraVault — $50M ARR, 8K customers, Series B active..."' />
             <KnowsCard icon="platform/" title="How you write" desc='Distinct voice for each channel. LinkedIn ≠ Twitter ≠ email. Claude knows the difference.' example='"LinkedIn: data-driven, no fluff. First sentence is a hook..."' />
             <KnowsCard icon="sales/" title="How you sell" desc="Your methodology, ICP profiles, objection handling, buyer psychology." example='"Open with outcome, not feature. Enterprise buyers need..."' />
             <KnowsCard icon="planning/" title="Where you're going" desc="Goals, pipeline, active opportunities, this quarter's priorities." example='"Q1 focus: M&A LOI by Mar 2 · hit $75K monthly profit..."' />
@@ -315,9 +315,9 @@ function ChatPreview() {
     { role: "user" as const, text: "Go to know.help/setup and set me up." },
     { role: "ai" as const, text: "I visited know.help/setup. I can build your knowledge base right now — I'll ask 10 questions and generate your files. Ready?" },
     { role: "user" as const, text: "Yes, go ahead." },
-    { role: "ai" as const, text: 'What\'s your name and current role? (e.g. "Brent, CEO of Vinovest")' },
-    { role: "user" as const, text: "Brent, CEO of Vinovest — wine and whiskey investments." },
-    { role: "ai" as const, text: "Got it. I'm writing core/identity.md and venture/vinovest.md now.\n\nWho are the 3 people most important to your work right now?" },
+    { role: "ai" as const, text: 'What\'s your name and current role? (e.g. "Alex, CEO of TerraVault")' },
+    { role: "user" as const, text: "Alex, CEO of TerraVault — digital asset management." },
+    { role: "ai" as const, text: "Got it. I'm writing core/identity.md and venture/terravault.md now.\n\nWho are the 3 people most important to your work right now?" },
   ];
 
   return (
@@ -350,9 +350,9 @@ function ChatPreview() {
                 <span key={pi}>
                   {pi > 0 && <><br /><br /></>}
                   {p.includes("core/identity.md") ? (
-                    <>Got it. I&apos;m writing <code className="font-mono text-[11px] bg-black/[0.06] px-1">core/identity.md</code> and <code className="font-mono text-[11px] bg-black/[0.06] px-1">venture/vinovest.md</code> now.</>
-                  ) : p.includes('"Brent') ? (
-                    <>What&apos;s your name and current role? (e.g. &ldquo;Brent, CEO of Vinovest&rdquo;)</>
+                    <>Got it. I&apos;m writing <code className="font-mono text-[11px] bg-black/[0.06] px-1">core/identity.md</code> and <code className="font-mono text-[11px] bg-black/[0.06] px-1">venture/terravault.md</code> now.</>
+                  ) : p.includes('"Alex') ? (
+                    <>What&apos;s your name and current role? (e.g. &ldquo;Alex, CEO of TerraVault&rdquo;)</>
                   ) : (
                     p
                   )}

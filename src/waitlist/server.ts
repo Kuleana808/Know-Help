@@ -190,6 +190,15 @@ app.get("/health", async (_req, res) => {
   });
 });
 
+// ── Global error handler — catch unhandled route errors ─────────────────────
+
+app.use((err: any, _req: any, res: any, _next: any) => {
+  console.error("Unhandled error:", err.message || err);
+  if (!res.headersSent) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // ── Create HTTP server and attach WebSocket ────────────────────────────────
 
 const httpServer = http.createServer(app);

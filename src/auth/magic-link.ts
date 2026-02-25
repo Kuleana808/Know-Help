@@ -26,11 +26,17 @@ export function encodeJwt(payload: Record<string, unknown>): string {
 export function decodeJwt(token: string): Record<string, unknown> | null {
   try {
     const [header, body, sig] = token.split(".");
+    if (!header || !body || !sig) return null;
     const expected = crypto
       .createHmac("sha256", JWT_SECRET)
       .update(`${header}.${body}`)
       .digest("base64url");
-    if (sig !== expected) return null;
+    // Timing-safe signature comparison
+    const sigBuf = Buffer.from(sig, "utf-8");
+    const expectedBuf = Buffer.from(expected, "utf-8");
+    if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) {
+      return null;
+    }
     const payload = JSON.parse(Buffer.from(body, "base64url").toString());
     if (payload.exp && Date.now() > payload.exp) return null;
     return payload;
@@ -39,8 +45,41 @@ export function decodeJwt(token: string): Record<string, unknown> | null {
   }
 }
 
+const OTP_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const OTP_MAX_ATTEMPTS = 5;
+
+function checkOtpRateLimit(email: string): boolean {
+  const since = new Date(Date.now() - OTP_RATE_LIMIT_WINDOW_MS).toISOString();
+  try {
+    const row = db.prepare(
+      "SELECT COUNT(*) as cnt FROM otp_attempts WHERE email = ? AND attempted_at > ?"
+    ).get(email, since) as any;
+    return (row?.cnt || 0) < OTP_MAX_ATTEMPTS;
+  } catch {
+    // Table may not exist yet — allow the request
+    return true;
+  }
+}
+
+function recordOtpAttempt(email: string): void {
+  try {
+    db.prepare("INSERT INTO otp_attempts (email, attempted_at) VALUES (?, ?)").run(
+      email,
+      new Date().toISOString()
+    );
+  } catch {
+    // Non-fatal
+  }
+}
+
 export async function requestMagicLink(email: string): Promise<{ success: boolean; message: string }> {
   const normalizedEmail = email.trim().toLowerCase();
+
+  // Rate limit OTP requests
+  if (!checkOtpRateLimit(normalizedEmail)) {
+    return { success: false, message: "Too many login attempts. Try again later." };
+  }
+  recordOtpAttempt(normalizedEmail);
 
   // Ensure creator record exists
   let creator = db.prepare("SELECT * FROM creators WHERE email = ?").get(normalizedEmail) as any;
@@ -127,10 +166,28 @@ export function authenticateRequest(
     return { authenticated: false };
   }
 
+  // DB-side session validation: ensure token hasn't been revoked
+  const email = payload.email as string;
+  if (email) {
+    try {
+      const creator = db.prepare("SELECT session_token_hash FROM creators WHERE email = ?").get(email) as any;
+      if (!creator || !creator.session_token_hash) {
+        return { authenticated: false };
+      }
+      // Verify the token hash matches the stored session
+      const tokenHash = hashString(token);
+      if (tokenHash !== creator.session_token_hash) {
+        return { authenticated: false };
+      }
+    } catch {
+      // If DB check fails, fall back to JWT-only validation
+    }
+  }
+
   return {
     authenticated: true,
     handle: payload.handle as string,
-    email: payload.email as string,
+    email,
     role: payload.role as string,
   };
 }

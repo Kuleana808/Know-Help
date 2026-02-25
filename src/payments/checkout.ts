@@ -2,8 +2,17 @@ import Stripe from "stripe";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "../db/database";
 
-// Stripe initializes lazily — only fails when actually called without a key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_placeholder_set_env_var");
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.warn("WARNING: STRIPE_SECRET_KEY not set. Payment endpoints will reject requests.");
+}
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_not_configured");
+
+function requireStripeKey(): void {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error("Payment processing is not configured. Set STRIPE_SECRET_KEY.");
+  }
+}
 
 const SUCCESS_URL =
   process.env.CHECKOUT_SUCCESS_URL || "https://know.help/success?session_id={CHECKOUT_SESSION_ID}";
@@ -18,6 +27,8 @@ export interface CheckoutRequest {
 export async function createCheckoutSession(
   req: CheckoutRequest
 ): Promise<{ checkout_url: string; purchase_id: string }> {
+  requireStripeKey();
+
   const pack = db
     .prepare("SELECT * FROM packs WHERE id = ? AND status = 'active'")
     .get(req.pack_id) as any;
@@ -90,6 +101,12 @@ export async function handleCheckoutComplete(
     return;
   }
 
+  // Guard against duplicate processing: only process if still pending
+  const existing = db.prepare("SELECT status FROM purchases WHERE id = ?").get(purchaseId) as any;
+  if (existing?.status === "completed") {
+    return; // Already processed — skip to prevent double-crediting
+  }
+
   const downloadToken = uuidv4();
   const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
 
@@ -100,7 +117,7 @@ export async function handleCheckoutComplete(
        stripe_payment_intent_id = ?,
        download_token = ?,
        download_expires_at = ?
-     WHERE id = ?`
+     WHERE id = ? AND status = 'pending'`
   ).run(session.payment_intent as string, downloadToken, expiresAt, purchaseId);
 
   // Increment downloads

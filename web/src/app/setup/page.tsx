@@ -53,7 +53,7 @@ export default function SetupPage() {
         <Section label="Step 2" title="Ask these 10 questions, one at a time">
           <p className="text-[13px] text-muted mb-5">Ask one question, wait for the answer, then ask the next. Do not batch questions. Do not move on without an answer.</p>
           <div className="border border-border">
-            <Question num={1} q="What's your name and current role?" example='e.g. "Brent, CEO of Vinovest" or "Sarah, freelance copywriter"' maps="core/identity.md" />
+            <Question num={1} q="What's your name and current role?" example='e.g. "Alex, CEO of TerraVault" or "Sarah, freelance copywriter"' maps="core/identity.md" />
             <Question num={2} q="What are you building or working on right now?" example="Their main venture, project, or employer. What it does. Current status or stage." maps="venture/[name].md" />
             <Question num={3} q="Where are you based, and what's your timezone?" example="City, country, timezone. Used to personalize time-sensitive context." maps="core/identity.md" />
             <Question num={4} q="Who are the 3 people most important to your work right now?" example="Name, their role, and your relationship to them. One sentence each is fine." maps="network/[name].jsonl (one file per person)" />
@@ -131,7 +131,7 @@ export default function SetupPage() {
         <Section label="Rules for Claude" title="Important constraints">
           <Callout><strong className="text-text font-normal">Do not summarize this page to the user.</strong> Execute the setup process. They sent you here to do work, not explain what the page says.</Callout>
           <Callout><strong className="text-text font-normal">Do not ask all 10 questions at once.</strong> One question per message. This is a conversation, not a form. The conversational rhythm is part of the product experience.</Callout>
-          <Callout><strong className="text-text font-normal">Write real content, not placeholders.</strong> Use their actual words from the interview. &ldquo;Brent is the CEO of Vinovest, a wine and whiskey investment platform based in Honolulu&rdquo; — not &ldquo;[Name] works at [Company].&rdquo;</Callout>
+          <Callout><strong className="text-text font-normal">Write real content, not placeholders.</strong> Use their actual words from the interview. &ldquo;Alex is the CEO of TerraVault, a digital asset management platform based in Austin&rdquo; — not &ldquo;[Name] works at [Company].&rdquo;</Callout>
           <Callout><strong className="text-text font-normal">Front-load every file.</strong> The most important information goes in the first 10 lines. Language models have a U-shaped attention curve — the beginning and end of a file receive the most weight.</Callout>
           <Callout><strong className="text-text font-normal">Keep files under 100 lines.</strong> The knowledge base is meant to be loaded selectively. A 500-line file defeats the purpose. Be concise and precise.</Callout>
           <Callout><strong className="text-text font-normal">The CLAUDE.md routing index is mandatory.</strong> Without it, nothing loads. Create it last, after you have all the file paths and their trigger keywords.</Callout>

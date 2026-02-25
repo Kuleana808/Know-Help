@@ -21,6 +21,21 @@ import { logSecurityEvent } from "../lib/security-logger";
 
 const router = Router();
 
+/**
+ * Return a safe error response — log the real error, return generic message to client.
+ * Known/expected errors (validation, not found) pass through; unexpected errors are masked.
+ */
+function safeError(res: Response, err: any, statusCode = 500): void {
+  if (statusCode < 500) {
+    // Client errors — safe to return the message
+    res.status(statusCode).json({ error: err.message || "Bad request" });
+    return;
+  }
+  // Server errors — log details, return generic message
+  console.error("Internal error:", err.message || err);
+  res.status(500).json({ error: "Internal server error" });
+}
+
 // ============================================================
 // PUBLIC ENDPOINTS
 // ============================================================
@@ -78,7 +93,7 @@ router.get("/", (req: Request, res: Response) => {
       limit,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -99,7 +114,7 @@ router.get("/featured", (_req: Request, res: Response) => {
     `).all();
     res.json({ featured });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -115,7 +130,7 @@ router.get("/categories", (_req: Request, res: Response) => {
     `).all();
     res.json({ categories });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -145,7 +160,7 @@ router.get("/detail/:slug", (req: Request, res: Response) => {
 
     res.json({ mindset, files });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -170,7 +185,7 @@ router.get("/creator/:handle", (req: Request, res: Response) => {
 
     res.json({ creator, mindsets });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -190,7 +205,7 @@ router.get("/category/:category", (req: Request, res: Response) => {
 
     res.json({ mindsets, category: req.params.category });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -367,7 +382,7 @@ router.post("/publish", requireAuth("creator"), async (req: Request, res: Respon
       message: `Submitted "${manifest.name}" with ${filePaths.length} files for review.`,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -382,7 +397,7 @@ router.get("/mine", requireAuth("creator"), (req: Request, res: Response) => {
     ).all(auth.handle);
     res.json({ mindsets });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -406,7 +421,7 @@ router.get("/:id/files", requireAuth("creator"), (req: Request, res: Response) =
 
     res.json({ files });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -430,7 +445,7 @@ router.get("/:id/file-content", requireAuth("creator"), async (req: Request, res
 
     res.json({ filepath, content });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -507,7 +522,7 @@ router.put("/:id/save-file", requireAuth("creator"), async (req: Request, res: R
 
     res.json({ success: true, message: "File saved" });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -538,7 +553,7 @@ router.get("/:id/subscribers", requireAuth("creator"), (req: Request, res: Respo
 
     res.json({ subscribers, stats });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -580,7 +595,7 @@ router.post("/subscriptions/validate", (req: Request, res: Response) => {
 
     res.json({ results });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -597,7 +612,7 @@ router.get("/sync/:slug/version", (req: Request, res: Response) => {
 
     res.json({ version: mindset.version, updated: mindset.last_updated_at });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -672,7 +687,7 @@ ${mindset.description || ""}
       files,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -698,7 +713,7 @@ router.post("/activity/log", (req: Request, res: Response) => {
 
     res.json({ success: true });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -737,7 +752,7 @@ router.post("/creator/publish/confirm", requireAuth("creator"), (req: Request, r
       subscribers_notified: subCount?.cnt || 0,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -811,7 +826,7 @@ router.post("/creators/apply", async (req: Request, res: Response) => {
       handle: existing?.handle || handle,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -837,7 +852,7 @@ router.put("/creators/profile", requireAuth("creator"), (req: Request, res: Resp
 
     res.json({ success: true, message: "Profile updated" });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -857,7 +872,7 @@ router.get("/creators/me", requireAuth("creator"), (req: Request, res: Response)
 
     res.json({ creator, mindsets });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -880,7 +895,7 @@ router.get("/admin/pending", requireAuth("admin"), (_req: Request, res: Response
     `).all();
     res.json({ pending });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -909,7 +924,7 @@ router.post("/admin/approve", requireAuth("admin"), (req: Request, res: Response
 
     res.json({ success: true, message: `Mindset ${mindset_id} approved and live` });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -949,7 +964,7 @@ router.post("/admin/reject", requireAuth("admin"), async (req: Request, res: Res
 
     res.json({ success: true, message: `Mindset ${mindset_id} rejected` });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -972,7 +987,7 @@ router.post("/admin/feature", requireAuth("admin"), (req: Request, res: Response
 
     res.json({ success: true });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -991,7 +1006,7 @@ router.get("/admin/verifications", requireAuth("admin"), (_req: Request, res: Re
     `).all();
     res.json({ pending });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -1023,7 +1038,7 @@ router.post("/admin/verifications/approve", requireAuth("admin"), async (req: Re
 
     res.json({ success: true, message: "Creator verified and login link sent" });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 
@@ -1068,7 +1083,7 @@ router.post("/admin/verifications/reject", requireAuth("admin"), async (req: Req
 
     res.json({ success: true, message: "Verification rejected" });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    safeError(res, err);
   }
 });
 

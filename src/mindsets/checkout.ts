@@ -3,9 +3,19 @@ import { v4 as uuid } from "uuid";
 import * as crypto from "crypto";
 import db from "../db/database";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder", {
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.warn("WARNING: STRIPE_SECRET_KEY not set. Mindset payment endpoints will reject requests.");
+}
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_not_configured", {
   apiVersion: "2025-01-27.acacia" as any,
 });
+
+function requireStripeKey(): void {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error("Payment processing is not configured. Set STRIPE_SECRET_KEY.");
+  }
+}
 
 const BASE_URL = process.env.BASE_URL || "https://know.help";
 
@@ -24,6 +34,8 @@ export async function createMindsetSubscription(
   mindsetId: string,
   buyerEmail: string
 ): Promise<{ checkout_url: string; subscription_id: string; install_token: string }> {
+  requireStripeKey();
+
   // Look up the mindset
   const mindset = db.prepare("SELECT * FROM mindsets WHERE id = ? AND status = 'active'").get(mindsetId) as any;
   if (!mindset) {
@@ -181,15 +193,39 @@ export async function handleMindsetSubscriptionEvent(
     }
 
     case "customer.subscription.deleted": {
+      // Revoke install token and cancel subscription
       if (subscriptionId) {
         db.prepare(`
-          UPDATE subscriptions SET status = 'cancelled', cancelled_at = ? WHERE id = ?
+          UPDATE subscriptions SET status = 'cancelled', cancelled_at = ?, install_token = NULL WHERE id = ?
         `).run(now, subscriptionId);
       } else {
         // Match by stripe_subscription_id
         db.prepare(`
-          UPDATE subscriptions SET status = 'cancelled', cancelled_at = ? WHERE stripe_subscription_id = ?
+          UPDATE subscriptions SET status = 'cancelled', cancelled_at = ?, install_token = NULL WHERE stripe_subscription_id = ?
         `).run(now, subscription.id);
+      }
+
+      // Update subscriber counts after cancellation
+      const activeCount = db.prepare(
+        "SELECT COUNT(*) as cnt FROM subscriptions WHERE mindset_id = ? AND status = 'active'"
+      ).get(mindsetId) as any;
+      db.prepare("UPDATE mindsets SET subscriber_count = ? WHERE id = ?").run(
+        activeCount?.cnt || 0,
+        mindsetId
+      );
+
+      const mindset = db.prepare("SELECT creator_handle FROM mindsets WHERE id = ?").get(mindsetId) as any;
+      if (mindset) {
+        const totalSubs = db.prepare(`
+          SELECT COUNT(DISTINCT s.subscriber_email) as cnt
+          FROM subscriptions s
+          JOIN mindsets m ON s.mindset_id = m.id
+          WHERE m.creator_handle = ? AND s.status = 'active'
+        `).get(mindset.creator_handle) as any;
+        db.prepare("UPDATE creators SET subscriber_count = ? WHERE handle = ?").run(
+          totalSubs?.cnt || 0,
+          mindset.creator_handle
+        );
       }
       break;
     }

@@ -6,6 +6,7 @@ import { db } from "../db/database";
 
 const PACKS_DIR =
   process.env.PACKS_DIR || path.join(__dirname, "..", "..", "data", "packs");
+const MAX_DOWNLOADS_PER_TOKEN = 3;
 
 export async function handleDownload(
   req: Request,
@@ -29,18 +30,28 @@ export async function handleDownload(
     return;
   }
 
-  const packDir = path.join(PACKS_DIR, purchase.pack_id);
+  // Rate limit: max downloads per token
+  const downloadCount = purchase.download_count || 0;
+  if (downloadCount >= MAX_DOWNLOADS_PER_TOKEN) {
+    res.status(429).json({
+      error: "Download limit reached for this token. Contact support@know.help",
+    });
+    return;
+  }
+
+  // Path traversal protection on pack_id
+  const safePack = path.basename(purchase.pack_id);
+  const packDir = path.join(PACKS_DIR, safePack);
 
   if (!fs.existsSync(packDir)) {
     res.status(404).json({ error: "Pack files not found" });
     return;
   }
 
-  // Mark as installed
-  db.prepare("UPDATE purchases SET installed_at = ? WHERE id = ?").run(
-    new Date().toISOString(),
-    purchase.id
-  );
+  // Mark as installed and increment download count
+  db.prepare(
+    "UPDATE purchases SET installed_at = ?, download_count = COALESCE(download_count, 0) + 1 WHERE id = ?"
+  ).run(new Date().toISOString(), purchase.id);
 
   // Stream pack as zip
   const pack = db
