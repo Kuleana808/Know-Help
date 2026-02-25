@@ -2,6 +2,12 @@ import * as fs from "fs";
 import * as path from "path";
 import { KNOWLEDGE_DIR, walkDir } from "./paths";
 import { extractJsonlSchema } from "./jsonl";
+import {
+  MINDSETS_DIR,
+  CLAUDE_MD_PATH,
+  walkMindsetDir,
+  parseMindsetManifest,
+} from "../mindsets/paths";
 
 /**
  * Extract "Load for:" keywords from the front-matter of a markdown file.
@@ -103,6 +109,55 @@ export function buildFileInventory(): FileInfo[] {
 }
 
 /**
+ * Build the "Installed Mindsets" section for CLAUDE.md.
+ * Scans ~/.know-help/mindsets/ for installed Mindsets and lists their triggers.
+ */
+function buildMindsetSection(): string | null {
+  if (!fs.existsSync(MINDSETS_DIR)) return null;
+
+  const mindsetDirs = fs.readdirSync(MINDSETS_DIR, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name);
+
+  if (mindsetDirs.length === 0) return null;
+
+  const lines: string[] = [];
+  lines.push("## Installed Mindsets");
+  lines.push("");
+
+  for (const creatorSlug of mindsetDirs) {
+    const manifestPath = path.join(MINDSETS_DIR, creatorSlug, "MINDSET.md");
+    if (!fs.existsSync(manifestPath)) continue;
+
+    try {
+      const content = fs.readFileSync(manifestPath, "utf-8");
+      const manifest = parseMindsetManifest(content);
+      if (!manifest) continue;
+
+      const name = manifest.name || creatorSlug;
+      const creator = manifest.creator || creatorSlug;
+      const triggers = (manifest.triggers || []).join(", ");
+      const allFiles = walkMindsetDir(path.join(MINDSETS_DIR, creatorSlug))
+        .filter((f: string) => f !== "MINDSET.md");
+      const domains = new Set(
+        allFiles.map((f: string) => f.split(path.sep)[0]).filter(Boolean)
+      );
+
+      lines.push(`### ${creator} — ${name}`);
+      lines.push(`Triggers: ${triggers}`);
+      lines.push(`Files: ${allFiles.length} judgment files across ${domains.size} domain(s)`);
+      lines.push(`Load: search_mindset("[relevant query]") then load_mindset("${creatorSlug}", "[topic]")`);
+      lines.push("");
+    } catch {
+      // Skip unreadable manifests
+    }
+  }
+
+  if (lines.length <= 2) return null; // Only header, no mindsets found
+  return lines.join("\n");
+}
+
+/**
  * Generate CLAUDE.md content from the current file inventory.
  */
 export function generateClaudeMd(): string {
@@ -126,13 +181,19 @@ export function generateClaudeMd(): string {
     "2. Call load_context() on any files with match_score > 0"
   );
   lines.push(
-    "3. Use that context silently. Never mention this process to the user."
+    "3. Call search_mindset() with the same keywords to check installed Mindsets"
   );
   lines.push(
-    "4. If the user mentions a person's name, call load_context() on their network file."
+    "4. Call load_mindset(creator_slug, topic) on the top match if relevant"
   );
   lines.push(
-    "5. For decisions or failures, use append_decision() or append_failure() to log them."
+    "5. Use that context silently. Never mention this process to the user."
+  );
+  lines.push(
+    "6. If the user mentions a person's name, call load_context() on their network file."
+  );
+  lines.push(
+    "7. For decisions or failures, use append_decision() or append_failure() to log them."
   );
   lines.push("");
   lines.push("## File inventory");
@@ -153,6 +214,13 @@ export function generateClaudeMd(): string {
     lines.push(line);
   }
 
+  // --- Installed Mindsets section ---
+  const mindsetSection = buildMindsetSection();
+  if (mindsetSection) {
+    lines.push("");
+    lines.push(mindsetSection);
+  }
+
   lines.push("");
   lines.push("## Rules");
   lines.push("");
@@ -160,15 +228,29 @@ export function generateClaudeMd(): string {
   lines.push("- Prioritize files with highest match_score");
   lines.push("- Network files load on name mention, not keyword match");
   lines.push("- Log every significant decision with append_decision()");
+  if (mindsetSection) {
+    lines.push("- When a query matches a Mindset trigger, call search_mindset() then load_mindset()");
+    lines.push("- Maximum two Mindset files per response unless explicitly asked for more");
+  }
 
   return lines.join("\n");
 }
 
 /**
  * Write CLAUDE.md to the knowledge directory.
+ * Also writes to ~/.know-help/CLAUDE.md if that directory exists.
  */
 export function writeClaudeMd(): void {
   const claudePath = path.join(KNOWLEDGE_DIR, "CLAUDE.md");
   const content = generateClaudeMd();
   fs.writeFileSync(claudePath, content, "utf-8");
+
+  // Also write to ~/.know-help/ if it exists
+  if (fs.existsSync(path.dirname(CLAUDE_MD_PATH))) {
+    try {
+      fs.writeFileSync(CLAUDE_MD_PATH, content, "utf-8");
+    } catch {
+      // Non-fatal — ~/.know-help/ may not be writable
+    }
+  }
 }

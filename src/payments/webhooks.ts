@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { stripe, handleCheckoutComplete, handlePaymentFailed } from "./checkout";
 import { sendPurchaseConfirmation } from "./email";
 import { db } from "../db/database";
+import { handleMindsetSubscriptionEvent } from "../mindsets/checkout";
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
 
@@ -66,15 +67,20 @@ export async function handleStripeWebhook(
         const customerId = subscription.customer as string;
         const status = subscription.status;
 
-        // Update user subscription status
-        db.prepare(
-          "UPDATE users SET subscription_status = ?, stripe_subscription_id = ? WHERE stripe_customer_id = ?"
-        ).run(status, subscription.id, customerId);
+        // Check if this is a Mindset subscription
+        if (subscription.metadata?.type === "mindset_subscription") {
+          await handleMindsetSubscriptionEvent(event.type, subscription);
+        } else {
+          // Update user subscription status
+          db.prepare(
+            "UPDATE users SET subscription_status = ?, stripe_subscription_id = ? WHERE stripe_customer_id = ?"
+          ).run(status, subscription.id, customerId);
 
-        // Also check teams
-        db.prepare(
-          "UPDATE teams SET subscription_status = ?, stripe_subscription_id = ? WHERE stripe_customer_id = ?"
-        ).run(status, subscription.id, customerId);
+          // Also check teams
+          db.prepare(
+            "UPDATE teams SET subscription_status = ?, stripe_subscription_id = ? WHERE stripe_customer_id = ?"
+          ).run(status, subscription.id, customerId);
+        }
         break;
       }
 
@@ -82,12 +88,17 @@ export async function handleStripeWebhook(
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
 
-        db.prepare(
-          "UPDATE users SET subscription_status = 'canceled' WHERE stripe_customer_id = ?"
-        ).run(customerId);
-        db.prepare(
-          "UPDATE teams SET subscription_status = 'canceled' WHERE stripe_customer_id = ?"
-        ).run(customerId);
+        // Check if this is a Mindset subscription
+        if (subscription.metadata?.type === "mindset_subscription") {
+          await handleMindsetSubscriptionEvent(event.type, subscription);
+        } else {
+          db.prepare(
+            "UPDATE users SET subscription_status = 'canceled' WHERE stripe_customer_id = ?"
+          ).run(customerId);
+          db.prepare(
+            "UPDATE teams SET subscription_status = 'canceled' WHERE stripe_customer_id = ?"
+          ).run(customerId);
+        }
         break;
       }
 

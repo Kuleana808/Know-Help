@@ -1,6 +1,7 @@
 import Database, { Database as DatabaseType } from "better-sqlite3";
 import * as path from "path";
 import * as fs from "fs";
+import { runMigrations } from "./migrations";
 
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "..", "..", "data");
 const DB_PATH = process.env.DATABASE_PATH || path.join(DATA_DIR, "know-help.db");
@@ -147,6 +148,9 @@ export function initDatabase(): void {
       PRIMARY KEY (team_id, filepath)
     );
   `);
+
+  // Run Prompt 11-13 migrations (Mindset platform tables)
+  runMigrations(db);
 }
 
 export { db };

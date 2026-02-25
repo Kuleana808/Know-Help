@@ -14,6 +14,7 @@ import dashboardRoutes from "../dashboard/routes";
 import billingRoutes from "../hosted/billing";
 import onboardingRoutes from "../hosted/onboarding";
 import teamRoutes from "../hosted/teams";
+import mindsetRoutes from "../mindsets/routes";
 import { createWsMcpServer, getActiveConnections } from "../hosted/ws-transport";
 import { getQueueStats } from "../intelligence/queue";
 
@@ -157,6 +158,10 @@ app.use("/api", dashboardRoutes);
 app.use("/api", billingRoutes);
 app.use("/api", onboardingRoutes);
 app.use("/api", teamRoutes);
+
+// ── Mindset routes (marketplace, creator, sync, admin) ───────────────────────
+
+app.use("/api/mindsets", mindsetRoutes);
 
 // ── Health check ────────────────────────────────────────────────────────────
 
