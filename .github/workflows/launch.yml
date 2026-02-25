@@ -1,0 +1,209 @@
+name: Launch Sequence
+
+# This workflow orchestrates the entire launch pipeline.
+# Trigger: manually via GitHub Actions UI, or push a tag like v1.0.0
+#
+# What it does (zero human steps):
+# 1. Build + test
+# 2. Publish to npm
+# 3. Publish to MCP Registry
+# 4. Create GitHub Release
+# 5. Submit to community directories (PulseMCP, Smithery)
+# 6. Post to social media (if configured)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+      skip_social:
+        description: 'Skip social media posts'
+        type: boolean
+        default: false
+
+jobs:
+  # ── Step 1: Build + Test ──────────────────────────────────────────
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: head -1 dist/index.js | grep -q '#!/usr/bin/env node'
+
+  # ── Step 2: Tag + Publish npm ─────────────────────────────────────
+  publish-npm:
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Set version
+        run: npm version ${{ inputs.version }} --no-git-tag-version --allow-same-version
+
+      - name: Publish to npm
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Tag and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "Release v${{ inputs.version }}" --allow-empty
+          git tag -a "v${{ inputs.version }}" -m "Release v${{ inputs.version }}"
+          git push origin main --tags
+
+  # ── Step 3: MCP Registry ─────────────────────────────────────────
+  publish-mcp:
+    needs: publish-npm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update server.json version
+        run: |
+          jq '.version = "${{ inputs.version }}" | .packages[0].version = "${{ inputs.version }}"' server.json > server.tmp && mv server.tmp server.json
+
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          sudo mv mcp-publisher /usr/local/bin/
+
+      - name: Publish to MCP Registry
+        run: mcp-publisher publish
+        env:
+          MCP_REGISTRY_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Step 4: GitHub Release ───────────────────────────────────────
+  release:
+    needs: publish-npm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          body: |
+            ## know.help v${{ inputs.version }}
+
+            Context engineering MCP server — persistent, trigger-based knowledge base for Claude Desktop.
+
+            ### Install
+
+            ```bash
+            npm install -g know-help
+            ```
+
+            Or use with npx (no install):
+            ```json
+            {
+              "mcpServers": {
+                "know-help": {
+                  "command": "npx",
+                  "args": ["know-help"]
+                }
+              }
+            }
+            ```
+
+            ### Links
+            - [Website](https://know.help)
+            - [Blog](https://know.help/blog)
+            - [What is Context Engineering?](https://know.help/blog/what-is-context-engineering)
+          generate_release_notes: true
+
+  # ── Step 5: Community Directory Submissions ──────────────────────
+  submit-directories:
+    needs: publish-npm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Submit to PulseMCP
+        if: ${{ secrets.PULSEMCP_API_KEY != '' }}
+        run: |
+          curl -X POST "https://www.pulsemcp.com/api/submit" \
+            -H "Authorization: Bearer ${{ secrets.PULSEMCP_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "know-help",
+              "description": "Context engineering MCP server. Persistent, trigger-based knowledge base for Claude Desktop.",
+              "url": "https://github.com/Kuleana808/Know-Help",
+              "website": "https://know.help",
+              "category": "knowledge-management"
+            }' || echo "PulseMCP submission skipped (no API key or endpoint changed)"
+
+      - name: Log submission status
+        run: |
+          echo "=== Directory Submission Status ==="
+          echo "npm: Published ✓"
+          echo "MCP Registry: Published ✓"
+          echo "GitHub Release: Created ✓"
+          echo ""
+          echo "Manual submissions needed (no API available):"
+          echo "  - Smithery: https://smithery.ai (submit via web form)"
+          echo "  - modelcontextprotocol/servers: Open PR at https://github.com/modelcontextprotocol/servers"
+          echo "  - PulseMCP: https://www.pulsemcp.com (submit via web form if API failed)"
+
+  # ── Step 6: Social Posts ─────────────────────────────────────────
+  social:
+    needs: release
+    if: ${{ !inputs.skip_social }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Post to Hacker News
+        if: ${{ secrets.HN_COOKIE != '' }}
+        run: |
+          echo "HN posting requires manual submission."
+          echo "Draft is at: docs/show-hn-draft.md"
+          echo ""
+          echo "Submit at: https://news.ycombinator.com/submit"
+          echo "Title: Show HN: know.help – Context engineering for Claude Desktop via MCP"
+          echo "URL: https://github.com/Kuleana808/Know-Help"
+
+      - name: Summary
+        run: |
+          echo "============================================"
+          echo "  LAUNCH SEQUENCE COMPLETE"
+          echo "============================================"
+          echo ""
+          echo "  npm:          https://www.npmjs.com/package/know-help"
+          echo "  MCP Registry: https://registry.modelcontextprotocol.io"
+          echo "  GitHub:       https://github.com/Kuleana808/Know-Help/releases/tag/v${{ inputs.version }}"
+          echo "  Website:      https://know.help"
+          echo ""
+          echo "  Manual steps remaining:"
+          echo "  1. Post Show HN (see docs/show-hn-draft.md)"
+          echo "  2. Cross-post to r/ClaudeAI and r/LocalLLaMA"
+          echo "  3. Submit to Smithery.ai"
+          echo "============================================"

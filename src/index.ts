@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import * as fs from "fs";
@@ -9,15 +10,30 @@ import { z } from "zod/v3";
 const ROOT_DIR = path.resolve(__dirname, "..");
 const KNOWLEDGE_DIR = path.join(ROOT_DIR, "knowledge");
 
+// ── File lock for append-only writes ───────────────────────────────────────
+
+const locks = new Map<string, Promise<void>>();
+
+function withFileLock<T>(filePath: string, fn: () => T): Promise<T> {
+  const prev = locks.get(filePath) ?? Promise.resolve();
+  const next = prev.then(fn, fn);
+  locks.set(filePath, next.then(() => {}, () => {}));
+  return next;
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function ensureKnowledgeDir(): void {
   if (!fs.existsSync(KNOWLEDGE_DIR)) {
-    // Run the init script logic inline
     const initScript = path.join(ROOT_DIR, "scripts", "init-knowledge.js");
-    if (fs.existsSync(initScript)) {
-      require(initScript);
-    } else {
+    try {
+      if (fs.existsSync(initScript)) {
+        require(initScript);
+      } else {
+        fs.mkdirSync(KNOWLEDGE_DIR, { recursive: true });
+      }
+    } catch (err) {
+      console.error("Failed to initialize knowledge directory:", (err as Error).message);
       fs.mkdirSync(KNOWLEDGE_DIR, { recursive: true });
     }
   }
@@ -25,6 +41,8 @@ function ensureKnowledgeDir(): void {
 
 function slugify(name: string): string {
   return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
@@ -184,9 +202,13 @@ function generateClaudeMd(): string {
  * Write CLAUDE.md if it doesn't exist or regenerate it.
  */
 function writeClaudeMd(): void {
-  const claudePath = path.join(KNOWLEDGE_DIR, "CLAUDE.md");
-  const content = generateClaudeMd();
-  fs.writeFileSync(claudePath, content, "utf-8");
+  try {
+    const claudePath = path.join(KNOWLEDGE_DIR, "CLAUDE.md");
+    const content = generateClaudeMd();
+    fs.writeFileSync(claudePath, content, "utf-8");
+  } catch (err) {
+    console.error("Failed to write CLAUDE.md:", (err as Error).message);
+  }
 }
 
 // ── MCP Server Setup ───────────────────────────────────────────────────────
@@ -226,7 +248,10 @@ server.tool(
       if (file.type === "md" && file.triggerKeywords) {
         for (const term of queryTerms) {
           for (const keyword of file.triggerKeywords) {
-            if (keyword.includes(term) || term.includes(keyword)) {
+            if (term.length < 2 || keyword.length < 2) {
+              // Exact match only for single-char terms/keywords
+              if (term === keyword) score++;
+            } else if (keyword.includes(term) || term.includes(keyword)) {
               score++;
             }
           }
@@ -246,7 +271,9 @@ server.tool(
         ];
         for (const term of queryTerms) {
           for (const sTerm of schemaTerms) {
-            if (sTerm.includes(term) || term.includes(sTerm)) {
+            if (term.length < 2 || sTerm.length < 2) {
+              if (term === sTerm) score++;
+            } else if (sTerm.includes(term) || term.includes(sTerm)) {
               score++;
             }
           }
@@ -411,14 +438,15 @@ server.tool(
     const logFile = path.join(logDir, `${dateStr}.md`);
     const logLine = `[${timeStr}] ${entry}\n`;
 
-    if (!fs.existsSync(logFile)) {
-      const header = `---\nLoad for: log, activity, ${dateStr}\nLast updated: ${dateStr}\n---\n\n# Activity Log — ${dateStr}\n\n`;
-      fs.writeFileSync(logFile, header + logLine, "utf-8");
-    } else {
-      fs.appendFileSync(logFile, logLine, "utf-8");
-    }
+    await withFileLock(logFile, () => {
+      if (!fs.existsSync(logFile)) {
+        const header = `---\nLoad for: log, activity, ${dateStr}\nLast updated: ${dateStr}\n---\n\n# Activity Log — ${dateStr}\n\n`;
+        fs.writeFileSync(logFile, header + logLine, "utf-8");
+      } else {
+        fs.appendFileSync(logFile, logLine, "utf-8");
+      }
+    });
 
-    // Regenerate CLAUDE.md to pick up new log file
     writeClaudeMd();
 
     return {
@@ -456,16 +484,16 @@ server.tool(
       notes,
     });
 
-    if (!fs.existsSync(filePath)) {
-      const schema =
-        '{"_schema": "contact", "_version": "1.0", "_description": "One entry per person in network"}\n';
-      fs.writeFileSync(filePath, schema + entry + "\n", "utf-8");
-    } else {
-      // Append only — never overwrite
-      fs.appendFileSync(filePath, entry + "\n", "utf-8");
-    }
+    await withFileLock(filePath, () => {
+      if (!fs.existsSync(filePath)) {
+        const schema =
+          '{"_schema": "contact", "_version": "1.0", "_description": "One entry per person in network"}\n';
+        fs.writeFileSync(filePath, schema + entry + "\n", "utf-8");
+      } else {
+        fs.appendFileSync(filePath, entry + "\n", "utf-8");
+      }
+    });
 
-    // Regenerate CLAUDE.md to pick up new network file
     writeClaudeMd();
 
     return {
@@ -494,13 +522,6 @@ server.tool(
     ensureKnowledgeDir();
     const filePath = path.join(KNOWLEDGE_DIR, "log", "decisions.jsonl");
 
-    // Ensure file exists with schema
-    if (!fs.existsSync(filePath)) {
-      const schema =
-        '{"_schema": "decision", "_version": "1.0", "_description": "Append-only log of key decisions with reasoning"}\n';
-      fs.writeFileSync(filePath, schema, "utf-8");
-    }
-
     const entry = JSON.stringify({
       date: new Date().toISOString(),
       venture,
@@ -510,8 +531,15 @@ server.tool(
       outcome: "pending",
     });
 
-    // Append only
-    fs.appendFileSync(filePath, entry + "\n", "utf-8");
+    await withFileLock(filePath, () => {
+      if (!fs.existsSync(filePath)) {
+        const schema =
+          '{"_schema": "decision", "_version": "1.0", "_description": "Append-only log of key decisions with reasoning"}\n';
+        fs.writeFileSync(filePath, schema + entry + "\n", "utf-8");
+      } else {
+        fs.appendFileSync(filePath, entry + "\n", "utf-8");
+      }
+    });
 
     return {
       content: [
@@ -539,13 +567,6 @@ server.tool(
     ensureKnowledgeDir();
     const filePath = path.join(KNOWLEDGE_DIR, "log", "failures.jsonl");
 
-    // Ensure file exists with schema
-    if (!fs.existsSync(filePath)) {
-      const schema =
-        '{"_schema": "failure", "_version": "1.0", "_description": "Append-only log of failures with root cause analysis"}\n';
-      fs.writeFileSync(filePath, schema, "utf-8");
-    }
-
     const entry = JSON.stringify({
       date: new Date().toISOString(),
       venture,
@@ -554,8 +575,15 @@ server.tool(
       prevention,
     });
 
-    // Append only
-    fs.appendFileSync(filePath, entry + "\n", "utf-8");
+    await withFileLock(filePath, () => {
+      if (!fs.existsSync(filePath)) {
+        const schema =
+          '{"_schema": "failure", "_version": "1.0", "_description": "Append-only log of failures with root cause analysis"}\n';
+        fs.writeFileSync(filePath, schema + entry + "\n", "utf-8");
+      } else {
+        fs.appendFileSync(filePath, entry + "\n", "utf-8");
+      }
+    });
 
     return {
       content: [

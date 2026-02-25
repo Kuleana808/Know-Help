@@ -26,6 +26,7 @@
   "homepage": "https://know.help",
   "scripts": {
     "build": "tsc",
+    "test": "node test/server.test.js",
     "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
     "postinstall": "node scripts/init-knowledge.js",
@@ -42,7 +43,8 @@
     "publish": "cd content-engine && npx ts-node src/cli.ts publish",
     "publish:sitemap": "cd content-engine && npx ts-node src/cli.ts publish sitemap",
     "content:status": "cd content-engine && npx ts-node src/cli.ts status",
-    "content:schedule": "cd content-engine && npx ts-node src/scheduler.ts"
+    "content:schedule": "cd content-engine && npx ts-node src/scheduler.ts",
+    "prepublishOnly": "npm run build && npm test"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1"
