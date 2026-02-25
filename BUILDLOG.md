@@ -84,11 +84,69 @@
 - Stripe and Resend initialize with placeholder keys (fail gracefully on actual API calls)
 
 **Skipped:**
-- Next.js frontend for portal/dashboard (API routes built, frontend is a separate deployment)
-- WebSocket MCP server for hosted tier (interface defined, transport layer needs ws package)
-- Managed crawler queue (Upstash Redis/BullMQ — scheduler.ts works for self-hosted, queue needed for multi-user hosted)
 - End-to-end Stripe test mode purchase (requires real STRIPE_SECRET_KEY)
 - Apify integration testing (requires APIFY_API_TOKEN)
+
+---
+
+## 2026-02-25 — Post-Prompts (WebSocket MCP + Crawler Queue + Next.js Frontend)
+
+**Built:**
+
+### WebSocket MCP Transport
+- `ws` package WebSocket server attached to HTTP server at `/mcp/ws`
+- JWT auth (query param, header, or first-message auth flow)
+- Full MCP protocol support (initialize, tools/list, tools/call, ping)
+- All 7 MCP tools reimplemented for S3-backed hosted knowledge bases
+- Connection registry with heartbeat (30s ping/pong for dead connection detection)
+- Subscription validation (active/trialing check, trial expiry)
+- Health endpoint enhanced with `ws_connections` count
+
+### Managed Crawler Queue (BullMQ + Redis)
+- BullMQ queue with Redis connection (Upstash or self-hosted)
+- Worker with 3 concurrent crawl processors, rate limited (10/min)
+- Job deduplication (no duplicate per-user jobs)
+- Per-user crawl processing: reads config from S3, runs enabled sources, writes signals back to S3
+- `scheduleAllUserCrawls()` — bulk-enqueue for all active subscribers
+- `enqueueCrawl()` — single-user on-demand crawl
+- `getQueueStats()` — waiting/active/completed/failed counts
+- `getUserJobStatus()` — per-user latest job status with progress
+- Graceful shutdown (`shutdownQueue()`)
+- 2 retries with exponential backoff per job
+- Auto-cleanup: 100 completed, 50 failed jobs retained
+
+### Next.js 14 Frontend (14 pages)
+- **Landing page** — hero, waitlist form, features grid, "how it works", pricing tiers
+- **Login** — 2-step magic link auth (email → 6-digit OTP)
+- **Onboarding** — 5-step wizard (identity, ventures, contacts, intelligence, MCP config)
+- **Dashboard overview** — system status, file count, intelligence status, queue stats
+- **Files** — directory-grouped file tree, content viewer, inline editor with save
+- **Network** — contact list, interaction history, add notes
+- **Intelligence** — status, source badges, run crawl (SSE), signals feed
+- **Logs** — tabbed view (decisions, failures, activity by date)
+- **Settings** — source toggles, crawl schedule, confidence slider, billing portal link
+- **Creator portal** — pack list, status badges
+- **Pack submission** — form with file editor, category, pricing
+- **Admin queue** — pending submissions, approve/reject with reason
+- **Team management** — create team, invite members, remove, role management
+
+**Frontend stack:**
+- Next.js 14 (App Router), React 18, TypeScript
+- Tailwind CSS with custom design tokens matching landing page palette
+- API proxy rewrites in dev (Next.js → Express API on port 3000)
+- Custom API client with JWT auth (localStorage)
+- `useApi` hook for data fetching with refetch
+
+**Tested:**
+- Backend TypeScript compiles with zero errors (~35 source files)
+- 14/14 self-tests pass
+- Next.js frontend builds successfully — all 14 pages compile and optimize
+- All pages under 3KB individual JS, ~90KB first load shared
+
+**Skipped:**
+- End-to-end Stripe test mode purchase (requires real STRIPE_SECRET_KEY)
+- Apify integration testing (requires APIFY_API_TOKEN)
+- Redis integration test (requires REDIS_URL)
 
 **Env vars needed for full operation:**
 ```
@@ -117,6 +175,9 @@ AWS_SECRET_ACCESS_KEY=
 AWS_REGION=us-east-1
 S3_BUCKET=know-help-user-data
 
+# Queue (Post-Prompts)
+REDIS_URL=redis://localhost:6379
+
 # General
 PORT=3000
 DATA_DIR=/data
@@ -124,9 +185,11 @@ ALLOWED_ORIGINS=https://know.help,http://localhost:3000,http://localhost:8080
 BASE_URL=https://know.help
 ```
 
-**Open questions:**
-1. WebSocket transport for hosted MCP — use `ws` package or proxy through existing HTTP?
-2. Managed crawler queue — BullMQ with Upstash Redis vs simpler in-memory queue for MVP?
-3. S3 conditional writes — use ETags for append-only safety or rely on application-level locking?
-4. Team billing — metered billing for extra seats or simple tier-based pricing?
-5. Frontend framework — Next.js 14 as specified, or simpler React SPA since API is complete?
+**Resolved questions:**
+1. WebSocket transport → `ws` package, attached to existing HTTP server
+2. Managed crawler queue → BullMQ with Redis (auto-disabled if no REDIS_URL)
+3. Frontend framework → Next.js 14 with Tailwind CSS and API proxy rewrites
+
+**Remaining open questions:**
+1. S3 conditional writes — use ETags for append-only safety or rely on application-level locking?
+2. Team billing — metered billing for extra seats or simple tier-based pricing?

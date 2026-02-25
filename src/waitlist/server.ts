@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import * as http from "http";
 import * as path from "path";
 import * as fs from "fs";
 import { appendJsonl, readJsonl, jsonlEntryExists } from "../utils/jsonl";
@@ -13,6 +14,8 @@ import dashboardRoutes from "../dashboard/routes";
 import billingRoutes from "../hosted/billing";
 import onboardingRoutes from "../hosted/onboarding";
 import teamRoutes from "../hosted/teams";
+import { createWsMcpServer, getActiveConnections } from "../hosted/ws-transport";
+import { getQueueStats } from "../intelligence/queue";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "3000", 10);
@@ -157,14 +160,40 @@ app.use("/api", teamRoutes);
 
 // ── Health check ────────────────────────────────────────────────────────────
 
-app.get("/health", (_req, res) => {
-  return res.json({ status: "ok", timestamp: new Date().toISOString() });
+app.get("/health", async (_req, res) => {
+  const queueStats = await getQueueStats().catch(() => null);
+  return res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    ws_connections: getActiveConnections(),
+    queue: queueStats,
+  });
 });
 
-export { app, PORT };
+// ── Create HTTP server and attach WebSocket ────────────────────────────────
+
+const httpServer = http.createServer(app);
+
+export { app, httpServer, PORT };
 
 if (require.main === module) {
-  app.listen(PORT, () => {
+  // Attach WebSocket MCP server to HTTP server
+  createWsMcpServer(httpServer);
+
+  // Optionally initialize managed crawler queue if Redis is available
+  if (process.env.REDIS_URL) {
+    import("../intelligence/queue").then(({ initCrawlQueue }) => {
+      try {
+        initCrawlQueue();
+        console.log("Managed crawler queue initialized");
+      } catch (err: any) {
+        console.warn(`Crawler queue disabled (no Redis): ${err.message}`);
+      }
+    });
+  }
+
+  httpServer.listen(PORT, () => {
     console.log(`know.help API running on port ${PORT}`);
+    console.log(`WebSocket MCP available at ws://localhost:${PORT}/mcp/ws`);
   });
 }
