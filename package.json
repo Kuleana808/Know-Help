@@ -1,8 +1,29 @@
 {
   "name": "know-help",
   "version": "1.0.0",
-  "description": "Personal AI OS — MCP server with trigger-based context loading",
+  "description": "Context engineering MCP server — persistent, trigger-based knowledge base for Claude Desktop",
+  "mcpName": "io.github.kuleana808/know-help",
   "main": "dist/index.js",
+  "bin": {
+    "know-help": "dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kuleana808/Know-Help.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "context-engineering",
+    "claude",
+    "claude-desktop",
+    "ai-memory",
+    "knowledge-base",
+    "personal-ai"
+  ],
+  "author": "know.help",
+  "license": "MIT",
+  "homepage": "https://know.help",
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/index.ts",
