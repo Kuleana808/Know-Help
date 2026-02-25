@@ -1,0 +1,24 @@
+{
+  "name": "know-help-content-engine",
+  "version": "1.0.0",
+  "description": "Automated content generation and vertical demand scanner for know.help",
+  "main": "dist/cli.js",
+  "scripts": {
+    "build": "tsc",
+    "scan": "ts-node src/cli.ts scan",
+    "generate": "ts-node src/cli.ts generate",
+    "queue": "ts-node src/cli.ts queue",
+    "publish": "ts-node src/cli.ts publish",
+    "schedule": "ts-node src/scheduler.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/node-cron": "^3.0.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

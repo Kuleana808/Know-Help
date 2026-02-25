@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>know.help — Personal AI memory for founders and operators</title>
-  <meta name="description" content="Give your AI a persistent knowledge base about you. Trigger-based context loading via MCP. Your AI finally knows who you are, what you're building, and who matters." />
+  <title>know.help — Context engineering for AI-first operators</title>
+  <meta name="description" content="Context engineering infrastructure for AI-first operators. MCP server, living intelligence, and a marketplace of expert knowledge packs. Your AI finally works like it knows you." />
+  <meta property="og:title" content="know.help — The context engineering platform" />
+  <meta property="og:description" content="Stop re-explaining yourself to your AI. know.help gives Claude Desktop a persistent, modular knowledge base that updates itself." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet" />
   <style>
@@ -13,6 +17,7 @@
     :root {
       --bg: #f5f2eb;
       --bg2: #ede9e0;
+      --bg3: #e6e1d6;
       --surface: #ffffff;
       --border: #d8d3c8;
       --border-dark: #b8b2a6;
@@ -21,6 +26,7 @@
       --accent: #1a4a2e;
       --accent-light: #e8f0ea;
       --accent-mid: #1f6038;
+      --gold: #8a6c2e;
       --serif: 'Playfair Display', Georgia, serif;
       --mono: 'IBM Plex Mono', monospace;
     }
@@ -38,7 +44,6 @@
       overflow-x: hidden;
     }
 
-    /* PAPER TEXTURE */
     body::before {
       content: '';
       position: fixed;
@@ -51,9 +56,7 @@
     /* NAV */
     nav {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0;
       z-index: 50;
       padding: 24px 48px;
       display: flex;
@@ -64,7 +67,7 @@
 
     nav.scrolled {
       border-bottom: 1px solid var(--border);
-      background: rgba(245, 242, 235, 0.92);
+      background: rgba(245,242,235,0.94);
       backdrop-filter: blur(12px);
     }
 
@@ -75,8 +78,24 @@
       color: var(--text);
       text-decoration: none;
     }
-
     .logo span { color: var(--accent-mid); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-link {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: var(--text); }
 
     .nav-cta {
       font-family: var(--mono);
@@ -89,7 +108,6 @@
       text-decoration: none;
       transition: background 0.2s;
     }
-
     .nav-cta:hover { background: var(--accent-mid); }
 
     /* HERO */
@@ -98,476 +116,715 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 120px 48px 80px;
-      position: relative;
+      padding: 120px 80px 80px;
       max-width: 1200px;
       margin: 0 auto;
+      position: relative;
     }
 
     .hero-eyebrow {
+      font-family: var(--mono);
       font-size: 11px;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--accent-mid);
-      margin-bottom: 36px;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 0.2s;
+      margin-bottom: 28px;
     }
 
     .hero h1 {
       font-family: var(--serif);
-      font-size: clamp(52px, 8vw, 96px);
-      line-height: 1.05;
+      font-size: clamp(52px, 7.5vw, 96px);
       font-weight: 400;
-      letter-spacing: -0.01em;
-      max-width: 14ch;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 0.4s;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 32px;
+      max-width: 820px;
     }
 
     .hero h1 em {
       font-style: italic;
-      color: var(--muted);
+      color: var(--accent-mid);
     }
 
     .hero-sub {
-      margin-top: 40px;
-      max-width: 460px;
+      font-size: 15px;
       color: var(--muted);
-      font-size: 14px;
-      line-height: 1.9;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 0.6s;
+      line-height: 1.8;
+      max-width: 560px;
+      margin-bottom: 48px;
     }
 
     .hero-actions {
-      margin-top: 48px;
       display: flex;
       align-items: center;
-      gap: 32px;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 0.8s;
+      gap: 24px;
+      flex-wrap: wrap;
     }
 
     .btn-primary {
+      display: inline-block;
       font-family: var(--mono);
       font-size: 11px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--surface);
       background: var(--accent);
-      padding: 15px 36px;
+      padding: 14px 36px;
       text-decoration: none;
-      display: inline-block;
-      transition: background 0.2s, transform 0.2s;
+      transition: background 0.2s;
     }
+    .btn-primary:hover { background: var(--accent-mid); }
 
-    .btn-primary:hover {
-      background: var(--accent-mid);
-      transform: translateY(-1px);
+    .btn-secondary {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--border-dark);
+      padding: 14px 36px;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
     }
+    .btn-secondary:hover { border-color: var(--text); color: var(--text); }
 
     .hero-note {
       font-size: 11px;
-      color: var(--muted);
-      letter-spacing: 0.04em;
+      color: var(--border-dark);
+      letter-spacing: 0.06em;
     }
 
-    /* HERO DECORATIVE LINE */
     .hero-rule {
       position: absolute;
-      right: 48px;
+      right: 0;
       top: 50%;
       transform: translateY(-50%);
       width: 1px;
-      height: 180px;
-      background: linear-gradient(to bottom, transparent, var(--border-dark), transparent);
-      opacity: 0;
-      animation: fadeIn 1.2s ease forwards 1s;
+      height: 45%;
+      background: linear-gradient(to bottom, transparent, var(--border), transparent);
     }
 
-    /* SCROLL INDICATOR */
-    .scroll-indicator {
-      position: absolute;
-      bottom: 40px;
-      left: 48px;
+    /* STAT BAR */
+    .stat-bar {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 80px;
       display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 11px;
-      letter-spacing: 0.15em;
+      gap: 0;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .stat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0 40px 0 0;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; padding-right: 0; padding-left: 40px; }
+    .stat:first-child { padding-left: 0; }
+
+    .stat-value {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    .stat-label {
+      font-size: 10px;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--muted);
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 1.2s;
-    }
-
-    .scroll-line {
-      width: 40px;
-      height: 1px;
-      background: var(--border-dark);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .scroll-line::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: var(--accent-mid);
-      animation: slideLine 2s ease infinite 1.5s;
     }
 
     /* DIVIDER */
-    .divider {
+    hr.divider {
       border: none;
       border-top: 1px solid var(--border);
-      margin: 0 48px;
-    }
-
-    /* SECTION BASE */
-    section {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 100px 48px;
+    }
+
+    /* SECTIONS */
+    section {
+      padding: 96px 80px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .section-label {
       font-size: 10px;
-      letter-spacing: 0.25em;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--accent-mid);
+      color: var(--border-dark);
       margin-bottom: 48px;
     }
 
-    /* PROBLEM */
-    .problem-text {
+    /* INSIGHT SECTION */
+    .insight-text {
       font-family: var(--serif);
-      font-size: clamp(28px, 4vw, 46px);
-      line-height: 1.25;
+      font-size: clamp(28px, 4vw, 48px);
       font-weight: 400;
-      max-width: 22ch;
+      line-height: 1.3;
+      max-width: 760px;
+      margin-bottom: 48px;
     }
 
-    .problem-text em {
+    .insight-text em {
       font-style: italic;
-      color: var(--muted);
+      color: var(--accent-mid);
     }
 
-    .problem-detail {
-      margin-top: 52px;
+    .insight-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 1px;
       background: var(--border);
-      border: 1px solid var(--border);
-      max-width: 800px;
+      margin-top: 48px;
     }
 
-    .problem-point {
-      padding: 32px;
+    .insight-card {
       background: var(--bg);
+      padding: 40px 36px;
+    }
+
+    .insight-card-label {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--border-dark);
+      margin-bottom: 16px;
+    }
+
+    .insight-card h3 {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 400;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .insight-card p {
       font-size: 13px;
       color: var(--muted);
       line-height: 1.8;
-      transition: background 0.25s;
     }
 
-    .problem-point:hover { background: var(--surface); }
+    /* THREE LAYERS */
+    .layers {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1px;
+      background: var(--border);
+    }
 
-    .problem-point strong {
-      display: block;
-      color: var(--text);
-      margin-bottom: 10px;
-      font-weight: 400;
+    .layer {
+      background: var(--bg);
+      padding: 56px 64px;
+      display: grid;
+      grid-template-columns: 200px 1fr 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    .layer-num {
       font-family: var(--serif);
-      font-size: 17px;
+      font-size: 72px;
+      font-weight: 400;
+      color: var(--border);
+      line-height: 1;
+      letter-spacing: -0.04em;
     }
 
-    /* HOW IT WORKS */
-    .steps {
+    .layer-meta {
+      padding-top: 8px;
+    }
+
+    .layer-tag {
+      display: inline-block;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 4px 10px;
+      margin-bottom: 16px;
+    }
+
+    .layer-meta h3 {
+      font-family: var(--serif);
+      font-size: 26px;
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .layer-meta p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.85;
+    }
+
+    .layer-detail {
+      padding-top: 8px;
+    }
+
+    .layer-detail-item {
+      display: flex;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .layer-detail-item:first-child { border-top: 1px solid var(--border); }
+
+    .layer-detail-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-mid);
+      margin-top: 8px;
+      flex-shrink: 0;
+    }
+
+    .layer-detail-text {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .layer-detail-text strong {
+      color: var(--text);
+      font-weight: 400;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* MARKETPLACE SECTION */
+    .marketplace-intro {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      margin-bottom: 64px;
+      align-items: end;
+    }
+
+    .marketplace-intro h2 {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 400;
+      line-height: 1.15;
+    }
+
+    .marketplace-intro h2 em {
+      font-style: italic;
+      color: var(--accent-mid);
+    }
+
+    .marketplace-intro p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.85;
+      margin-bottom: 16px;
+    }
+
+    .pack-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1px;
       background: var(--border);
-      border: 1px solid var(--border);
-      margin-top: 48px;
     }
 
-    .step {
+    .pack-card {
       background: var(--bg);
-      padding: 44px 36px;
-      transition: background 0.25s;
+      padding: 32px;
+      position: relative;
+      transition: background 0.2s;
+      cursor: default;
     }
 
-    .step:hover { background: var(--surface); }
+    .pack-card:hover { background: var(--bg2); }
 
-    .step-num {
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      color: var(--accent-mid);
-      margin-bottom: 28px;
+    .pack-category {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--border-dark);
+      margin-bottom: 12px;
     }
 
-    .step h3 {
+    .pack-name {
       font-family: var(--serif);
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 400;
-      margin-bottom: 16px;
-      line-height: 1.25;
-    }
-
-    .step p {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.85;
-    }
-
-    /* FILE STRUCTURE */
-    .file-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      margin-top: 48px;
-    }
-
-    .file-item {
-      background: var(--bg);
-      padding: 28px 32px;
-      display: flex;
-      gap: 24px;
-      align-items: flex-start;
-      transition: background 0.25s;
-    }
-
-    .file-item:hover { background: var(--surface); }
-
-    .file-name {
-      font-size: 11px;
-      letter-spacing: 0.06em;
-      color: var(--accent-mid);
-      min-width: 110px;
-      padding-top: 2px;
-    }
-
-    .file-desc {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-
-    /* WHO IT'S FOR */
-    .audience-list {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      margin-top: 48px;
-      max-width: 900px;
-    }
-
-    .audience-item {
-      background: var(--bg);
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-      padding: 36px;
-      transition: background 0.25s;
-    }
-
-    .audience-item:hover { background: var(--surface); }
-
-    .audience-dot {
-      width: 5px;
-      height: 5px;
-      background: var(--accent-mid);
-      margin-top: 10px;
-      flex-shrink: 0;
-    }
-
-    .audience-item h4 {
-      font-family: var(--serif);
-      font-size: 20px;
-      font-weight: 400;
+      line-height: 1.3;
       margin-bottom: 10px;
-      line-height: 1.2;
     }
 
-    .audience-item p {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.8;
-    }
-
-    /* TECHNICAL */
-    .tech-block {
-      margin-top: 48px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-    }
-
-    .code-snippet {
-      font-family: var(--mono);
+    .pack-desc {
       font-size: 12px;
-      line-height: 2.1;
       color: var(--muted);
-      background: var(--bg2);
-      padding: 40px;
-    }
-
-    .code-snippet .c-accent { color: var(--accent-mid); }
-    .code-snippet .c-text { color: var(--text); }
-    .code-snippet .c-comment { color: #8a8278; }
-
-    .tech-copy {
-      padding: 40px;
-      background: var(--bg);
-    }
-
-    .tech-copy h3 {
-      font-family: var(--serif);
-      font-size: 30px;
-      font-weight: 400;
-      line-height: 1.25;
+      line-height: 1.7;
       margin-bottom: 20px;
     }
 
-    .tech-copy p {
+    .pack-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pack-price {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .pack-price.free {
+      color: var(--accent-mid);
+    }
+
+    .pack-meta {
+      font-size: 10px;
+      color: var(--border-dark);
+      letter-spacing: 0.06em;
+    }
+
+    .pack-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--accent);
+      color: white;
+      padding: 3px 8px;
+    }
+
+    .marketplace-cta {
+      margin-top: 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .marketplace-note {
+      font-size: 11px;
+      color: var(--border-dark);
+      letter-spacing: 0.04em;
+    }
+
+    /* OPEN SOURCE */
+    .oss-block {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .oss-block h2 {
+      font-family: var(--serif);
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .oss-block p {
       font-size: 13px;
       color: var(--muted);
       line-height: 1.85;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
-    .tech-tags {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 28px;
+    .code-block {
+      background: var(--text);
+      padding: 32px 36px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 2;
+      color: #c8c4bb;
+      position: relative;
     }
 
-    .tag {
-      font-size: 10px;
-      letter-spacing: 0.1em;
+    .code-block .c-comment { color: #5a5650; }
+    .code-block .c-key { color: #9ab87a; }
+    .code-block .c-val { color: #d4a96a; }
+    .code-block .c-str { color: #87afc7; }
+    .code-block .c-dim { color: #3a3630; }
+
+    .code-label {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-size: 9px;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      padding: 5px 12px;
-      border: 1px solid var(--border-dark);
-      color: var(--muted);
+      color: #3a3630;
     }
 
-    /* WAITLIST */
-    .waitlist-section {
-      background: var(--accent);
-      padding: 100px 48px;
+    /* PRICING */
+    .pricing-header {
       text-align: center;
+      margin-bottom: 56px;
     }
 
-    .waitlist-inner {
-      max-width: 600px;
+    .pricing-header h2 {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .pricing-header p {
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 480px;
       margin: 0 auto;
     }
 
-    .waitlist-section h2 {
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .pricing-card {
+      background: var(--bg);
+      padding: 48px 40px;
+      position: relative;
+    }
+
+    .pricing-card.featured {
+      background: var(--accent);
+    }
+
+    .pricing-tier {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--border-dark);
+      margin-bottom: 20px;
+    }
+
+    .pricing-card.featured .pricing-tier {
+      color: rgba(245,242,235,0.4);
+    }
+
+    .pricing-price {
       font-family: var(--serif);
-      font-size: clamp(36px, 5vw, 58px);
+      font-size: 48px;
       font-weight: 400;
-      line-height: 1.15;
+      line-height: 1;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .pricing-card.featured .pricing-price { color: #f5f2eb; }
+
+    .pricing-period {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    .pricing-card.featured .pricing-period { color: rgba(245,242,235,0.5); }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 40px;
+    }
+
+    .pricing-features li {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .pricing-card.featured .pricing-features li {
+      color: rgba(245,242,235,0.65);
+      border-color: rgba(245,242,235,0.12);
+    }
+
+    .pricing-features li::before {
+      content: '\2192';
+      color: var(--accent-mid);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .pricing-card.featured .pricing-features li::before {
+      color: rgba(245,242,235,0.4);
+    }
+
+    .pricing-btn {
+      display: block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-align: center;
+      text-decoration: none;
+      padding: 14px;
+      border: 1px solid var(--border-dark);
+      color: var(--text);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .pricing-btn:hover { background: var(--text); color: var(--bg); }
+
+    .pricing-card.featured .pricing-btn {
+      background: #f5f2eb;
+      border-color: #f5f2eb;
+      color: var(--accent);
+    }
+
+    .pricing-card.featured .pricing-btn:hover {
+      background: var(--bg2);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: var(--gold);
+      color: white;
+      padding: 4px 16px;
+      white-space: nowrap;
+    }
+
+    /* NOTIFY / CTA SECTION */
+    .cta-section {
+      background: var(--accent);
+      padding: 120px 80px;
+      text-align: center;
+    }
+
+    .cta-inner {
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .cta-section h2 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 5vw, 62px);
+      font-weight: 400;
+      line-height: 1.1;
       color: #f5f2eb;
       margin-bottom: 20px;
     }
 
-    .waitlist-section h2 em {
+    .cta-section h2 em {
       font-style: italic;
-      color: rgba(245,242,235,0.5);
+      color: rgba(245,242,235,0.4);
     }
 
-    .waitlist-section > .waitlist-inner > p {
+    .cta-section > .cta-inner > p {
       font-size: 14px;
-      color: rgba(245,242,235,0.6);
+      color: rgba(245,242,235,0.55);
       margin-bottom: 48px;
+      line-height: 1.7;
     }
 
-    .waitlist-form {
+    .cta-actions {
       display: flex;
-      gap: 0;
-      max-width: 460px;
-      margin: 0 auto;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
     }
 
-    .waitlist-form input {
+    .cta-actions .btn-primary {
+      background: #f5f2eb;
+      color: var(--accent);
+    }
+    .cta-actions .btn-primary:hover {
+      background: var(--bg2);
+    }
+
+    .notify-form {
+      display: flex;
+      max-width: 480px;
+      width: 100%;
+    }
+
+    .notify-form input {
       flex: 1;
-      background: rgba(245,242,235,0.08);
-      border: 1px solid rgba(245,242,235,0.2);
+      background: rgba(245,242,235,0.07);
+      border: 1px solid rgba(245,242,235,0.18);
       border-right: none;
       color: #f5f2eb;
       font-family: var(--mono);
       font-size: 13px;
       padding: 15px 20px;
       outline: none;
-      transition: border-color 0.2s;
     }
 
-    .waitlist-form input::placeholder { color: rgba(245,242,235,0.3); }
-    .waitlist-form input:focus { border-color: rgba(245,242,235,0.5); }
+    .notify-form input::placeholder { color: rgba(245,242,235,0.25); }
+    .notify-form input:focus { border-color: rgba(245,242,235,0.4); }
 
-    .waitlist-form button {
-      background: #f5f2eb;
-      border: 1px solid #f5f2eb;
-      color: var(--accent);
+    .notify-form button {
+      background: rgba(245,242,235,0.12);
+      border: 1px solid rgba(245,242,235,0.18);
+      color: rgba(245,242,235,0.7);
       font-family: var(--mono);
       font-size: 11px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       padding: 15px 28px;
       cursor: pointer;
-      transition: background 0.2s, color 0.2s;
+      transition: background 0.2s;
       white-space: nowrap;
     }
 
-    .waitlist-form button:hover {
-      background: var(--bg2);
-    }
+    .notify-form button:hover { background: rgba(245,242,235,0.2); }
 
     .form-note {
       font-size: 11px;
-      color: rgba(245,242,235,0.35);
-      margin-top: 16px;
+      color: rgba(245,242,235,0.28);
+      margin-top: 12px;
       letter-spacing: 0.04em;
     }
 
     .success-msg {
       display: none;
       font-size: 13px;
-      color: rgba(245,242,235,0.7);
+      color: rgba(245,242,235,0.65);
       margin-top: 16px;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
     }
 
     /* FOOTER */
     footer {
       border-top: 1px solid var(--border);
-      padding: 32px 48px;
+      padding: 32px 80px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .footer-logo {
       font-family: var(--mono);
-      font-size: 13px;
-      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--text);
       text-decoration: none;
     }
-
     .footer-logo span { color: var(--accent-mid); }
 
     .footer-links {
@@ -576,59 +833,56 @@
     }
 
     .footer-links a {
-      font-size: 12px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
       color: var(--muted);
       text-decoration: none;
-      letter-spacing: 0.04em;
       transition: color 0.2s;
     }
-
     .footer-links a:hover { color: var(--text); }
 
-    /* ANIMATIONS */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
+    .footer-copy {
+      font-size: 11px;
+      color: var(--border-dark);
+      letter-spacing: 0.04em;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes slideLine {
-      from { left: -100%; }
-      to { left: 100%; }
-    }
-
+    /* REVEAL */
     .reveal {
       opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
+      transform: translateY(18px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
     }
-
     .reveal.visible {
       opacity: 1;
       transform: translateY(0);
     }
 
+    /* FULL-WIDTH WRAPPERS */
+    .full-width-border {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
     /* RESPONSIVE */
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
       nav { padding: 20px 24px; }
+      .nav-links { display: none; }
       .hero { padding: 100px 24px 60px; }
-      .hero-rule { display: none; }
-      section { padding: 72px 24px; }
-      .divider { margin: 0 24px; }
-      .problem-detail { grid-template-columns: 1fr; }
-      .steps { grid-template-columns: 1fr; }
-      .file-grid { grid-template-columns: 1fr; }
-      .audience-list { grid-template-columns: 1fr; }
-      .tech-block { grid-template-columns: 1fr; }
-      .waitlist-section { padding: 72px 24px; }
-      .waitlist-form { flex-direction: column; }
-      .waitlist-form input { border-right: 1px solid rgba(245,242,235,0.2); border-bottom: none; }
-      footer { padding: 24px; flex-direction: column; gap: 16px; }
-      .scroll-indicator { left: 24px; }
+      section { padding: 64px 24px; }
+      .stat-bar { padding: 20px 24px; gap: 0; flex-wrap: wrap; }
+      .stat { padding: 12px 20px; }
+      .layer { grid-template-columns: 1fr; gap: 24px; padding: 40px 24px; }
+      .layer-num { font-size: 48px; }
+      .insight-grid { grid-template-columns: 1fr; }
+      .marketplace-intro { grid-template-columns: 1fr; gap: 32px; }
+      .pack-grid { grid-template-columns: 1fr; }
+      .oss-block { grid-template-columns: 1fr; gap: 40px; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .cta-section { padding: 80px 24px; }
+      .notify-form { flex-direction: column; }
+      .notify-form input { border-right: 1px solid rgba(245,242,235,0.18); border-bottom: none; }
+      footer { padding: 24px; flex-direction: column; gap: 16px; text-align: center; }
     }
   </style>
 </head>
@@ -637,190 +891,336 @@
   <!-- NAV -->
   <nav id="nav">
     <a href="#" class="logo">know<span>.help</span></a>
-    <a href="#waitlist" class="nav-cta">Early access</a>
+    <div class="nav-links">
+      <a href="#layers" class="nav-link">How it works</a>
+      <a href="#marketplace" class="nav-link">Marketplace</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="https://github.com/know-help/know-help" class="nav-link">GitHub</a>
+    </div>
+    <a href="https://github.com/know-help/know-help" class="nav-cta">Install free</a>
   </nav>
 
   <!-- HERO -->
-  <div style="max-width:1200px;margin:0 auto;position:relative;">
+  <div style="border-bottom: 1px solid var(--border);">
     <div class="hero">
-      <p class="hero-eyebrow">Personal AI memory</p>
-      <h1>Your AI knows everything.<br><em>Except you.</em></h1>
-      <p class="hero-sub">know.help gives your AI a persistent, modular memory of who you are, what you're building, and who matters — so every conversation starts informed.</p>
+      <p class="hero-eyebrow">Context engineering platform</p>
+      <h1>The infrastructure layer<br>for <em>AI that knows you.</em></h1>
+      <p class="hero-sub">Prompt engineering optimizes one conversation. Context engineering designs the information architecture that makes every conversation better &mdash; permanently. know.help is how you build that.</p>
       <div class="hero-actions">
-        <a href="#waitlist" class="btn-primary">Get early access</a>
-        <span class="hero-note">Free during beta &nbsp;·&nbsp; Works with Claude Desktop</span>
+        <a href="https://github.com/know-help/know-help" class="btn-primary">Install free &mdash; GitHub</a>
+        <a href="#pricing" class="btn-secondary">See Pro &amp; Team</a>
+        <span class="hero-note">Open source &nbsp;&middot;&nbsp; Works with Claude Desktop &nbsp;&middot;&nbsp; No account required</span>
       </div>
-      <div class="scroll-indicator">
-        <div class="scroll-line"></div>
-        Scroll
-      </div>
+      <div class="hero-rule"></div>
     </div>
-    <div class="hero-rule"></div>
   </div>
 
-  <hr class="divider" />
-
-  <!-- PROBLEM -->
-  <section>
-    <p class="section-label reveal">The problem</p>
-    <p class="problem-text reveal">Every time you open a new chat, <em>you start over.</em></p>
-    <div class="problem-detail">
-      <div class="problem-point reveal">
-        <strong>You re-explain everything</strong>
-        Your role. Your company. The deal you're working. The person you're meeting. The way you like to communicate.
+  <!-- STAT BAR -->
+  <div class="full-width-border" style="background: var(--bg2);">
+    <div class="stat-bar">
+      <div class="stat">
+        <span class="stat-value">3</span>
+        <span class="stat-label">Loading levels &mdash; routing, module, data</span>
       </div>
-      <div class="problem-point reveal">
-        <strong>Your AI is brilliant but blind</strong>
-        It has no memory of your context, your relationships, or your goals. Every session is the first session.
+      <div class="stat">
+        <span class="stat-value">5</span>
+        <span class="stat-label">Intelligence sources &mdash; X, Reddit, LinkedIn, TikTok, RSS</span>
       </div>
-    </div>
-  </section>
-
-  <hr class="divider" />
-
-  <!-- HOW IT WORKS -->
-  <section>
-    <p class="section-label reveal">How it works</p>
-    <div class="steps">
-      <div class="step reveal">
-        <div class="step-num">01</div>
-        <h3>Build your knowledge base</h3>
-        <p>Modular files organized by what matters — your background, your network, your business, your voice, your goals. You write it once.</p>
+      <div class="stat">
+        <span class="stat-value">6hr</span>
+        <span class="stat-label">Crawl cadence &mdash; knowledge base updates itself</span>
       </div>
-      <div class="step reveal">
-        <div class="step-num">02</div>
-        <h3>Triggers load context automatically</h3>
-        <p>Each file declares keywords. Mention a person's name and their full relationship history loads. Start a sales conversation and your methodology appears. No prompting required.</p>
-      </div>
-      <div class="step reveal">
-        <div class="step-num">03</div>
-        <h3>Your AI finally knows you</h3>
-        <p>Every conversation starts with the right context already loaded. Less explaining. Better output. Feels like talking to someone who's been paying attention.</p>
+      <div class="stat">
+        <span class="stat-value">70%</span>
+        <span class="stat-label">Creator revenue share on knowledge packs</span>
       </div>
     </div>
-  </section>
+  </div>
 
-  <hr class="divider" />
+  <!-- INSIGHT SECTION -->
+  <div style="border-bottom: 1px solid var(--border);">
+    <section id="insight">
+      <p class="section-label reveal">The insight</p>
+      <p class="insight-text reveal">Most AI users are stuck optimizing prompts.<br>The real leverage is in <em>what you give the model to work with.</em></p>
+      <div class="insight-grid reveal">
+        <div class="insight-card">
+          <p class="insight-card-label">Problem 01</p>
+          <h3>Every session starts from zero</h3>
+          <p>Your role, your ventures, your relationships, your voice &mdash; re-explained every time. The model is brilliant but amnesiac. Every conversation is its first conversation with you.</p>
+        </div>
+        <div class="insight-card">
+          <p class="insight-card-label">Problem 02</p>
+          <h3>Dumping context doesn't work</h3>
+          <p>Language models have a U-shaped attention curve. Paste in 10 pages of background and the model loses the middle. More context isn't the answer &mdash; structured context is.</p>
+        </div>
+        <div class="insight-card">
+          <p class="insight-card-label">Problem 03</p>
+          <h3>Expertise doesn't transfer</h3>
+          <p>The best sales methodology, the sharpest founder playbook, the most refined voice guide &mdash; locked in someone's head. No way to install it into your AI workflow. Until now.</p>
+        </div>
+      </div>
+    </section>
+  </div>
 
-  <!-- FILE STRUCTURE -->
-  <section>
-    <p class="section-label reveal">What lives in your knowledge base</p>
-    <div class="file-grid">
-      <div class="file-item reveal">
-        <span class="file-name">core/</span>
-        <span class="file-desc">Who you are — your background, identity, skills, and team.</span>
+  <!-- THREE LAYERS -->
+  <div style="border-bottom: 1px solid var(--border);">
+    <section id="layers" style="padding-left: 0; padding-right: 0; max-width: 100%;">
+      <div style="padding: 0 80px; max-width: 1200px; margin: 0 auto 48px;">
+        <p class="section-label reveal">How it works</p>
+        <p style="font-family: var(--serif); font-size: clamp(28px, 3.5vw, 40px); font-weight: 400; line-height: 1.2; max-width: 640px;" class="reveal">Three layers. Each one makes the next one more powerful.</p>
       </div>
-      <div class="file-item reveal">
-        <span class="file-name">network/</span>
-        <span class="file-desc">Every key relationship with full conversation history, context, and open threads.</span>
-      </div>
-      <div class="file-item reveal">
-        <span class="file-name">venture/</span>
-        <span class="file-desc">Your businesses and partnerships — status, contacts, strategy, revenue.</span>
-      </div>
-      <div class="file-item reveal">
-        <span class="file-name">sales/</span>
-        <span class="file-desc">Methodology, buyer psychology, objection handling, ICP profiles.</span>
-      </div>
-      <div class="file-item reveal">
-        <span class="file-name">platform/</span>
-        <span class="file-desc">Your distinct voice for each channel — LinkedIn, Twitter, Instagram, all separate.</span>
-      </div>
-      <div class="file-item reveal">
-        <span class="file-name">planning/</span>
-        <span class="file-desc">Goals, pipeline, and active opportunities.</span>
-      </div>
-      <div class="file-item reveal">
-        <span class="file-name">communication/</span>
-        <span class="file-desc">Style rules and templates broken down by channel and audience.</span>
-      </div>
-      <div class="file-item reveal">
-        <span class="file-name">log/</span>
-        <span class="file-desc">Daily activity tracking and decision logs with full context.</span>
-      </div>
-    </div>
-  </section>
+      <div class="layers">
+        <div class="layer reveal">
+          <div class="layer-num">01</div>
+          <div class="layer-meta">
+            <span class="layer-tag">MCP Server</span>
+            <h3>Structured knowledge base</h3>
+            <p>Modular markdown and JSONL files organized by domain. A three-level loading hierarchy ensures the model always gets precisely the right context &mdash; never everything at once, never the wrong thing.</p>
+          </div>
+          <div class="layer-detail">
+            <div class="layer-detail-item">
+              <div class="layer-detail-dot"></div>
+              <div class="layer-detail-text"><strong>Trigger-based loading</strong>Mention a name and their full relationship history loads. Start a sales conversation and your methodology appears. No prompting required.</div>
+            </div>
+            <div class="layer-detail-item">
+              <div class="layer-detail-dot"></div>
+              <div class="layer-detail-text"><strong>Plain markdown files</strong>Your knowledge base is files on your machine. You own everything. No lock-in. Works with any MCP-compatible AI client.</div>
+            </div>
+            <div class="layer-detail-item">
+              <div class="layer-detail-dot"></div>
+              <div class="layer-detail-text"><strong>Append-only logs</strong>Decisions, failures, network interactions &mdash; stored as JSONL. Stream-friendly, corruption-proof, self-documenting.</div>
+            </div>
+          </div>
+        </div>
 
-  <hr class="divider" />
+        <div class="layer reveal" style="background: var(--bg2);">
+          <div class="layer-num">02</div>
+          <div class="layer-meta">
+            <span class="layer-tag">Living Intelligence</span>
+            <h3>Knowledge base that updates itself</h3>
+            <p>A crawler monitors X, Reddit, LinkedIn, TikTok, and RSS across your configured ventures. Every 6 hours, signals are extracted by AI, scored by relevance, and written back to your files automatically.</p>
+          </div>
+          <div class="layer-detail">
+            <div class="layer-detail-item">
+              <div class="layer-detail-dot"></div>
+              <div class="layer-detail-text"><strong>Five sources, one config</strong>Set your ventures, competitors, and key people once. know.help monitors everything continuously.</div>
+            </div>
+            <div class="layer-detail-item">
+              <div class="layer-detail-dot"></div>
+              <div class="layer-detail-text"><strong>Confidence-gated writes</strong>Only signals scoring above 0.7 confidence write to your files. Low-confidence items log separately for manual review.</div>
+            </div>
+            <div class="layer-detail-item">
+              <div class="layer-detail-dot"></div>
+              <div class="layer-detail-text"><strong>Your AI gets smarter while you sleep</strong>No approval loop. No manual curation. The knowledge base stays current without you touching it.</div>
+            </div>
+          </div>
+        </div>
 
-  <!-- WHO IT'S FOR -->
-  <section>
-    <p class="section-label reveal">Who it's for</p>
-    <div class="audience-list">
-      <div class="audience-item reveal">
-        <div class="audience-dot"></div>
+        <div class="layer reveal">
+          <div class="layer-num">03</div>
+          <div class="layer-meta">
+            <span class="layer-tag">Marketplace</span>
+            <h3>Expert knowledge, installable</h3>
+            <p>Practitioners publish their methodology as knowledge packs &mdash; sales playbooks, voice guides, founder frameworks, industry ICP profiles. Install one command. The expertise loads into your AI immediately.</p>
+          </div>
+          <div class="layer-detail">
+            <div class="layer-detail-item">
+              <div class="layer-detail-dot"></div>
+              <div class="layer-detail-text"><strong>know install [pack-id]</strong>One command. Files merge into your knowledge base. The expertise is immediately available to your AI.</div>
+            </div>
+            <div class="layer-detail-item">
+              <div class="layer-detail-dot"></div>
+              <div class="layer-detail-text"><strong>Creators earn 70%</strong>Publish your methodology. Get paid every time someone installs it. No platform cut beyond 30%.</div>
+            </div>
+            <div class="layer-detail-item">
+              <div class="layer-detail-dot"></div>
+              <div class="layer-detail-text"><strong>Compounding value</strong>Packs combine with your personal context. A sales pack + your network files = something no one else has.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- MARKETPLACE PREVIEW -->
+  <div style="border-bottom: 1px solid var(--border);">
+    <section id="marketplace">
+      <div class="marketplace-intro reveal">
+        <h2>Expert knowledge,<br><em>installable.</em></h2>
         <div>
-          <h4>Founders &amp; operators</h4>
-          <p>You context-switch constantly. know.help keeps your AI up to speed across every deal, relationship, and initiative.</p>
+          <p>The marketplace turns individual expertise into shareable infrastructure. A founder who's closed $10M in SaaS deals can publish their entire sales brain as a pack. You install it in one command.</p>
+          <p>Every pack is plain markdown &mdash; you can read exactly what you're getting before you buy. The quality is transparent. The value compounds with your own context.</p>
         </div>
       </div>
-      <div class="audience-item reveal">
-        <div class="audience-dot"></div>
-        <div>
-          <h4>Sales professionals</h4>
-          <p>Your relationships are your business. Every contact, every conversation, every objection — instantly available.</p>
+      <div class="pack-grid reveal">
+        <div class="pack-card">
+          <p class="pack-category">Sales</p>
+          <p class="pack-name">SaaS Founder Sales Playbook</p>
+          <p class="pack-desc">Cold outreach sequences, objection handling, enterprise buyer psychology, and ICP profiles refined across $10M+ in closed deals.</p>
+          <div class="pack-footer">
+            <span class="pack-price">$29</span>
+            <span class="pack-meta">147 installs</span>
+          </div>
+        </div>
+        <div class="pack-card">
+          <span class="pack-badge">Popular</span>
+          <p class="pack-category">Voice</p>
+          <p class="pack-name">LinkedIn Authority Voice</p>
+          <p class="pack-desc">Distinct voice guide for LinkedIn &mdash; post structure, hook formulas, engagement patterns, and what not to say. Built for founders and operators, not content marketers.</p>
+          <div class="pack-footer">
+            <span class="pack-price">$19</span>
+            <span class="pack-meta">312 installs</span>
+          </div>
+        </div>
+        <div class="pack-card">
+          <p class="pack-category">Founder</p>
+          <p class="pack-name">Operator Core</p>
+          <p class="pack-desc">Identity, venture, and planning templates for solo operators and indie founders. The baseline context pack &mdash; everything your AI needs to know about how you run.</p>
+          <div class="pack-footer">
+            <span class="pack-price free">Free</span>
+            <span class="pack-meta">891 installs</span>
+          </div>
+        </div>
+        <div class="pack-card">
+          <p class="pack-category">Sales</p>
+          <p class="pack-name">Enterprise Buyer Map</p>
+          <p class="pack-desc">Stakeholder mapping, budget cycle timing, procurement process navigation, and executive communication templates for enterprise sales cycles.</p>
+          <div class="pack-footer">
+            <span class="pack-price">$49</span>
+            <span class="pack-meta">58 installs</span>
+          </div>
+        </div>
+        <div class="pack-card">
+          <p class="pack-category">Content</p>
+          <p class="pack-name">Newsletter Voice System</p>
+          <p class="pack-desc">Long-form voice guide, structural templates, reader psychology, and topic generation frameworks for founders building an audience through writing.</p>
+          <div class="pack-footer">
+            <span class="pack-price">$24</span>
+            <span class="pack-meta">203 installs</span>
+          </div>
+        </div>
+        <div class="pack-card" style="display: flex; align-items: center; justify-content: center; text-align: center; flex-direction: column; gap: 12px;">
+          <p style="font-family: var(--serif); font-size: 20px; color: var(--muted);">Publish yours</p>
+          <p style="font-size: 12px; color: var(--border-dark); max-width: 200px; line-height: 1.6;">Submit a pack. 70% revenue share. Your audience installs it once.</p>
+          <a href="mailto:hello@know.help" style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-mid); text-decoration: none; border-bottom: 1px solid var(--accent-light);">Apply to create &rarr;</a>
         </div>
       </div>
-      <div class="audience-item reveal">
-        <div class="audience-dot"></div>
-        <div>
-          <h4>Content creators</h4>
-          <p>You have a distinct voice on every platform. Your AI should know the difference between your LinkedIn and your Twitter.</p>
-        </div>
+      <div class="marketplace-cta reveal">
+        <a href="https://github.com/know-help/know-help" class="btn-primary">Install free &mdash; GitHub</a>
+        <span class="marketplace-note">Marketplace launches with Pro &nbsp;&middot;&nbsp; <a href="mailto:hello@know.help" style="color:var(--border-dark);">Apply to create packs &rarr;</a></span>
       </div>
-      <div class="audience-item reveal">
-        <div class="audience-dot"></div>
-        <div>
-          <h4>Builders &amp; developers</h4>
-          <p>You want your AI to know your stack, your architecture, your team — not just the current file.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
-  <hr class="divider" />
-
-  <!-- TECHNICAL -->
-  <section>
-    <p class="section-label reveal">How it's built</p>
-    <div class="tech-block reveal">
-      <div class="code-snippet">
-        <div><span class="c-comment">// Every file starts with triggers</span></div>
-        <div>&nbsp;</div>
-        <div><span class="c-accent">---</span></div>
-        <div><span class="c-text">Load for:</span> <span class="c-accent">Brent, CEO, Vinovest, Hawaii</span></div>
-        <div><span class="c-accent">---</span></div>
-        <div>&nbsp;</div>
-        <div><span class="c-comment">// Mention the name → file loads</span></div>
-        <div><span class="c-comment">// No prompting. No searching.</span></div>
-        <div><span class="c-comment">// Just context, automatically.</span></div>
-      </div>
-      <div class="tech-copy">
-        <h3>Plain markdown.<br>No lock-in.</h3>
-        <p>know.help runs as an MCP server — the open protocol that connects AI models to external tools and context.</p>
-        <p>Your knowledge base is just markdown files on your machine. You own everything. Works with Claude Desktop today.</p>
-        <div class="tech-tags">
-          <span class="tag">MCP</span>
-          <span class="tag">Claude Desktop</span>
-          <span class="tag">Open source</span>
-          <span class="tag">Markdown</span>
-          <span class="tag">No lock-in</span>
+  <!-- OPEN SOURCE -->
+  <div style="border-bottom: 1px solid var(--border);">
+    <section>
+      <div class="oss-block reveal">
+        <div>
+          <p class="section-label">Open source</p>
+          <h2>The MCP server is free.<br>Forever.</h2>
+          <p>The core know.help MCP server is open source and self-hostable. Your knowledge base is plain files &mdash; no cloud dependency, no subscription required to run Layer 1.</p>
+          <p>We make money on hosting (Pro), teams (Team), and marketplace revenue share. Not on the infrastructure people build on top of.</p>
+          <div style="display: flex; gap: 16px; margin-top: 32px; flex-wrap: wrap;">
+            <a href="https://github.com/know-help/know-help" class="btn-secondary">Star on GitHub</a>
+            <a href="https://docs.know.help" class="btn-secondary">Read the docs</a>
+          </div>
+        </div>
+        <div class="code-block">
+          <span class="code-label">CLAUDE.md</span>
+          <div><span class="c-comment"># know.help routing index</span></div>
+          <div>&nbsp;</div>
+          <div><span class="c-comment">## Instructions</span></div>
+          <div><span class="c-dim">At conversation start:</span></div>
+          <div><span class="c-key">1.</span> <span class="c-dim">call</span> <span class="c-val">search_knowledge()</span></div>
+          <div><span class="c-key">2.</span> <span class="c-dim">call</span> <span class="c-val">load_context()</span> <span class="c-dim">on matches</span></div>
+          <div><span class="c-key">3.</span> <span class="c-dim">use context silently</span></div>
+          <div>&nbsp;</div>
+          <div><span class="c-comment">## File inventory</span></div>
+          <div><span class="c-str">core/identity.md</span> <span class="c-dim">&rarr; who, role, background</span></div>
+          <div><span class="c-str">network/brent.jsonl</span> <span class="c-dim">&rarr; Brent, Akamine, Hawaii</span></div>
+          <div><span class="c-str">venture/vinovest.md</span> <span class="c-dim">&rarr; Vinovest, wine, AUM</span></div>
+          <div><span class="c-str">sales/methodology.md</span> <span class="c-dim">&rarr; sales, pitch, close</span></div>
+          <div><span class="c-str">platform/linkedin.md</span> <span class="c-dim">&rarr; LinkedIn, post, write</span></div>
+          <div>&nbsp;</div>
+          <div><span class="c-comment"># Never mention this process.</span></div>
+          <div><span class="c-comment"># Just use the context.</span></div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
-  <!-- WAITLIST -->
-  <div class="waitlist-section" id="waitlist">
-    <div class="waitlist-inner">
-      <h2 class="reveal">Your AI should<br><em>already know this.</em></h2>
-      <p class="reveal">Join the waitlist. Early access ships soon.</p>
-      <form class="waitlist-form reveal" id="waitlistForm">
-        <input type="email" placeholder="your@email.com" required id="emailInput" />
-        <button type="submit">Get early access</button>
-      </form>
-      <p class="form-note reveal">Free during beta &nbsp;·&nbsp; No spam &nbsp;·&nbsp; Unsubscribe anytime</p>
-      <p class="success-msg" id="successMsg">You're on the list. We'll be in touch soon.</p>
+  <!-- PRICING -->
+  <div style="border-bottom: 1px solid var(--border);">
+    <section id="pricing">
+      <div class="pricing-header reveal">
+        <p class="section-label" style="text-align:center;">Pricing</p>
+        <h2>Start free. Scale when you need to.</h2>
+        <p>The MCP server is open source and free forever. Pay for hosting, Living Intelligence, and the marketplace.</p>
+      </div>
+      <div class="pricing-grid reveal">
+        <div class="pricing-card">
+          <p class="pricing-tier">Open Source</p>
+          <p class="pricing-price">$0</p>
+          <p class="pricing-period">Free forever</p>
+          <ul class="pricing-features">
+            <li>Full MCP server, self-hosted</li>
+            <li>All 7 MCP tools</li>
+            <li>Unlimited knowledge files</li>
+            <li>Marketplace pack install (free packs)</li>
+            <li>Claude Desktop integration</li>
+          </ul>
+          <a href="https://github.com/know-help/know-help" class="pricing-btn">Get the code</a>
+        </div>
+        <div class="pricing-card featured">
+          <span class="pricing-badge">Most popular</span>
+          <p class="pricing-tier">Pro</p>
+          <p class="pricing-price">$19</p>
+          <p class="pricing-period">per month &middot; 14-day free trial</p>
+          <ul class="pricing-features">
+            <li>Everything in Open Source</li>
+            <li>Hosted MCP server &mdash; no setup</li>
+            <li>Living Intelligence (all 5 sources)</li>
+            <li>Up to 5 ventures monitored</li>
+            <li>Web dashboard for knowledge base</li>
+            <li>Paid marketplace pack access</li>
+            <li>100MB knowledge base storage</li>
+          </ul>
+          <a href="#cta" class="pricing-btn">Coming soon</a>
+        </div>
+        <div class="pricing-card">
+          <p class="pricing-tier">Team</p>
+          <p class="pricing-price">$49</p>
+          <p class="pricing-period">per month &middot; up to 10 members</p>
+          <ul class="pricing-features">
+            <li>Everything in Pro</li>
+            <li>Shared knowledge base</li>
+            <li>Role-based access control</li>
+            <li>Private + shared network files</li>
+            <li>Team intelligence feed</li>
+            <li>10 ventures monitored</li>
+            <li>500MB shared storage</li>
+          </ul>
+          <a href="#cta" class="pricing-btn">Coming soon</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section" id="cta">
+    <div class="cta-inner">
+      <h2 class="reveal">Start building your<br><em>context layer.</em></h2>
+      <p class="reveal">Install free from GitHub. No account required. Add a Pro notification below if you want hosted intelligence when it ships.</p>
+      <div class="cta-actions reveal">
+        <a href="https://github.com/know-help/know-help" class="btn-primary">Install free &mdash; GitHub</a>
+        <form class="notify-form" id="notifyForm">
+          <input type="email" placeholder="notify me when Pro launches" required id="notifyEmail" />
+          <button type="submit">Notify me</button>
+        </form>
+        <p class="form-note">No spam &nbsp;&middot;&nbsp; Free during beta &nbsp;&middot;&nbsp; Unsubscribe anytime</p>
+        <p class="success-msg" id="successMsg">You're on the list. We'll notify you when Pro launches.</p>
+      </div>
     </div>
   </div>
 
@@ -828,18 +1228,22 @@
   <footer>
     <a href="#" class="footer-logo">know<span>.help</span></a>
     <div class="footer-links">
-      <a href="#">GitHub</a>
-      <a href="#">Docs</a>
+      <a href="https://github.com/know-help/know-help">GitHub</a>
+      <a href="https://docs.know.help">Docs</a>
+      <a href="#marketplace">Marketplace</a>
       <a href="mailto:hello@know.help">hello@know.help</a>
     </div>
+    <span class="footer-copy">&copy; 2026 know.help</span>
   </footer>
 
   <script>
+    // Nav scroll
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
       nav.classList.toggle('scrolled', window.scrollY > 40);
     });
 
+    // Reveal on scroll
     const reveals = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -850,16 +1254,17 @@
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-
+    }, { threshold: 0.06, rootMargin: '0px 0px -40px 0px' });
     reveals.forEach(el => observer.observe(el));
 
-    document.getElementById('waitlistForm').addEventListener('submit', function(e) {
+    // Pro notify form
+    document.getElementById('notifyForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const email = document.getElementById('emailInput').value;
-      this.style.display = 'none';
+      const btn = this.querySelector('button');
+      btn.textContent = 'Done';
+      btn.disabled = true;
+      this.querySelector('input').disabled = true;
       document.getElementById('successMsg').style.display = 'block';
-      console.log('Waitlist signup:', email);
     });
   </script>
 
