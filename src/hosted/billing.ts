@@ -2,7 +2,11 @@ import { Router, Request, Response } from "express";
 import Stripe from "stripe";
 import { db } from "../db/database";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_placeholder_set_env_var");
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.warn("WARNING: STRIPE_SECRET_KEY not set. Billing endpoints will reject requests.");
+}
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_not_configured");
 const PRO_PRICE_ID = process.env.STRIPE_PRO_PRICE_ID || "";
 const TEAM_PRICE_ID = process.env.STRIPE_TEAM_PRICE_ID || "";
 const BASE_URL = process.env.BASE_URL || "https://know.help";
@@ -50,7 +54,8 @@ router.post("/billing/subscribe", async (req: Request, res: Response) => {
 
     res.json({ checkout_url: session.url });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    console.error("Billing error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -101,7 +106,8 @@ router.post("/billing/team/subscribe", async (req: Request, res: Response) => {
 
     res.json({ checkout_url: session.url });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    console.error("Billing error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -125,7 +131,8 @@ router.get("/billing/portal", async (req: Request, res: Response) => {
     });
     res.json({ portal_url: session.url });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    console.error("Billing error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -147,7 +154,8 @@ router.get("/billing/team/portal", async (req: Request, res: Response) => {
     });
     res.json({ portal_url: session.url });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    console.error("Billing error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

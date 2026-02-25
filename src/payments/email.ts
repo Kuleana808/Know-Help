@@ -1,6 +1,10 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY || "re_placeholder_set_env_var");
+if (!process.env.RESEND_API_KEY) {
+  console.warn("WARNING: RESEND_API_KEY not set. Emails will not be sent.");
+}
+
+const resend = new Resend(process.env.RESEND_API_KEY || "re_not_configured");
 const FROM_EMAIL = process.env.FROM_EMAIL || "hello@know.help";
 const BASE_URL = process.env.BASE_URL || "https://know.help";
 

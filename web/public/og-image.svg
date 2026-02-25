@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#f5f2eb"/>
+
+  <!-- Subtle grid pattern -->
+  <g opacity="0.04">
+    <line x1="0" y1="0" x2="0" y2="630" stroke="#1a4a2e" stroke-width="1" />
+    <line x1="60" y1="0" x2="60" y2="630" stroke="#1a4a2e" stroke-width="1" />
+    <line x1="120" y1="0" x2="120" y2="630" stroke="#1a4a2e" stroke-width="1" />
+    <line x1="180" y1="0" x2="180" y2="630" stroke="#1a4a2e" stroke-width="1" />
+    <line x1="240" y1="0" x2="240" y2="630" stroke="#1a4a2e" stroke-width="1" />
+    <line x1="300" y1="0" x2="300" y2="630" stroke="#1a4a2e" stroke-width="1" />
+    <line x1="360" y1="0" x2="360" y2="630" stroke="#1a4a2e" stroke-width="1" />
+    <line x1="420" y1="0" x2="420" y2="630" stroke="#1a4a2e" stroke-width="1" />
+    <line x1="0" y1="60" x2="1200" y2="60" stroke="#1a4a2e" stroke-width="1" />
+    <line x1="0" y1="120" x2="1200" y2="120" stroke="#1a4a2e" stroke-width="1" />
+    <line x1="0" y1="180" x2="1200" y2="180" stroke="#1a4a2e" stroke-width="1" />
+    <line x1="0" y1="240" x2="1200" y2="240" stroke="#1a4a2e" stroke-width="1" />
+    <line x1="0" y1="300" x2="1200" y2="300" stroke="#1a4a2e" stroke-width="1" />
+    <line x1="0" y1="360" x2="1200" y2="360" stroke="#1a4a2e" stroke-width="1" />
+  </g>
+
+  <!-- Left accent bar -->
+  <rect x="0" y="0" width="6" height="630" fill="#1a4a2e"/>
+
+  <!-- Logo mark: stylized "k." -->
+  <text x="80" y="160" font-family="'Playfair Display', Georgia, serif" font-size="72" font-weight="700" fill="#1a4a2e">k.</text>
+
+  <!-- Main headline -->
+  <text x="80" y="280" font-family="'Playfair Display', Georgia, serif" font-size="64" font-weight="400" fill="#1a4a2e">know.help</text>
+
+  <!-- Tagline -->
+  <text x="80" y="350" font-family="'IBM Plex Mono', monospace" font-size="24" fill="#6b6560" letter-spacing="0.05em">Your AI should already know this.</text>
+
+  <!-- Description -->
+  <text x="80" y="420" font-family="'IBM Plex Mono', monospace" font-size="18" fill="#8a8278">Trigger-based context loading for Claude.</text>
+  <text x="80" y="450" font-family="'IBM Plex Mono', monospace" font-size="18" fill="#8a8278">Install professional judgment as Mindsets.</text>
+
+  <!-- Divider -->
+  <line x1="80" y1="490" x2="400" y2="490" stroke="#d8d3c8" stroke-width="1"/>
+
+  <!-- Bottom tags -->
+  <text x="80" y="530" font-family="'IBM Plex Mono', monospace" font-size="14" fill="#a09890" letter-spacing="0.1em">MCP SERVER</text>
+  <text x="250" y="530" font-family="'IBM Plex Mono', monospace" font-size="14" fill="#a09890" letter-spacing="0.1em">CONTEXT ENGINEERING</text>
+  <text x="520" y="530" font-family="'IBM Plex Mono', monospace" font-size="14" fill="#a09890" letter-spacing="0.1em">MINDSET MARKETPLACE</text>
+
+  <!-- Right side: code preview decoration -->
+  <g transform="translate(700, 120)" opacity="0.6">
+    <rect x="0" y="0" width="440" height="400" rx="8" fill="#2d2926" opacity="0.95"/>
+    <text x="24" y="40" font-family="'IBM Plex Mono', monospace" font-size="13" fill="#6b6560">~/.know-help/</text>
+    <text x="24" y="72" font-family="'IBM Plex Mono', monospace" font-size="14" fill="#8abf7a">core/</text>
+    <text x="52" y="98" font-family="'IBM Plex Mono', monospace" font-size="13" fill="#d8d3c8">identity.md</text>
+    <text x="220" y="98" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#6b6560">who you are</text>
+    <text x="24" y="132" font-family="'IBM Plex Mono', monospace" font-size="14" fill="#8abf7a">venture/</text>
+    <text x="52" y="158" font-family="'IBM Plex Mono', monospace" font-size="13" fill="#d8d3c8">terravault.md</text>
+    <text x="220" y="158" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#6b6560">your company</text>
+    <text x="24" y="192" font-family="'IBM Plex Mono', monospace" font-size="14" fill="#8abf7a">network/</text>
+    <text x="52" y="218" font-family="'IBM Plex Mono', monospace" font-size="13" fill="#d8d3c8">alex.jsonl</text>
+    <text x="220" y="218" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#6b6560">key contacts</text>
+    <text x="24" y="252" font-family="'IBM Plex Mono', monospace" font-size="14" fill="#c4956a">mindsets/</text>
+    <text x="52" y="278" font-family="'IBM Plex Mono', monospace" font-size="13" fill="#d8d3c8">sales-expert/</text>
+    <text x="220" y="278" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#6b6560">installed</text>
+    <text x="52" y="304" font-family="'IBM Plex Mono', monospace" font-size="13" fill="#d8d3c8">brand-strategist/</text>
+    <text x="220" y="304" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#6b6560">installed</text>
+
+    <!-- Trigger arrow decoration -->
+    <text x="24" y="358" font-family="'IBM Plex Mono', monospace" font-size="12" fill="#6b6560">// mention "sales" --&gt; loads judgment</text>
+    <text x="24" y="382" font-family="'IBM Plex Mono', monospace" font-size="12" fill="#6b6560">// mention "brand" --&gt; loads strategy</text>
+  </g>
+</svg>

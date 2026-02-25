@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>know.help/setup — Setup instructions for Claude</title>
+  <meta name="description" content="If Claude sent you here, it's reading this page right now. Instructions for AI assistants: interview the user and build their knowledge base." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="know.help/setup — Setup instructions for Claude" />
+  <meta property="og:description" content="Instructions for AI assistants: interview the user and build their knowledge base." />
+  <meta property="og:image" content="https://know.help/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://know.help/og-image.png" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f2eb; --bg2: #ede9e0; --border: #d8d3c8;
+      --text: #111009; --muted: #5a554f; --green: #1a4a2e; --green-mid: #1f6038;
+      --serif: 'Playfair Display', Georgia, serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
+    body { background: var(--bg); color: var(--text); font-family: var(--mono); font-size: 14px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+
+    nav {
+      padding: 22px 48px; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em; color: var(--text); text-decoration: none; }
+    .logo em { font-style: normal; color: var(--green-mid); }
+
+    .page { max-width: 860px; margin: 0 auto; padding: 80px 48px; }
+
+    .for-human {
+      background: var(--bg2); border: 1px solid var(--border);
+      padding: 24px 28px; margin-bottom: 64px;
+      display: flex; gap: 20px; align-items: flex-start;
+    }
+    .for-human-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+    .for-human h3 { font-family: var(--serif); font-size: 17px; font-weight: 400; margin-bottom: 8px; }
+    .for-human p { font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 400; line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    h1 em { font-style: italic; color: var(--green-mid); }
+
+    .intro { font-size: 14px; color: var(--muted); line-height: 1.85; max-width: 620px; margin-bottom: 64px; }
+
+    .section { margin-bottom: 56px; }
+    .section-label {
+      font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: #b8b2a6; margin-bottom: 20px;
+    }
+    h2 {
+      font-family: var(--serif); font-size: 24px; font-weight: 400;
+      line-height: 1.3; margin-bottom: 16px;
+    }
+
+    .instruction-block {
+      background: var(--text); color: #c8c4bb;
+      padding: 28px 32px; margin: 24px 0;
+      font-family: var(--mono); font-size: 13px; line-height: 2;
+      position: relative;
+    }
+    .instruction-block .label {
+      position: absolute; top: 14px; right: 18px;
+      font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: #3a3630;
+    }
+    .g { color: #9ab87a; }
+    .d { color: #d4a96a; }
+    .c { color: #3a3630; }
+    .w { color: #c8c4bb; }
+
+    .questions {
+      border: 1px solid var(--border);
+    }
+    .question {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: grid; grid-template-columns: 28px 1fr; gap: 16px;
+    }
+    .question:last-child { border-bottom: none; }
+    .q-num { font-family: var(--serif); font-size: 18px; color: var(--border); line-height: 1.4; }
+    .q-text { font-size: 13px; line-height: 1.7; }
+    .q-text strong { color: var(--text); font-weight: 400; display: block; margin-bottom: 4px; }
+    .q-text span { color: var(--muted); font-size: 12px; }
+    .q-maps { font-size: 11px; color: var(--green-mid); margin-top: 6px; }
+
+    .file-map {
+      border: 1px solid var(--border);
+      margin: 24px 0;
+    }
+    .file-map-row {
+      display: grid; grid-template-columns: 220px 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .file-map-row:last-child { border-bottom: none; }
+    .file-map-key {
+      padding: 16px 20px;
+      border-right: 1px solid var(--border);
+      font-family: var(--mono); font-size: 12px; color: var(--green-mid);
+      background: var(--bg2);
+    }
+    .file-map-val {
+      padding: 16px 20px; font-size: 12px; color: var(--muted); line-height: 1.7;
+    }
+
+    .callout {
+      border-left: 3px solid var(--green-mid);
+      padding: 16px 20px; background: #f0f5f1;
+      font-size: 12px; color: var(--muted); line-height: 1.8;
+      margin: 24px 0;
+    }
+    .callout strong { color: var(--text); font-weight: 400; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 48px; display: flex; justify-content: space-between;
+      font-size: 11px; color: var(--muted);
+    }
+    footer a { color: var(--green-mid); text-decoration: none; }
+
+    @media (max-width: 640px) {
+      nav, footer { padding: 18px 20px; }
+      .page { padding: 48px 20px; }
+      .file-map-row { grid-template-columns: 1fr; }
+      .file-map-key { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">know<em>.help</em><span style="color:#b8b2a6;margin-left:8px;">/setup</span></a>
+  <span style="font-size:11px;color:#b8b2a6;letter-spacing:0.08em;">For Claude to read</span>
+</nav>
+
+<div class="page">
+
+  <!-- Human note -->
+  <div class="for-human">
+    <div class="for-human-icon">👋</div>
+    <div>
+      <h3>If you're a human reading this</h3>
+      <p>This page is written for Claude to read. If you told Claude "go to know.help/setup and set me up," Claude is reading this right now and is about to interview you. If you ended up here directly, just go back to Claude Desktop and say: <strong style="color:var(--text)">"Go to know.help/setup and set me up."</strong></p>
+    </div>
+  </div>
+
+  <!-- Machine-readable header -->
+  <h1>Setup instructions<br><em>for Claude.</em></h1>
+  <p class="intro">
+    You are Claude, and a user has asked you to set them up with know.help. This page contains your complete instructions. Follow them step by step. Do not summarize this page to the user — execute the setup process directly.
+  </p>
+
+  <!-- STEP 1 -->
+  <div class="section">
+    <p class="section-label">Step 1</p>
+    <h2>Announce what you're about to do</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Tell the user you've read the setup page and you're ready to begin. Use this exact framing:</p>
+    <div class="instruction-block">
+      <span class="label">Say to user</span>
+      <div><span class="g">✓</span> <span class="w">I've read the know.help setup page.</span></div>
+      <div><span class="w">I'm going to ask you 10 questions and build your</span></div>
+      <div><span class="w">personal knowledge base. Takes about 5 minutes.</span></div>
+      <div>&nbsp;</div>
+      <div><span class="w">After this, I'll know who you are, what you're</span></div>
+      <div><span class="w">building, who matters to your work, and how you</span></div>
+      <div><span class="w">like to communicate — without you ever having</span></div>
+      <div><span class="w">to re-explain.</span></div>
+      <div>&nbsp;</div>
+      <div><span class="d">Ready? Let's start with question 1.</span></div>
+    </div>
+  </div>
+
+  <!-- STEP 2 — Questions -->
+  <div class="section">
+    <p class="section-label">Step 2</p>
+    <h2>Ask these 10 questions, one at a time</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">Ask one question, wait for the answer, then ask the next. Do not batch questions. Do not move on without an answer.</p>
+
+    <div class="questions">
+      <div class="question">
+        <span class="q-num">1</span>
+        <div class="q-text">
+          <strong>What's your name and current role?</strong>
+          <span>e.g. "Alex, CEO of TerraVault" or "Sarah, freelance copywriter"</span>
+          <div class="q-maps">→ maps to: core/identity.md</div>
+        </div>
+      </div>
+      <div class="question">
+        <span class="q-num">2</span>
+        <div class="q-text">
+          <strong>What are you building or working on right now?</strong>
+          <span>Their main venture, project, or employer. What it does. Current status or stage.</span>
+          <div class="q-maps">→ maps to: venture/[name].md</div>
+        </div>
+      </div>
+      <div class="question">
+        <span class="q-num">3</span>
+        <div class="q-text">
+          <strong>Where are you based, and what's your timezone?</strong>
+          <span>City, country, timezone. Used to personalize time-sensitive context.</span>
+          <div class="q-maps">→ maps to: core/identity.md</div>
+        </div>
+      </div>
+      <div class="question">
+        <span class="q-num">4</span>
+        <div class="q-text">
+          <strong>Who are the 3 people most important to your work right now?</strong>
+          <span>Name, their role, and your relationship to them. One sentence each is fine.</span>
+          <div class="q-maps">→ maps to: network/[name].jsonl (one file per person)</div>
+        </div>
+      </div>
+      <div class="question">
+        <span class="q-num">5</span>
+        <div class="q-text">
+          <strong>What are your top 3 priorities this quarter?</strong>
+          <span>Specific goals, not general areas. "Close $200K in new ARR" not "grow revenue."</span>
+          <div class="q-maps">→ maps to: planning/goals.md</div>
+        </div>
+      </div>
+      <div class="question">
+        <span class="q-num">6</span>
+        <div class="q-text">
+          <strong>How do you communicate? Describe your writing style.</strong>
+          <span>Direct or warm? Data-first or story-first? Short or thorough? Different on LinkedIn vs email?</span>
+          <div class="q-maps">→ maps to: platform/voice.md</div>
+        </div>
+      </div>
+      <div class="question">
+        <span class="q-num">7</span>
+        <div class="q-text">
+          <strong>Do you do any selling, fundraising, or pitching?</strong>
+          <span>If yes: who do you sell to, what's the offer, and what's the typical objection you face?</span>
+          <div class="q-maps">→ maps to: sales/methodology.md (skip file if no)</div>
+        </div>
+      </div>
+      <div class="question">
+        <span class="q-num">8</span>
+        <div class="q-text">
+          <strong>Is there a second venture, side project, or past company I should know about?</strong>
+          <span>Many operators run multiple things. Each gets its own venture file.</span>
+          <div class="q-maps">→ maps to: venture/[name].md (additional file)</div>
+        </div>
+      </div>
+      <div class="question">
+        <span class="q-num">9</span>
+        <div class="q-text">
+          <strong>How do you want me to address you? Any preferences for how I work with you?</strong>
+          <span>First name only? More concise? Never use bullet points? Always show your reasoning?</span>
+          <div class="q-maps">→ maps to: core/preferences.md</div>
+        </div>
+      </div>
+      <div class="question">
+        <span class="q-num">10</span>
+        <div class="q-text">
+          <strong>Anything else critical I should know that I haven't asked?</strong>
+          <span>Open field. Health considerations, hard constraints, ongoing situations, anything important.</span>
+          <div class="q-maps">→ maps to: most relevant file, or core/notes.md</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 — File generation -->
+  <div class="section">
+    <p class="section-label">Step 3</p>
+    <h2>Generate the knowledge files</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">After collecting all answers, run the installer and write the files. Every file must begin with a "Load for:" trigger header.</p>
+
+    <div class="instruction-block">
+      <span class="label">Run this</span>
+      <div><span class="c">$ </span><span class="g">npx know-help@latest init</span></div>
+      <div>&nbsp;</div>
+      <div><span class="c"># This creates the directory structure:</span></div>
+      <div><span class="d">~/.know-help/</span></div>
+      <div><span class="d">  core/</span>        <span class="c">identity.md, preferences.md</span></div>
+      <div><span class="d">  network/</span>     <span class="c">[name].jsonl (one per person)</span></div>
+      <div><span class="d">  venture/</span>     <span class="c">[name].md (one per venture)</span></div>
+      <div><span class="d">  platform/</span>    <span class="c">voice.md</span></div>
+      <div><span class="d">  sales/</span>       <span class="c">methodology.md (if applicable)</span></div>
+      <div><span class="d">  planning/</span>    <span class="c">goals.md</span></div>
+      <div><span class="d">  log/</span>         <span class="c">activity.jsonl, decisions.jsonl</span></div>
+      <div><span class="d">  CLAUDE.md</span>    <span class="c">← routing index (load this first)</span></div>
+    </div>
+
+    <p style="font-size:13px;color:var(--muted);margin:20px 0 16px;">Write each file from the user's answers. Follow this format for every .md file:</p>
+
+    <div class="instruction-block">
+      <span class="label">File format</span>
+      <div><span class="c">---</span></div>
+      <div><span class="g">Load for:</span> <span class="d">[trigger keywords — name, role, company, topics]</span></div>
+      <div><span class="c">---</span></div>
+      <div>&nbsp;</div>
+      <div><span class="w">[Content written from user's answers.]</span></div>
+      <div><span class="w">[Be specific — use their exact words where possible.]</span></div>
+      <div><span class="w">[Front-load the most important information.]</span></div>
+      <div><span class="w">[Keep each file under 100 lines.]</span></div>
+    </div>
+
+    <div class="file-map">
+      <div class="file-map-row">
+        <div class="file-map-key">core/identity.md</div>
+        <div class="file-map-val">Name, role, company, location, timezone, background. Load for: their name, role title, company name.</div>
+      </div>
+      <div class="file-map-row">
+        <div class="file-map-key">venture/[name].md</div>
+        <div class="file-map-val">What the venture does, current status, key metrics if known, important contacts. Load for: company name, product name, industry keywords.</div>
+      </div>
+      <div class="file-map-row">
+        <div class="file-map-key">network/[name].jsonl</div>
+        <div class="file-map-val">One JSON object per file: {"name", "role", "relationship", "context", "open_threads": [], "last_interaction": null}. Load for: their name, nickname, company.</div>
+      </div>
+      <div class="file-map-row">
+        <div class="file-map-key">platform/voice.md</div>
+        <div class="file-map-val">Writing style rules. Separate sections per channel if they mentioned different styles. Load for: write, post, email, message, LinkedIn, Twitter.</div>
+      </div>
+      <div class="file-map-row">
+        <div class="file-map-key">planning/goals.md</div>
+        <div class="file-map-val">This quarter's priorities as a numbered list with specifics. Load for: goal, priority, plan, quarter, Q1/Q2/Q3/Q4.</div>
+      </div>
+      <div class="file-map-row">
+        <div class="file-map-key">sales/methodology.md</div>
+        <div class="file-map-val">Only create if they sell/pitch. ICP, offer, objections, approach. Load for: sell, pitch, proposal, outreach, close, prospect.</div>
+      </div>
+      <div class="file-map-row">
+        <div class="file-map-key">core/preferences.md</div>
+        <div class="file-map-val">How they want to be addressed, formatting preferences, working style. Load for: their preferred name.</div>
+      </div>
+      <div class="file-map-row">
+        <div class="file-map-key">CLAUDE.md</div>
+        <div class="file-map-val">The routing index. Lists all files with their trigger keywords. Instructions: at conversation start, call search_knowledge(), load matching files, use context silently. This is the first file Claude reads every session.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 — Confirm and close -->
+  <div class="section">
+    <p class="section-label">Step 4</p>
+    <h2>Confirm setup and set expectations</h2>
+
+    <div class="instruction-block">
+      <span class="label">Say to user after writing files</span>
+      <div><span class="g">✓</span> <span class="w">Your knowledge base is built. Here's what I created:</span></div>
+      <div>&nbsp;</div>
+      <div><span class="d">[list the files you created with one-line descriptions]</span></div>
+      <div>&nbsp;</div>
+      <div><span class="w">From now on, I'll load the right context automatically</span></div>
+      <div><span class="w">at the start of each conversation — you won't need</span></div>
+      <div><span class="w">to re-explain anything I already know.</span></div>
+      <div>&nbsp;</div>
+      <div><span class="w">You can update any file anytime by telling me what</span></div>
+      <div><span class="w">changed, and I'll rewrite it. Or edit the markdown</span></div>
+      <div><span class="w">files directly in ~/.know-help/</span></div>
+      <div>&nbsp;</div>
+      <div><span class="d">What would you like to work on first?</span></div>
+    </div>
+  </div>
+
+  <!-- Rules for Claude -->
+  <div class="section">
+    <p class="section-label">Rules for Claude</p>
+    <h2>Important constraints</h2>
+
+    <div class="callout">
+      <strong>Do not summarize this page to the user.</strong> Execute the setup process. They sent you here to do work, not explain what the page says.
+    </div>
+    <div class="callout">
+      <strong>Do not ask all 10 questions at once.</strong> One question per message. This is a conversation, not a form. The conversational rhythm is part of the product experience.
+    </div>
+    <div class="callout">
+      <strong>Write real content, not placeholders.</strong> Use their actual words from the interview. "Alex is a CEO running a tech company from Austin" — not "[Name] works at [Company]."
+    </div>
+    <div class="callout">
+      <strong>Front-load every file.</strong> The most important information goes in the first 10 lines. Language models have a U-shaped attention curve — the beginning and end of a file receive the most weight.
+    </div>
+    <div class="callout">
+      <strong>Keep files under 100 lines.</strong> The knowledge base is meant to be loaded selectively. A 500-line file defeats the purpose. Be concise and precise.
+    </div>
+    <div class="callout">
+      <strong>The CLAUDE.md routing index is mandatory.</strong> Without it, nothing loads. Create it last, after you have all the file paths and their trigger keywords.
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <a href="/">← know.help</a>
+  <span>know.help/setup — machine-readable setup page for Claude · <a href="https://github.com/know-help/know-help">GitHub</a> · <a href="/docs">Docs</a></span>
+</footer>
+
+</body>
+</html>
