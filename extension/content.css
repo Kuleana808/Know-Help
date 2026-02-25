@@ -1,0 +1,144 @@
+/* know.help Mindset Capture — Content Script Styles */
+
+#kh-capture-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 380px;
+  pointer-events: none;
+}
+
+.kh-capture-chip {
+  background: #fffdf7;
+  border: 1px solid #d4c9a8;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: "IBM Plex Mono", "SF Mono", monospace;
+  font-size: 12px;
+  color: #2d2a22;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  pointer-events: auto;
+  animation: kh-slide-in 0.3s ease-out;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.kh-capture-chip.kh-chip-dismissed {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+@keyframes kh-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kh-chip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.kh-chip-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kh-badge-correction { background: #dbeafe; color: #1e40af; }
+.kh-badge-explanation { background: #dcfce7; color: #166534; }
+.kh-badge-opinion { background: #fef9c3; color: #854d0e; }
+.kh-badge-red_line { background: #fee2e2; color: #991b1b; }
+.kh-badge-framework { background: #f3e8ff; color: #6b21a8; }
+.kh-badge-preference { background: #ffedd5; color: #9a3412; }
+
+.kh-chip-label {
+  flex: 1;
+  font-size: 11px;
+  color: #78716c;
+}
+
+.kh-chip-close {
+  background: none;
+  border: none;
+  color: #a8a29e;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.kh-chip-close:hover {
+  color: #57534e;
+}
+
+.kh-chip-content {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #44403c;
+  margin-bottom: 10px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 6px;
+  border-left: 3px solid #1a4a2e;
+}
+
+.kh-chip-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.kh-btn-capture {
+  background: #1a4a2e;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.kh-btn-capture:hover {
+  background: #2d6b45;
+}
+
+.kh-btn-dismiss {
+  background: transparent;
+  color: #78716c;
+  border: 1px solid #d6d3d1;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.kh-btn-dismiss:hover {
+  background: #f5f5f4;
+  color: #57534e;
+}
+
+.kh-chip-captured {
+  text-align: center;
+  padding: 8px;
+  color: #1a4a2e;
+  font-weight: 500;
+}

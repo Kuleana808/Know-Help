@@ -341,3 +341,140 @@ web/tailwind.config.ts                   — Added dark theme color tokens
 5. Stripe Connect `application_fee_percent: 30` — 70/30 creator/platform split
 6. Dark theme for mindset detail pages — matches reference designs
 7. Additive CLI — New commands added to existing `know` binary switch statement
+
+---
+
+## 2026-02-25 — Prompts 14-16 (Import Pipeline + Browser Extension + Security Hardening)
+
+**Built:**
+
+### Prompt 14: Conversation Import Pipeline
+
+**Database (3 new tables):**
+- `import_jobs` — id, creator_id, status, source, file_name, file_size_bytes, total_conversations, total_messages, signals_found, draft_files_created, error, created_at, completed_at
+- `import_signals` — id, job_id, creator_id, signal_type, content, raw_quote, source_conversation_id, source_message_index, context, suggested_file, suggested_load_for, confidence, status, edited_content, merged_into, created_at, reviewed_at
+- `import_draft_files` — id, job_id, creator_id, filepath, load_for, content, signal_ids, status, approved_at
+
+**Backend:**
+- Conversation parser (`src/import/parser.ts`) — Handles 4 export formats: Claude.ai JSON, ChatGPT JSON, generic JSON/JSONL, plain text transcripts. Filters: conversations < 4 turns excluded, avg user message < 20 words excluded
+- Signal extractor (`src/import/extractor.ts`) — Claude API (claude-sonnet-4-6) extraction with spotlighting security prompt. Regex-based fallback when no API key. Confidence calculation: base 0.65, +0.1 for >200 chars, +0.05 for >400, +0.1 for >=3 sentences, min threshold 0.7
+- Draft file generator — Clusters signals by suggested_file, generates Mindset files via Claude API or direct formatting (min 2 signals per cluster)
+- API routes (`src/import/routes.ts`) — POST /upload, GET /, GET /:jobId/status, GET /:jobId/signals (paginated + filtered), PATCH /signals/:id, GET /:jobId/drafts, PATCH /drafts/:id, POST /:jobId/publish, DELETE /:jobId
+- Background processing: Parse → Extract (batches of 10) → Security scan → Store → Cluster → Draft → Mark 'review'
+
+**Frontend (2 new pages):**
+- Import upload page (`/creator/import`) — Drag-and-drop upload, base64 encoding, job polling (2s), stats display, previous imports list, export instructions for Claude.ai and ChatGPT
+- Import review page (`/creator/import/[jobId]/review`) — Three-panel review: signal list with type badges/filters OR draft file list (tabbed), signal content editor with approve/reject, draft markdown editor, publish button
+
+### Prompt 15: Browser Extension — Ambient Mindset Capture
+
+**Chrome Extension (Manifest V3):**
+- `extension/manifest.json` — Permissions: storage, activeTab. Host permissions for claude.ai, chatgpt.com, perplexity.ai
+- `extension/content.js` — Content script injected on supported platforms:
+  - Platform-specific message extraction (Claude.ai `data-testid="human-turn"`, ChatGPT `data-message-author-role="user"`, Perplexity `.prose`)
+  - 6 signal type detectors: correction, explanation, opinion, red_line, framework, preference (regex-based with confidence scores 0.7-0.9)
+  - Floating capture chip UI: signal type badge, content preview, "Capture for Mindset" / "Dismiss" buttons, 15s auto-dismiss
+  - MutationObserver for DOM changes with 1.5s debounce, WeakSet + content hash dedup
+  - chrome.storage.local for offline capture queue
+- `extension/content.css` — Parchment-themed capture chip styling matching know.help design system. Signal type color coding
+- `extension/background.js` — Service worker: badge management, sync to server (POST /api/capture/sync), periodic sync alarm (5 min), startup badge restore
+- `extension/popup.html` + `popup.js` — Auth view (creator ID + token), status view (pending count, last sync, sync now button), disconnect
+
+**Capture sync API (`src/capture/routes.ts`):**
+- POST /sync — Upsert up to 50 signals per sync, max 10KB payload, injection detection on each signal
+- GET /signals — Paginated list with status filter
+- PATCH /signals/:id — Update status, edited content, load_for
+- POST /publish — Publish approved capture signals to Mindset via draft file generation
+
+**Frontend (1 new page):**
+- Capture review page (`/creator/capture`) — Stats (total, pending, approved), type filter pills, signal cards with approve/reject actions, empty state with extension install prompt
+
+### Prompt 16: Security, Privacy & Injection Hardening
+
+**Injection detection (`src/lib/injection-detector.ts`):**
+- `detectInjection(text)` — 11 weighted regex patterns covering: direct override attempts, role/persona hijacking, MCP tool exfiltration, obfuscation variants. Threshold 0.75
+- `detectMindsetInjection(fileContent)` — 7 additional Mindset-specific patterns: instruction injection, tool_call/function_call, hidden directives
+
+**PII detection (`src/lib/pii-scrubber.ts`):**
+- Hard blocks (never allow): SSN, credit card, credentials
+- Soft flags (redact, allow override): email, phone, IP address
+- `quickPIICheck(text)` — Fast regex pre-filter
+- `scanForPII(text)` — Full scan (regex + optional Presidio API fallback)
+- Returns entities, redacted text, `hasHardBlock` flag
+
+**Security logging (`src/lib/security-logger.ts`):**
+- 11 event types with severity mapping (low/medium/high/critical)
+- `logSecurityEvent()` — Writes to security_events table, critical events log to console
+- `getSecurityEvents()` — Query with type/severity/since filters
+- `getSecurityEventCounts()` — Aggregated counts by type
+
+**Security API (`src/security/routes.ts`):**
+- GET /api/admin/security/events — Admin-only event listing with filters
+- GET /api/admin/security/counts — Aggregated counts by type
+- GET /api/admin/security/summary — Dashboard totals by severity
+
+**Integration points:**
+- Mindset publish (`POST /api/mindsets/publish`) — Every file scanned for injection + PII before storage
+- Mindset save-file (`PUT /api/mindsets/:id/save-file`) — Injection + PII check before write
+- Import pipeline — Extracted signals filtered through injection detector before storage
+- Capture sync — Signals scanned for injection on ingest, silently dropped if detected
+
+**Frontend (1 new page):**
+- Admin security dashboard (`/portal/security`) — Summary cards (total, critical, high, medium), events by type breakdown, severity filter, event list with color-coded severity
+
+**Database (1 new table + 2 indexes):**
+- `security_events` — id, type, creator_id, mindset_id, detail, severity, timestamp
+- Indexed on (type, timestamp) and (creator_id, timestamp)
+
+**Files created (15):**
+```
+src/import/types.ts                          — Import pipeline TypeScript interfaces
+src/import/parser.ts                         — Conversation export parser (4 formats)
+src/import/extractor.ts                      — Signal extraction (Claude API + regex fallback)
+src/import/routes.ts                         — Import API routes
+src/capture/routes.ts                        — Browser extension capture sync routes
+src/lib/injection-detector.ts                — Prompt injection detection
+src/lib/pii-scrubber.ts                      — PII detection and scrubbing
+src/lib/security-logger.ts                   — Security event logging
+src/security/routes.ts                       — Admin security API routes
+extension/manifest.json                       — Chrome extension manifest v3
+extension/content.js                          — Content script (signal detection)
+extension/content.css                         — Capture chip styles
+extension/background.js                       — Service worker (sync, badges)
+extension/popup.html                          — Extension popup UI
+extension/popup.js                            — Extension popup logic
+web/src/app/creator/import/page.tsx           — Import upload page
+web/src/app/creator/import/[jobId]/review/page.tsx — Import review UI
+web/src/app/creator/capture/page.tsx          — Capture signal review
+web/src/app/portal/security/page.tsx          — Admin security dashboard
+```
+
+**Files modified (4):**
+```
+src/db/migrations.ts                         — Added import_jobs, import_signals, import_draft_files, capture_signals, security_events tables + indexes
+src/waitlist/server.ts                       — Mounted /api/import, /api/capture, /api/admin/security routes
+src/mindsets/routes.ts                       — Added injection + PII security checks to publish and save-file
+web/src/components/creator-sidebar.tsx        — Added Import and Capture nav links
+```
+
+**Tested:**
+- Backend TypeScript compiles with zero errors (~60 source files)
+- Next.js frontend builds successfully — 28 pages compile (4 new pages: import, import/review, capture, security)
+- All pages under 4KB individual JS, ~87-103KB first load shared
+
+**Skipped:**
+- Claude API extraction integration test (requires ANTHROPIC_API_KEY)
+- Presidio PII scanner integration test (requires PRESIDIO_ANALYZER_URL)
+- Chrome extension e2e test (requires manual Chrome sideload)
+- Real browser extension → capture API integration test
+
+**Env vars added:**
+```
+# Import Pipeline (Prompt 14)
+ANTHROPIC_API_KEY=          # For Claude signal extraction (fallback: regex)
+
+# Security (Prompt 16)
+ADMIN_KEY=                  # For /api/admin/security/* endpoints
+PRESIDIO_ANALYZER_URL=      # Optional: for enhanced PII detection
+PRESIDIO_ANONYMIZER_URL=    # Optional: for enhanced PII redaction
+```

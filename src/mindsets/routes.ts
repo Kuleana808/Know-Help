@@ -15,6 +15,9 @@ import {
 } from "./storage";
 import { validatePublishPayload, validateMindsetFile } from "./validation";
 import { sendAdminNotification, sendOtpEmail } from "../payments/email";
+import { detectMindsetInjection } from "../lib/injection-detector";
+import { scanForPII, quickPIICheck } from "../lib/pii-scrubber";
+import { logSecurityEvent } from "../lib/security-logger";
 
 const router = Router();
 
@@ -216,6 +219,39 @@ router.post("/publish", requireAuth("creator"), async (req: Request, res: Respon
     const now = new Date().toISOString();
     const filePaths = Object.keys(files);
 
+    // Security: scan all files for injection and PII
+    for (const fp of filePaths) {
+      const content = files[fp];
+
+      // Injection detection
+      const injection = detectMindsetInjection(content);
+      if (injection.detected) {
+        logSecurityEvent("injection_attempt", {
+          filepath: fp,
+          patterns: injection.patterns,
+          confidence: injection.confidence,
+        }, { creator_id: auth.handle, mindset_id: manifest.id || manifest.slug });
+        return res.status(400).json({
+          error: `File "${fp}" contains disallowed patterns (possible injection). Please review and remove instructional content.`,
+          patterns: injection.patterns,
+        });
+      }
+
+      // PII detection
+      if (quickPIICheck(content)) {
+        const piiResult = await scanForPII(content);
+        if (piiResult.hasHardBlock) {
+          logSecurityEvent("pii_hard_block", {
+            filepath: fp,
+            types: piiResult.flaggedTypes,
+          }, { creator_id: auth.handle });
+          return res.status(400).json({
+            error: `File "${fp}" contains sensitive personal data (${piiResult.flaggedTypes.join(", ")}). Please remove before publishing.`,
+          });
+        }
+      }
+    }
+
     // Check if this is an update to an existing mindset
     let mindsetId: string;
     const existing = db.prepare(
@@ -414,6 +450,30 @@ router.put("/:id/save-file", requireAuth("creator"), async (req: Request, res: R
     ).get(req.params.id, auth.handle) as any;
 
     if (!mindset) return res.status(404).json({ error: "Mindset not found" });
+
+    // Security: injection check
+    const injection = detectMindsetInjection(content);
+    if (injection.detected) {
+      logSecurityEvent("injection_attempt", {
+        filepath,
+        patterns: injection.patterns,
+        confidence: injection.confidence,
+      }, { creator_id: auth.handle, mindset_id: req.params.id });
+      return res.status(400).json({
+        error: "File contains disallowed patterns. Please remove instructional content.",
+      });
+    }
+
+    // Security: PII check
+    if (quickPIICheck(content)) {
+      const piiResult = await scanForPII(content);
+      if (piiResult.hasHardBlock) {
+        logSecurityEvent("pii_hard_block", { filepath, types: piiResult.flaggedTypes }, { creator_id: auth.handle });
+        return res.status(400).json({
+          error: `File contains sensitive data (${piiResult.flaggedTypes.join(", ")}). Please remove.`,
+        });
+      }
+    }
 
     // Validate file
     const errors = validateMindsetFile(filepath, content);

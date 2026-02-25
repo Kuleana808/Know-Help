@@ -15,6 +15,9 @@ import billingRoutes from "../hosted/billing";
 import onboardingRoutes from "../hosted/onboarding";
 import teamRoutes from "../hosted/teams";
 import mindsetRoutes from "../mindsets/routes";
+import importRoutes from "../import/routes";
+import captureRoutes from "../capture/routes";
+import securityRoutes from "../security/routes";
 import { createWsMcpServer, getActiveConnections } from "../hosted/ws-transport";
 import { getQueueStats } from "../intelligence/queue";
 
@@ -162,6 +165,18 @@ app.use("/api", teamRoutes);
 // ── Mindset routes (marketplace, creator, sync, admin) ───────────────────────
 
 app.use("/api/mindsets", mindsetRoutes);
+
+// ── Import pipeline routes (conversation import, Prompt 14) ──────────────────
+
+app.use("/api/import", importRoutes);
+
+// ── Capture routes (browser extension sync, Prompt 15) ───────────────────────
+
+app.use("/api/capture", captureRoutes);
+
+// ── Admin security routes (Prompt 16) ────────────────────────────────────────
+
+app.use("/api/admin/security", securityRoutes);
 
 // ── Health check ────────────────────────────────────────────────────────────
 

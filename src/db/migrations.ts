@@ -122,4 +122,99 @@ export function runMigrations(db: DatabaseType): void {
       created_at TEXT
     );
   `);
+
+  // --- Prompt 14: Conversation Import Pipeline ---
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS import_jobs (
+      id TEXT PRIMARY KEY,
+      creator_id TEXT NOT NULL,
+      status TEXT DEFAULT 'pending',
+      source TEXT,
+      file_name TEXT,
+      file_size_bytes INTEGER,
+      total_conversations INTEGER DEFAULT 0,
+      total_messages INTEGER DEFAULT 0,
+      signals_found INTEGER DEFAULT 0,
+      draft_files_created INTEGER DEFAULT 0,
+      error TEXT,
+      created_at TEXT,
+      completed_at TEXT,
+      FOREIGN KEY (creator_id) REFERENCES creators(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS import_signals (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      creator_id TEXT NOT NULL,
+      signal_type TEXT,
+      content TEXT,
+      raw_quote TEXT,
+      source_conversation_id TEXT,
+      source_message_index INTEGER,
+      context TEXT,
+      suggested_file TEXT,
+      suggested_load_for TEXT,
+      confidence REAL DEFAULT 0,
+      status TEXT DEFAULT 'pending',
+      edited_content TEXT,
+      merged_into TEXT,
+      created_at TEXT,
+      reviewed_at TEXT,
+      FOREIGN KEY (job_id) REFERENCES import_jobs(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS import_draft_files (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      creator_id TEXT NOT NULL,
+      filepath TEXT,
+      load_for TEXT,
+      content TEXT,
+      signal_ids TEXT,
+      status TEXT DEFAULT 'draft',
+      approved_at TEXT,
+      FOREIGN KEY (job_id) REFERENCES import_jobs(id)
+    );
+  `);
+
+  // --- Prompt 15: Capture signals from browser extension ---
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS capture_signals (
+      id TEXT PRIMARY KEY,
+      creator_id TEXT NOT NULL,
+      local_id TEXT,
+      signal_type TEXT,
+      content TEXT,
+      context TEXT,
+      platform TEXT,
+      url TEXT,
+      confidence REAL DEFAULT 0,
+      status TEXT DEFAULT 'pending',
+      edited_content TEXT,
+      load_for TEXT,
+      synced_at TEXT,
+      created_at TEXT,
+      reviewed_at TEXT,
+      FOREIGN KEY (creator_id) REFERENCES creators(id)
+    );
+  `);
+
+  // --- Prompt 16: Security events ---
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS security_events (
+      id TEXT PRIMARY KEY,
+      type TEXT NOT NULL,
+      creator_id TEXT,
+      mindset_id TEXT,
+      detail TEXT,
+      severity TEXT,
+      timestamp TEXT
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_security_events_type ON security_events(type, timestamp);
+    CREATE INDEX IF NOT EXISTS idx_security_events_creator ON security_events(creator_id, timestamp);
+  `);
 }
