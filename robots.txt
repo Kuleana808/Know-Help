@@ -2,11 +2,18 @@ User-agent: *
 Allow: /
 Allow: /blog/
 Allow: /packs/
+Allow: /mindsets/
+Allow: /creator/
+Allow: /creators/
+Allow: /setup
 
 Disallow: /knowledge/
 Disallow: /src/
 Disallow: /dist/
 Disallow: /scripts/
 Disallow: /node_modules/
+Disallow: /dashboard/
+Disallow: /portal/
+Disallow: /api/
 
 Sitemap: https://know.help/sitemap.xml

@@ -232,6 +232,25 @@ export default function MindsetsPage() {
         </Link>
       </div>
 
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: "Mindset Marketplace — know.help",
+            description: "Install expertise, not employees. Subscribe to Mindsets from verified professionals.",
+            url: "https://know.help/mindsets",
+            publisher: {
+              "@type": "Organization",
+              name: "know.help",
+              url: "https://know.help",
+            },
+          }),
+        }}
+      />
+
       {/* Footer */}
       <footer className="max-w-[1280px] mx-auto border-t border-border py-7 px-20 flex justify-between items-center">
         <Link href="/" className="font-mono text-xs tracking-wider text-text">

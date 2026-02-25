@@ -1,7 +1,7 @@
 {
   "name": "know-help",
-  "version": "1.0.0",
-  "description": "Personal AI OS — MCP server with trigger-based context loading, living intelligence, and knowledge marketplace",
+  "version": "2.0.0",
+  "description": "Personal AI OS — MCP server with trigger-based context loading, Mindset marketplace, and living intelligence",
   "mcpName": "io.github.kuleana808/know-help",
   "main": "dist/index.js",
   "bin": {

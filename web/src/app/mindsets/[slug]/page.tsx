@@ -427,6 +427,33 @@ export default function MindsetDetailPage() {
         <span className="text-[11px] text-dk-dim">&copy; 2026 know.help</span>
       </footer>
 
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: mindset.name,
+            description: mindset.description,
+            url: `https://know.help/mindsets/${mindset.slug}`,
+            image: "https://know.help/og-image.png",
+            brand: { "@type": "Brand", name: "know.help" },
+            offers: {
+              "@type": "Offer",
+              price: (mindset.price_cents / 100).toFixed(2),
+              priceCurrency: "USD",
+              availability: "https://schema.org/InStock",
+            },
+            creator: {
+              "@type": "Person",
+              name: mindset.creator_name,
+              url: `https://know.help/creators/${mindset.creator_handle}`,
+            },
+          }),
+        }}
+      />
+
       {/* Subscribe Modal */}
       <SubscribeModal
         isOpen={showModal}

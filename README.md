@@ -1,6 +1,6 @@
 # know.help — Context Engineering for AI
 
-**know.help is an MCP server that gives Claude Desktop a persistent, trigger-based knowledge base.** Your AI finally knows who you are, what you're building, and who matters — without re-explaining every session.
+**know.help is an MCP server that gives Claude a persistent, trigger-based knowledge base — plus a marketplace of installable Mindsets from verified professionals.**
 
 > Context engineering is the discipline of architecting the right information into AI context at the right time. know.help is the first tool purpose-built for it.
 
@@ -12,51 +12,39 @@
 
 ## What It Does
 
-Every time you open a new Claude conversation, you start over. Your AI doesn't know your name, your company, your goals, or your relationships. You re-explain everything, every time.
+Every time you open a new Claude conversation, you start over. Your AI doesn't know your name, your company, your goals, or your relationships.
 
-know.help fixes this. It's a personal knowledge base that connects to Claude Desktop via [MCP (Model Context Protocol)](https://modelcontextprotocol.io) and automatically loads the right context based on what you're talking about.
+know.help fixes this with two systems:
 
-**How it works:**
+### 1. Personal Knowledge Base
+Modular markdown and JSONL files with trigger-based context loading. Mention a person's name and their relationship history loads. Start a sales conversation and your methodology appears. No manual prompting.
 
-1. **You write your knowledge once** — modular markdown files organized by domain (identity, network, ventures, sales, communication)
-2. **Trigger keywords auto-load context** — mention a person's name, and their relationship history loads. Start a sales conversation, and your methodology appears. No manual prompting.
-3. **Your AI starts every conversation informed** — less explaining, better output, feels like talking to someone who's been paying attention.
-
-## Architecture
-
-### Layer 1: MCP Server (Static Knowledge Base)
-Modular markdown and JSONL files with trigger-based context loading. Your AI loads the right files at the right time based on conversation keywords.
-
-### Layer 2: Living Intelligence
-Scheduled crawlers (Twitter/X, Reddit) that monitor your ventures, extract signals via Claude API, and write updates back to your knowledge files automatically.
-
-### Layer 3: Knowledge Marketplace
-Install pre-built knowledge packs from creators. Sales methodologies, content voice guides, planning frameworks — one command to install.
+### 2. Mindset Marketplace
+Subscribe to Mindsets published by verified professionals. A Mindset is a living body of expert judgment — taste filters, decision criteria, red lines — installable via MCP. When you ask Claude "is this logo working?" and have a Brand Design Mindset installed, you get an actual answer, not a hedge.
 
 ## Quick Start
 
 ### Prerequisites
 
-- [Claude Desktop](https://claude.ai/download) installed
+- [Claude Desktop](https://claude.ai/download) or [Cursor](https://cursor.sh)
 - Node.js 18+
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/Kuleana808/Know-Help.git
-cd Know-Help
+npx know-help@latest serve
+```
 
-# Install dependencies
-npm install
+Or install globally:
 
-# Build the MCP server
-npm run build
+```bash
+npm install -g know-help
+know serve
 ```
 
 ### Configure Claude Desktop
 
-Add know.help to your Claude Desktop MCP configuration file:
+Add to your MCP configuration:
 
 **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
@@ -65,38 +53,35 @@ Add know.help to your Claude Desktop MCP configuration file:
 {
   "mcpServers": {
     "know-help": {
-      "command": "node",
-      "args": ["/path/to/Know-Help/dist/index.js"]
+      "command": "npx",
+      "args": ["know-help@latest", "serve"],
+      "env": {
+        "KNOW_HELP_TOKEN": "your-token-here"
+      }
     }
   }
 }
 ```
 
-Restart Claude Desktop. The know.help MCP server will now be available in every conversation.
-
 ### Initialize Your Knowledge Base
 
-The first time you run know.help, it creates a `knowledge/` directory with template files:
+On first run, know.help creates `~/.know-help/` with template files:
 
 ```
-knowledge/
+~/.know-help/
   core/identity.md          # Who you are
-  core/team.md              # Your team and collaborators
+  core/team.md              # Your team
   network/                  # Key relationships (JSONL)
   venture/                  # Your businesses and projects
-  sales/methodology.md      # Sales approach and playbook
-  sales/objections.md       # Objection handling
-  sales/icp.md              # Ideal customer profiles
-  platform/linkedin.md      # LinkedIn voice and strategy
-  platform/twitter.md       # X/Twitter voice and strategy
-  planning/goals.md         # OKRs and milestones
-  planning/pipeline.md      # Active deals and opportunities
-  communication/style.md    # Your communication style
-  communication/templates.md # Message templates
-  log/                      # Daily activity and decision logs
+  sales/                    # Sales methodology and pipeline
+  platform/                 # LinkedIn, Twitter voice
+  planning/                 # OKRs and milestones
+  communication/            # Style and templates
+  log/                      # Activity and decision logs
+  mindsets/                 # Installed Mindsets
 ```
 
-Edit these files with your real information. Each file uses a simple trigger header:
+Each file uses a trigger header:
 
 ```markdown
 ---
@@ -109,32 +94,13 @@ Last updated: 2026-02-25
 Your methodology content here...
 ```
 
-When Claude detects any of those trigger words in your conversation, the file loads automatically.
-
-## Architecture: Context Engineering in Practice
-
-know.help implements **three-level progressive disclosure** — a context engineering pattern that respects how LLMs actually process information:
-
-| Level | What | When | Size |
-|-------|------|------|------|
-| **Level 1** | `CLAUDE.md` routing index | Always loaded | <100 lines |
-| **Level 2** | Module files (per domain) | On keyword match | 40-100 lines each |
-| **Level 3** | Data files (specific entries) | On specific trigger | Variable |
-
-This architecture prevents context pollution. Your AI gets exactly the information it needs — no more, no less.
-
-### Why Not Just Use a System Prompt?
-
-System prompts are limited to ~8K tokens and static. know.help provides:
-
-- **Dynamic loading** — only relevant context enters the conversation
-- **Structured knowledge** — organized by domain, not crammed into one blob
-- **Persistent memory** — survives across sessions, grows over time
-- **Trigger-based precision** — the right context loads at the right time
+When Claude detects those trigger words, the file loads automatically.
 
 ## MCP Tools
 
-know.help exposes 7 tools to Claude via MCP:
+know.help exposes 11 tools to Claude via MCP:
+
+### Core Knowledge Tools
 
 | Tool | Description |
 |------|-------------|
@@ -146,103 +112,169 @@ know.help exposes 7 tools to Claude via MCP:
 | `append_decision(venture, decision, reasoning, alternatives)` | Log a decision with full context |
 | `append_failure(venture, what, root_cause, prevention)` | Log a failure with root cause analysis |
 
-## File Format Design
+### Mindset Tools
 
-Formats are architectural decisions, not aesthetic ones:
+| Tool | Description |
+|------|-------------|
+| `search_mindset(query)` | Search installed Mindsets by trigger keywords and topics |
+| `load_mindset(creator_slug, topic?)` | Load files from an installed Mindset |
+| `sync_mindsets()` | Download updates for all installed Mindsets |
+| `check_subscriptions()` | Validate subscription status for installed Mindsets |
 
-- **Markdown (.md)** — for narrative content (identity, methodology, voice guides). LLMs read it natively, renders everywhere, clean git diffs.
-- **JSONL (.jsonl)** — for append-only data (contacts, decisions, failures). One valid JSON object per line. Agents can add lines but never overwrite. Prevents accidental data destruction.
+## Mindset Marketplace
 
-## Waitlist API
-
-```bash
-# Start the waitlist server
-npm run start:waitlist
-
-# Endpoints
-POST /waitlist          — Submit email signup
-GET  /waitlist/count    — Get total signups
-GET  /health            — Health check
-```
-
-### Docker Deployment
+### Installing a Mindset
 
 ```bash
-docker build -t know-help-waitlist .
-docker run -p 3000:3000 -v waitlist-data:/data know-help-waitlist
+# Subscribe at know.help/mindsets, then:
+know install maya-reyes --token YOUR_INSTALL_TOKEN
+
+# List installed Mindsets
+know list
+
+# Check subscription status
+know status
+
+# Sync updates
+know sync
+
+# Remove a Mindset
+know remove maya-reyes
 ```
 
-## Living Intelligence
+After installation, Mindset files merge into `~/.know-help/mindsets/` and activate automatically based on conversation topics.
+
+### Publishing a Mindset
+
+Verified professionals can publish their judgment as a subscription Mindset:
 
 ```bash
-# Set environment variables
-export ANTHROPIC_API_KEY=your-key
-export TWITTER_BEARER_TOKEN=your-token
+# Scaffold a new Mindset
+know publish --init
 
-# Start the crawler
-npm run start:crawler
+# Publish to the marketplace
+know publish ./my-mindset
+
+# Dry-run (validate without publishing)
+know publish ./my-mindset --dry-run
 ```
 
-Configure ventures and sources in `knowledge.config.json`.
+**Creator workflow:**
+1. Apply at [know.help/creator](https://know.help/creator)
+2. Get verified (credentials, portfolio, work samples)
+3. Build your Mindset (5+ judgment files with trigger headers)
+4. Publish — subscribers get automatic updates
+5. Earn 70% of every subscription
 
-## Knowledge Packs
+### Mindset Categories
+
+- Brand Design
+- Growth Marketing
+- Sales
+- Operations
+- Content
+- Engineering
+- Finance
+- Legal
+- Product
+
+Browse all Mindsets at [know.help/mindsets](https://know.help/mindsets).
+
+## Architecture
+
+### Three-Level Progressive Disclosure
+
+| Level | What | When | Size |
+|-------|------|------|------|
+| **Level 1** | `CLAUDE.md` routing index | Always loaded | <100 lines |
+| **Level 2** | Module files (per domain) | On keyword match | 40-100 lines each |
+| **Level 3** | Data files (specific entries) | On specific trigger | Variable |
+
+This prevents context pollution. Your AI gets exactly the information it needs.
+
+### System Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Claude Desktop / Cursor                                │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │  MCP Protocol                                     │  │
+│  │  11 tools: search, load, list, log, network,     │  │
+│  │  decisions, failures, search_mindset, load_mindset│  │
+│  │  sync_mindsets, check_subscriptions               │  │
+│  └───────────────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────┤
+│  ~/.know-help/                                          │
+│  ├── core/         Personal identity + context          │
+│  ├── network/      Relationships (JSONL)                │
+│  ├── venture/      Projects + companies                 │
+│  ├── sales/        Methodology + pipeline               │
+│  ├── mindsets/     Installed expert Mindsets             │
+│  │   ├── maya-reyes/    Brand Design Judgment           │
+│  │   └── james-kirk/    B2B Growth Operator             │
+│  └── log/          Activity + decision logs             │
+├─────────────────────────────────────────────────────────┤
+│  know.help API                                          │
+│  ├── Mindset Publishing    (creator portal)             │
+│  ├── Subscription Checkout (Stripe)                     │
+│  ├── Sync Protocol         (version check + download)   │
+│  └── Living Intelligence   (crawlers + signal extraction│
+└─────────────────────────────────────────────────────────┘
+```
+
+## CLI Commands
 
 ```bash
-# Install a pack from local path
-know install ./path-to-pack
-
-# List available packs
-know list-packs
-
-# List installed packs
-know installed
-
-# Create a new pack
-know create-pack
+know serve              # Start MCP server
+know install <target>   # Install a Mindset or local pack
+know list               # List installed Mindsets
+know sync [slug]        # Sync Mindset updates
+know status             # Subscription and sync status
+know remove <slug>      # Remove an installed Mindset
+know publish [dir]      # Publish a Mindset
+know publish --init     # Scaffold a new Mindset
+know login              # Authenticate with know.help
+know logout             # Clear credentials
 ```
-
-### Seed Packs
-
-| Pack | Price | Description |
-|------|-------|-------------|
-| founder-core | Free | Identity, venture, and planning templates |
-| saas-sales-starter | $19 | Sales methodology, ICP, objection handling |
-| creator-voice-pack | $14 | LinkedIn, Twitter, newsletter voice guides |
-
-## Who It's For
-
-- **Founders & operators** — context-switch constantly; know.help keeps your AI current across deals, relationships, and initiatives
-- **Sales professionals** — every contact, conversation, and objection instantly available
-- **Content creators** — your AI knows your distinct voice on every platform
-- **Developers** — your AI knows your stack, architecture, and team — not just the current file
 
 ## Environment Variables
 
+See [`.env.example`](.env.example) for all configuration options.
+
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `ANTHROPIC_API_KEY` | For intelligence layer | Claude API key for signal extraction |
-| `TWITTER_BEARER_TOKEN` | For Twitter crawling | Twitter API v2 bearer token |
-| `PORT` | No (default: 3000) | Waitlist server port |
-| `DATA_DIR` | No (default: ./data) | Persistent storage for waitlist |
-| `ALLOWED_ORIGINS` | No | Comma-separated CORS origins |
+| `KNOW_HELP_TOKEN` | For sync | Auth token for Mindset sync |
+| `STRIPE_SECRET_KEY` | For payments | Stripe API key |
+| `RESEND_API_KEY` | For emails | Resend email API key |
+| `ANTHROPIC_API_KEY` | For intelligence | Claude API key for signal extraction |
+| `JWT_SECRET` | For auth | Random 64+ char secret |
+| `ADMIN_KEY` | For admin | Secret key for admin endpoints |
 
-## Contributing
-
-know.help is open source. Contributions welcome.
+## Development
 
 ```bash
-# Development
-npm run dev
+# Install dependencies
+npm install
+cd web && npm install
 
 # Build
 npm run build
+npm run build:web
 
 # Run tests
 npm test
 
-# Self-test
+# Self-test (exercises all MCP tools)
 npm run self-test
+
+# Dev mode
+npm run dev
+npm run dev:web
 ```
+
+## Contributing
+
+know.help is open source. Contributions welcome.
 
 ## License
 
@@ -252,4 +284,4 @@ MIT
 
 **Built for people who use AI seriously.** Your AI should already know who you are.
 
-[know.help](https://know.help) · [Blog](https://know.help/blog) · [hello@know.help](mailto:hello@know.help)
+[know.help](https://know.help) · [Mindsets](https://know.help/mindsets) · [Blog](https://know.help/blog) · [hello@know.help](mailto:hello@know.help)

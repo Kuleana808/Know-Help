@@ -1,13 +1,26 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "rewrites": [
+    { "source": "/mindsets/:path*", "destination": "/web/mindsets/:path*" },
+    { "source": "/creator/:path*", "destination": "/web/creator/:path*" },
+    { "source": "/creators/:path*", "destination": "/web/creators/:path*" },
+    { "source": "/dashboard/:path*", "destination": "/web/dashboard/:path*" },
+    { "source": "/login", "destination": "/web/login" },
+    { "source": "/onboarding", "destination": "/web/onboarding" },
+    { "source": "/setup", "destination": "/web/setup" },
+    { "source": "/portal/:path*", "destination": "/web/portal/:path*" },
+    { "source": "/team", "destination": "/web/team" },
+    { "source": "/api/:path*", "destination": "/web/api/:path*" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" }
+        { "key": "X-XSS-Protection", "value": "1; mode=block" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
       ]
     }
   ]
