@@ -1,19 +1,33 @@
 {
   "name": "know-help",
   "version": "1.0.0",
-  "description": "Personal AI OS — MCP server with trigger-based context loading",
+  "description": "Personal AI OS — MCP server with trigger-based context loading, living intelligence, and knowledge marketplace",
   "main": "dist/index.js",
+  "bin": {
+    "know": "./dist/marketplace/cli.js"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
+    "start:waitlist": "node dist/waitlist/server.js",
+    "start:crawler": "node dist/intelligence/scheduler.js",
+    "self-test": "ts-node scripts/self-test.ts",
     "postinstall": "node scripts/init-knowledge.js"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.1"
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "axios": "^1.7.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "node-cron": "^3.0.3"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
     "@types/node": "^20.11.0",
+    "@types/node-cron": "^3.0.11",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }

@@ -1,0 +1,19 @@
+{
+  "id": "founder-core",
+  "name": "Founder Core Pack",
+  "author": "know-help",
+  "version": "1.0.0",
+  "description": "Identity, venture, and planning templates for solo founders. The essentials to get your AI up to speed on who you are and what you're building.",
+  "category": "core",
+  "tags": ["founder", "identity", "planning", "venture", "startup"],
+  "price_usd": 0,
+  "install_path": "",
+  "files": [
+    "core/identity.md",
+    "core/team.md",
+    "venture/my-venture.md",
+    "planning/goals.md",
+    "planning/pipeline.md"
+  ],
+  "merge_strategy": "skip"
+}

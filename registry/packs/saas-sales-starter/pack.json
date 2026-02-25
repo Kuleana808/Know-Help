@@ -1,0 +1,17 @@
+{
+  "id": "saas-sales-starter",
+  "name": "SaaS Sales Starter",
+  "author": "know-help",
+  "version": "1.0.0",
+  "description": "Battle-tested sales methodology, ICP framework, and objection handling for SaaS founders doing their own selling.",
+  "category": "sales",
+  "tags": ["saas", "sales", "outbound", "closing", "icp", "objections"],
+  "price_usd": 19,
+  "install_path": "sales",
+  "files": [
+    "sales/methodology.md",
+    "sales/objections.md",
+    "sales/icp.md"
+  ],
+  "merge_strategy": "append"
+}

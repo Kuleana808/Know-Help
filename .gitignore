@@ -16,3 +16,6 @@ dist/
 
 # Generated index
 knowledge/CLAUDE.md
+
+# Waitlist data
+data/

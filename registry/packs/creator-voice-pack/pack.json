@@ -1,0 +1,18 @@
+{
+  "id": "creator-voice-pack",
+  "name": "Creator Voice Pack",
+  "author": "know-help",
+  "version": "1.0.0",
+  "description": "LinkedIn, Twitter, and newsletter voice guides. Teach your AI to write like you on every platform.",
+  "category": "content",
+  "tags": ["content", "linkedin", "twitter", "newsletter", "voice", "creator"],
+  "price_usd": 14,
+  "install_path": "",
+  "files": [
+    "platform/linkedin.md",
+    "platform/twitter.md",
+    "platform/newsletter.md",
+    "communication/style.md"
+  ],
+  "merge_strategy": "append"
+}

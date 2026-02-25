@@ -1,0 +1,40 @@
+{
+  "packs": [
+    {
+      "id": "founder-core",
+      "name": "Founder Core Pack",
+      "author": "know-help",
+      "version": "1.0.0",
+      "description": "Identity, venture, and planning templates for solo founders. The essentials to get your AI up to speed on who you are and what you're building.",
+      "category": "core",
+      "tags": ["founder", "identity", "planning", "venture", "startup"],
+      "price_usd": 0,
+      "downloads": 0,
+      "registry_url": "https://raw.githubusercontent.com/know-help/registry/main/packs/founder-core/"
+    },
+    {
+      "id": "saas-sales-starter",
+      "name": "SaaS Sales Starter",
+      "author": "know-help",
+      "version": "1.0.0",
+      "description": "Battle-tested sales methodology, ICP framework, and objection handling for SaaS founders doing their own selling.",
+      "category": "sales",
+      "tags": ["saas", "sales", "outbound", "closing", "icp", "objections"],
+      "price_usd": 19,
+      "downloads": 0,
+      "registry_url": "https://raw.githubusercontent.com/know-help/registry/main/packs/saas-sales-starter/"
+    },
+    {
+      "id": "creator-voice-pack",
+      "name": "Creator Voice Pack",
+      "author": "know-help",
+      "version": "1.0.0",
+      "description": "LinkedIn, Twitter, and newsletter voice guides. Teach your AI to write like you on every platform.",
+      "category": "content",
+      "tags": ["content", "linkedin", "twitter", "newsletter", "voice", "creator"],
+      "price_usd": 14,
+      "downloads": 0,
+      "registry_url": "https://raw.githubusercontent.com/know-help/registry/main/packs/creator-voice-pack/"
+    }
+  ]
+}

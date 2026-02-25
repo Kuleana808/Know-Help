@@ -820,7 +820,7 @@
         <button type="submit">Get early access</button>
       </form>
       <p class="form-note reveal">Free during beta &nbsp;·&nbsp; No spam &nbsp;·&nbsp; Unsubscribe anytime</p>
-      <p class="success-msg" id="successMsg">You're on the list. We'll be in touch soon.</p>
+      <p class="success-msg" id="successMsg"></p>
     </div>
   </div>
 
@@ -854,6 +854,49 @@
 
     reveals.forEach(el => observer.observe(el));
 
-    document.getElementById('waitlistForm').addEventListener('submit', function(e) {
+    const WAITLIST_API = window.location.hostname === 'localhost'
+      ? 'http://localhost:3000'
+      : 'https://api.know.help';
+
+    document.getElementById('waitlistForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const email
+      const emailInput = document.getElementById('emailInput');
+      const successMsg = document.getElementById('successMsg');
+      const submitBtn = this.querySelector('button');
+      const email = emailInput.value.trim();
+
+      if (!email) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'JOINING...';
+
+      try {
+        const response = await fetch(WAITLIST_API + '/waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, source: 'landing' })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          this.style.display = 'none';
+          successMsg.style.display = 'block';
+          successMsg.textContent = "You're #" + data.position + " on the waitlist. We'll be in touch soon.";
+          document.querySelector('.form-note').style.display = 'none';
+        } else {
+          successMsg.style.display = 'block';
+          successMsg.textContent = data.message || "You're already on the list.";
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'GET EARLY ACCESS';
+        }
+      } catch (err) {
+        successMsg.style.display = 'block';
+        successMsg.textContent = 'Something went wrong. Please try again.';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'GET EARLY ACCESS';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,1 +1,2 @@
 {"_schema": "decision", "_version": "1.0", "_description": "Append-only log of key decisions with reasoning"}
+{"date":"2026-02-25T14:46:32.268Z","venture":"self-test","decision":"Test decision","reasoning":"Testing append-only","alternatives":"None","outcome":"pending"}
