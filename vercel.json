@@ -31,7 +31,6 @@
   ],
   "rewrites": [
     { "source": "/blog", "destination": "/blog/index.html" },
-    { "source": "/packs", "destination": "/packs/index.html" },
-    { "source": "/for/:vertical", "destination": "/for/:vertical.html" }
+    { "source": "/packs", "destination": "/packs/index.html" }
   ]
 }
