@@ -248,4 +248,32 @@ export function runMigrations(db: DatabaseType): void {
 
     CREATE INDEX IF NOT EXISTS idx_otp_attempts_email ON otp_attempts(email, attempted_at);
   `);
+
+  // --- Retention cleanup: purge old webhook events and OTP attempts ---
+  try {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    db.prepare("DELETE FROM webhook_events WHERE processed_at < ?").run(thirtyDaysAgo);
+    db.prepare("DELETE FROM otp_attempts WHERE attempted_at < ?").run(thirtyDaysAgo);
+  } catch {
+    // Tables may not exist on first run — non-fatal
+  }
+
+  // --- Performance indexes ---
+
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_mindsets_creator ON mindsets(creator_handle, status);
+    CREATE INDEX IF NOT EXISTS idx_mindsets_domain ON mindsets(domain, status);
+    CREATE INDEX IF NOT EXISTS idx_mindsets_status ON mindsets(status, subscriber_count DESC);
+    CREATE INDEX IF NOT EXISTS idx_subscriptions_email ON subscriptions(subscriber_email, status);
+    CREATE INDEX IF NOT EXISTS idx_subscriptions_mindset ON subscriptions(mindset_id, status);
+    CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe ON subscriptions(stripe_subscription_id);
+    CREATE INDEX IF NOT EXISTS idx_mindset_files_mindset ON mindset_files(mindset_id);
+    CREATE INDEX IF NOT EXISTS idx_purchases_email ON purchases(buyer_email, status);
+    CREATE INDEX IF NOT EXISTS idx_purchases_token ON purchases(download_token);
+    CREATE INDEX IF NOT EXISTS idx_import_jobs_creator ON import_jobs(creator_id, status);
+    CREATE INDEX IF NOT EXISTS idx_import_signals_job ON import_signals(job_id, status);
+    CREATE INDEX IF NOT EXISTS idx_capture_signals_creator ON capture_signals(creator_id, status);
+    CREATE INDEX IF NOT EXISTS idx_creators_email ON creators(email);
+    CREATE INDEX IF NOT EXISTS idx_webhook_events_processed ON webhook_events(processed_at);
+  `);
 }

@@ -34,18 +34,18 @@ if (!fs.existsSync(DATA_DIR)) {
 // Initialize database
 initDatabase();
 
-// CORS
+// CORS — production only allows know.help; dev adds localhost origins
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",")
-  : [
-      "https://know.help",
-      "http://localhost:3000",
-      "http://localhost:8080",
-    ];
+  ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
+  : IS_PRODUCTION
+    ? ["https://know.help", "https://www.know.help"]
+    : ["https://know.help", "http://localhost:3000", "http://localhost:8080"];
 
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Allow server-to-server (no origin header) — needed for webhooks, CLI, MCP
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
@@ -54,6 +54,18 @@ app.use(
     },
   })
 );
+
+// Security headers
+app.use((_req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  if (IS_PRODUCTION) {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
+  next();
+});
 
 // Stripe webhook needs raw body — mount before express.json()
 app.post(

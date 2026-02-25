@@ -37,10 +37,13 @@ router.get("/events", (req, res) => {
 
   const { type, severity, limit, since } = req.query;
 
+  const maxLimit = 500;
+  const parsedLimit = limit ? Math.min(parseInt(limit as string, 10) || 100, maxLimit) : 100;
+
   const events = getSecurityEvents({
     type: type as any,
     severity: severity as string,
-    limit: limit ? parseInt(limit as string, 10) : 100,
+    limit: parsedLimit,
     since: since as string,
   });
 
@@ -73,7 +76,7 @@ router.get("/summary", (req, res) => {
 
   const since = (req.query.since as string) || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-  const events = getSecurityEvents({ since, limit: 10000 });
+  const events = getSecurityEvents({ since, limit: 5000 });
 
   const summary = {
     total: events.length,
