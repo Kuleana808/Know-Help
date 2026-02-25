@@ -3,8 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>know.help — Personal AI memory for founders and operators</title>
-  <meta name="description" content="Give your AI a persistent knowledge base about you. Trigger-based context loading via MCP. Your AI finally knows who you are, what you're building, and who matters." />
+  <title>know.help — Context Engineering for AI | Personal AI Memory via MCP</title>
+  <meta name="description" content="know.help is an MCP server that gives Claude Desktop a persistent, trigger-based knowledge base. Context engineering for founders and operators. Your AI finally knows who you are, what you're building, and who matters." />
+  <meta name="keywords" content="context engineering, MCP server, personal AI memory, Claude Desktop MCP setup, AI context management, MCP knowledge base, personal knowledge base, AI memory for founders" />
+  <link rel="canonical" href="https://know.help/" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="know.help — Context Engineering for AI" />
+  <meta property="og:description" content="Give your AI a persistent knowledge base. Trigger-based context loading via MCP. Your AI finally knows who you are." />
+  <meta property="og:url" content="https://know.help/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="know.help" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="know.help — Context Engineering for AI" />
+  <meta name="twitter:description" content="MCP server that gives Claude Desktop persistent memory. Your AI finally knows who you are." />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet" />
   <style>
@@ -636,8 +651,13 @@
 
   <!-- NAV -->
   <nav id="nav">
-    <a href="#" class="logo">know<span>.help</span></a>
-    <a href="#waitlist" class="nav-cta">Early access</a>
+    <a href="/" class="logo">know<span>.help</span></a>
+    <div style="display:flex;gap:32px;align-items:center;">
+      <a href="/blog" style="font-size:12px;color:var(--muted);text-decoration:none;letter-spacing:0.04em;">Blog</a>
+      <a href="/packs" style="font-size:12px;color:var(--muted);text-decoration:none;letter-spacing:0.04em;">Packs</a>
+      <a href="https://github.com/Kuleana808/Know-Help" style="font-size:12px;color:var(--muted);text-decoration:none;letter-spacing:0.04em;">GitHub</a>
+      <a href="#waitlist" class="nav-cta">Early access</a>
+    </div>
   </nav>
 
   <!-- HERO -->
@@ -828,11 +848,53 @@
   <footer>
     <a href="#" class="footer-logo">know<span>.help</span></a>
     <div class="footer-links">
-      <a href="#">GitHub</a>
-      <a href="#">Docs</a>
+      <a href="https://github.com/Kuleana808/Know-Help">GitHub</a>
+      <a href="/blog">Blog</a>
+      <a href="/packs">Packs</a>
       <a href="mailto:hello@know.help">hello@know.help</a>
     </div>
   </footer>
+
+  <!-- JSON-LD Structured Data for SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "know.help",
+    "description": "know.help is an MCP server that gives Claude Desktop a persistent, trigger-based knowledge base. Context engineering for founders and operators.",
+    "url": "https://know.help",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "macOS, Windows, Linux",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "description": "Free during beta"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "know.help",
+      "url": "https://know.help"
+    },
+    "softwareRequirements": "Claude Desktop, Node.js 18+",
+    "keywords": "context engineering, MCP server, personal AI memory, Claude Desktop, AI knowledge base"
+  }
+  </script>
+
+  <!-- Organization Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "know.help",
+    "url": "https://know.help",
+    "description": "Context engineering tools for AI. Building the infrastructure for persistent AI memory.",
+    "email": "hello@know.help",
+    "sameAs": [
+      "https://github.com/Kuleana808/Know-Help"
+    ]
+  }
+  </script>
 
   <script>
     const nav = document.getElementById('nav');

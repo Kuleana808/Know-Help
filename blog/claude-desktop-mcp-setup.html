@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to Set Up an MCP Server for Claude Desktop: A Complete Guide — know.help</title>
+  <meta name="description" content="Step-by-step guide to building a personal AI knowledge base with an MCP server for Claude Desktop. Install, configure, and start loading persistent context in under 10 minutes." />
+  <meta name="keywords" content="Claude Desktop MCP setup, MCP server tutorial, Claude Desktop configuration, personal AI knowledge base, MCP knowledge base, how to set up MCP, Claude Desktop MCP server" />
+  <link rel="canonical" href="https://know.help/blog/claude-desktop-mcp-setup" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="How to Set Up an MCP Server for Claude Desktop: A Complete Guide" />
+  <meta property="og:description" content="Step-by-step instructions for building a personal AI knowledge base with MCP for Claude Desktop." />
+  <meta property="og:url" content="https://know.help/blog/claude-desktop-mcp-setup" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="know.help" />
+  <meta property="article:published_time" content="2026-02-25T00:00:00Z" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="How to Set Up an MCP Server for Claude Desktop" />
+  <meta name="twitter:description" content="Complete guide to connecting a personal knowledge base to Claude Desktop via MCP." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f2eb;
+      --bg2: #ede9e0;
+      --surface: #ffffff;
+      --border: #d8d3c8;
+      --border-dark: #b8b2a6;
+      --text: #111009;
+      --muted: #4a4642;
+      --accent: #1a4a2e;
+      --accent-light: #e8f0ea;
+      --accent-mid: #1f6038;
+      --serif: 'Playfair Display', Georgia, serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.7;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 100;
+    }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      padding: 24px 48px; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--border); background: rgba(245, 242, 235, 0.92); backdrop-filter: blur(12px);
+    }
+    .logo { font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em; color: var(--text); text-decoration: none; }
+    .logo span { color: var(--accent-mid); }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { font-size: 12px; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--surface); background: var(--accent); padding: 9px 22px; text-decoration: none; transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--accent-mid); }
+
+    .article-header {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 140px 48px 48px;
+    }
+    .article-meta {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent-mid);
+      margin-bottom: 24px;
+    }
+    .article-header h1 {
+      font-family: var(--serif);
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 400;
+      line-height: 1.15;
+      margin-bottom: 24px;
+    }
+    .article-header h1 em { font-style: italic; color: var(--muted); }
+    .article-lede {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--muted);
+      max-width: 600px;
+    }
+    hr.divider { border: none; border-top: 1px solid var(--border); margin: 0 48px; }
+
+    .article-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 48px 100px;
+    }
+    .article-body h2 {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 1.25;
+      margin-top: 56px;
+      margin-bottom: 20px;
+    }
+    .article-body h3 {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1.3;
+      margin-top: 40px;
+      margin-bottom: 16px;
+    }
+    .article-body p {
+      font-size: 14px;
+      line-height: 1.85;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .article-body p strong { color: var(--text); font-weight: 400; }
+    .article-body blockquote {
+      border-left: 2px solid var(--accent-mid);
+      padding: 16px 0 16px 24px;
+      margin: 32px 0;
+      font-family: var(--serif);
+      font-size: 20px;
+      line-height: 1.5;
+      color: var(--text);
+      font-style: italic;
+    }
+    .article-body ul, .article-body ol {
+      margin: 0 0 20px 24px;
+      color: var(--muted);
+    }
+    .article-body li {
+      margin-bottom: 8px;
+      line-height: 1.8;
+      font-size: 14px;
+    }
+    .article-body code {
+      font-family: var(--mono);
+      font-size: 13px;
+      background: var(--bg2);
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+    }
+    .article-body pre {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin: 24px 0;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 2;
+      color: var(--muted);
+    }
+    .article-body pre code { background: none; border: none; padding: 0; }
+    .step-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 28px 32px;
+      margin: 28px 0;
+    }
+    .step-box .step-num {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-mid);
+      margin-bottom: 12px;
+    }
+    .step-box h4 {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 400;
+      margin-bottom: 12px;
+    }
+    .step-box p { margin-bottom: 12px; }
+    .step-box p:last-child { margin-bottom: 0; }
+    .info-box {
+      background: var(--accent-light);
+      border: 1px solid var(--accent-mid);
+      padding: 24px 28px;
+      margin: 32px 0;
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+    .info-box strong { display: block; margin-bottom: 8px; font-family: var(--serif); font-size: 16px; font-weight: 400; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 13px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+    }
+    th { background: var(--bg2); font-weight: 400; color: var(--text); }
+    td { color: var(--muted); }
+
+    .cta-block {
+      background: var(--accent);
+      padding: 48px;
+      margin: 56px 0 0;
+      text-align: center;
+    }
+    .cta-block h3 { font-family: var(--serif); font-size: 28px; font-weight: 400; color: #f5f2eb; margin-bottom: 12px; }
+    .cta-block p { font-size: 13px; color: rgba(245,242,235,0.6); margin-bottom: 24px; }
+    .cta-block a {
+      display: inline-block; background: #f5f2eb; color: var(--accent); font-family: var(--mono);
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 14px 32px;
+      text-decoration: none; transition: background 0.2s;
+    }
+    .cta-block a:hover { background: var(--bg2); }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo { font-family: var(--mono); font-size: 13px; color: var(--muted); text-decoration: none; }
+    .footer-logo span { color: var(--accent-mid); }
+    .footer-links { display: flex; gap: 32px; }
+    .footer-links a { font-size: 12px; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      .article-header { padding: 120px 24px 36px; }
+      .article-body { padding: 36px 24px 72px; }
+      hr.divider { margin: 0 24px; }
+      footer { padding: 24px; flex-direction: column; gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="logo">know<span>.help</span></a>
+    <div class="nav-links">
+      <a href="/blog">Blog</a>
+      <a href="/packs">Packs</a>
+      <a href="https://github.com/Kuleana808/Know-Help">GitHub</a>
+      <a href="/#waitlist" class="nav-cta">Early access</a>
+    </div>
+  </nav>
+
+  <div class="article-header">
+    <div class="article-meta">Tutorial &middot; February 25, 2026</div>
+    <h1>How to Set Up an MCP Server for Claude Desktop: <em>A Complete Guide</em></h1>
+    <p class="article-lede">Give Claude Desktop a persistent personal knowledge base in under 10 minutes. This guide walks you through installation, configuration, writing your first knowledge files, and testing trigger-based context loading.</p>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="article-body">
+
+    <h2>What You'll Build</h2>
+
+    <p>By the end of this guide, you'll have a working MCP server connected to Claude Desktop that automatically loads relevant context about you into every conversation. When you mention a topic, the right knowledge loads. When you discuss a person, their relationship context appears. No copy-pasting, no re-explaining.</p>
+
+    <p>This is <strong>context engineering</strong> in practice — giving your AI the right information at the right time, automatically.</p>
+
+    <h2>Prerequisites</h2>
+
+    <ul>
+      <li><strong>Claude Desktop</strong> — download from <a href="https://claude.ai/download">claude.ai/download</a></li>
+      <li><strong>Node.js 18 or higher</strong> — check with <code>node --version</code></li>
+      <li><strong>Git</strong> — for cloning the repository</li>
+      <li><strong>A text editor</strong> — VS Code, Cursor, or any editor you prefer</li>
+    </ul>
+
+    <h2>Step-by-Step Setup</h2>
+
+    <div class="step-box">
+      <div class="step-num">Step 01</div>
+      <h4>Clone and install know.help</h4>
+      <p>Open your terminal and run:</p>
+<pre><code>git clone https://github.com/Kuleana808/Know-Help.git
+cd Know-Help
+npm install
+npm run build</code></pre>
+      <p>This installs the MCP server and creates a <code>knowledge/</code> directory with template files.</p>
+    </div>
+
+    <div class="step-box">
+      <div class="step-num">Step 02</div>
+      <h4>Configure Claude Desktop</h4>
+      <p>Claude Desktop reads MCP server configurations from a JSON file. Open it:</p>
+      <p><strong>macOS:</strong></p>
+<pre><code>open ~/Library/Application\ Support/Claude/claude_desktop_config.json</code></pre>
+      <p><strong>Windows:</strong></p>
+<pre><code>notepad %APPDATA%\Claude\claude_desktop_config.json</code></pre>
+      <p>Add the know.help server to the <code>mcpServers</code> object:</p>
+<pre><code>{
+  "mcpServers": {
+    "know-help": {
+      "command": "node",
+      "args": ["/full/path/to/Know-Help/dist/index.js"]
+    }
+  }
+}</code></pre>
+      <p>Replace <code>/full/path/to/Know-Help</code> with the actual path where you cloned the repository. On macOS, this is typically <code>/Users/yourname/Know-Help</code>. On Windows, <code>C:\\Users\\yourname\\Know-Help</code>.</p>
+    </div>
+
+    <div class="step-box">
+      <div class="step-num">Step 03</div>
+      <h4>Restart Claude Desktop</h4>
+      <p>Quit Claude Desktop completely and reopen it. You should see the MCP tools icon (a small hammer) in the chat input area. Click it to verify "know-help" appears in the connected servers list.</p>
+    </div>
+
+    <div class="step-box">
+      <div class="step-num">Step 04</div>
+      <h4>Write your first knowledge file</h4>
+      <p>Open <code>knowledge/core/identity.md</code> in your editor. Replace the template with your actual information:</p>
+<pre><code>---
+Load for: identity, about me, who am I, background, bio
+Last updated: 2026-02-25
+---
+
+# Identity
+
+## Who I Am
+[Your name]. [Your role]. Based in [location].
+
+## What I Do
+[Brief description of your work — 2-3 sentences]
+
+## Current Focus
+- [Priority 1]
+- [Priority 2]
+- [Priority 3]
+
+## Communication Style
+- I prefer [concise/detailed] responses
+- I like [direct/diplomatic] feedback
+- My writing voice is [describe your tone]</code></pre>
+    </div>
+
+    <div class="step-box">
+      <div class="step-num">Step 05</div>
+      <h4>Test trigger-based loading</h4>
+      <p>Open a new conversation in Claude Desktop and type:</p>
+<pre><code>"Tell me about myself"</code></pre>
+      <p>Claude will call <code>search_knowledge</code> with keywords from your message, find your identity.md file (triggered by "about me" and "who am I"), load it via <code>load_context</code>, and respond with information from your knowledge base.</p>
+      <p>You should see Claude's response reference your actual identity information — not a generic response.</p>
+    </div>
+
+    <h2>Understanding the Knowledge Base Structure</h2>
+
+    <p>know.help organizes knowledge into domains. Each domain has a specific purpose:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Directory</th>
+          <th>Purpose</th>
+          <th>Format</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>core/</code></td>
+          <td>Your identity, team, and background</td>
+          <td>Markdown</td>
+        </tr>
+        <tr>
+          <td><code>network/</code></td>
+          <td>Key relationships and contacts</td>
+          <td>JSONL (append-only)</td>
+        </tr>
+        <tr>
+          <td><code>venture/</code></td>
+          <td>Your businesses, projects, startups</td>
+          <td>Markdown</td>
+        </tr>
+        <tr>
+          <td><code>sales/</code></td>
+          <td>Methodology, objections, ICP profiles</td>
+          <td>Markdown</td>
+        </tr>
+        <tr>
+          <td><code>platform/</code></td>
+          <td>Voice guides per channel (LinkedIn, X, etc.)</td>
+          <td>Markdown</td>
+        </tr>
+        <tr>
+          <td><code>planning/</code></td>
+          <td>Goals, OKRs, pipeline</td>
+          <td>Markdown</td>
+        </tr>
+        <tr>
+          <td><code>communication/</code></td>
+          <td>Style rules and message templates</td>
+          <td>Markdown</td>
+        </tr>
+        <tr>
+          <td><code>log/</code></td>
+          <td>Activity logs, decisions, failures</td>
+          <td>JSONL + Markdown</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Writing Effective Trigger Headers</h2>
+
+    <p>Every markdown file starts with a YAML front-matter block that declares its trigger keywords:</p>
+
+<pre><code>---
+Load for: sales, methodology, selling, process, close, deal
+Last updated: 2026-02-25
+---</code></pre>
+
+    <p><strong>Best practices for triggers:</strong></p>
+
+    <ul>
+      <li>Include both formal and casual terms — "sales methodology" and "how I sell"</li>
+      <li>Include names of people or companies if the file is relationship-specific</li>
+      <li>Keep triggers to 6-10 keywords per file — too many creates false matches</li>
+      <li>Use lowercase — the matching engine is case-insensitive</li>
+    </ul>
+
+    <h2>The 7 MCP Tools</h2>
+
+    <p>Claude has access to these tools through know.help:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Tool</th>
+          <th>What it does</th>
+          <th>When Claude uses it</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>search_knowledge</code></td>
+          <td>Finds files by trigger keyword match</td>
+          <td>Start of every conversation</td>
+        </tr>
+        <tr>
+          <td><code>load_context</code></td>
+          <td>Reads full content of a knowledge file</td>
+          <td>After finding relevant files</td>
+        </tr>
+        <tr>
+          <td><code>list_knowledge</code></td>
+          <td>Shows the entire file tree</td>
+          <td>When no search matches found</td>
+        </tr>
+        <tr>
+          <td><code>log_activity</code></td>
+          <td>Appends to today's activity log</td>
+          <td>When you ask to log something</td>
+        </tr>
+        <tr>
+          <td><code>update_network</code></td>
+          <td>Adds a contact entry (JSONL)</td>
+          <td>When discussing a new person</td>
+        </tr>
+        <tr>
+          <td><code>append_decision</code></td>
+          <td>Logs a decision with reasoning</td>
+          <td>When making strategic choices</td>
+        </tr>
+        <tr>
+          <td><code>append_failure</code></td>
+          <td>Logs a failure with root cause</td>
+          <td>When analyzing what went wrong</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Advanced: Multiple Knowledge Files for One Domain</h2>
+
+    <p>As your knowledge base grows, split large files into focused sub-files. For example, if you have 10 ventures:</p>
+
+<pre><code>venture/
+  vinovest.md        # Load for: vinovest, wine, alternative assets
+  stacked.md         # Load for: stacked, vibe coding, no-code
+  knowhelp.md        # Load for: know.help, MCP, AI memory</code></pre>
+
+    <p>Each file has its own triggers. Mentioning "Vinovest" loads only the Vinovest file, not your entire venture portfolio. This is <strong>progressive disclosure</strong> — a core context engineering principle.</p>
+
+    <h2>Troubleshooting</h2>
+
+    <h3>Claude doesn't show the MCP tools icon</h3>
+    <ul>
+      <li>Verify the path in <code>claude_desktop_config.json</code> is absolute (not relative)</li>
+      <li>Confirm you ran <code>npm run build</code> and <code>dist/index.js</code> exists</li>
+      <li>Restart Claude Desktop completely (quit and reopen)</li>
+    </ul>
+
+    <h3>Context isn't loading for my keywords</h3>
+    <ul>
+      <li>Check the <code>Load for:</code> header in your file — keywords must be comma-separated</li>
+      <li>The YAML front-matter must start with <code>---</code> on the first line</li>
+      <li>Try using <code>list_knowledge()</code> in Claude to see all registered files</li>
+    </ul>
+
+    <h3>Changes to knowledge files aren't reflected</h3>
+    <ul>
+      <li>know.help reads files fresh on each tool call — changes should appear immediately</li>
+      <li>If you added a new file, the CLAUDE.md index regenerates automatically on the next tool call</li>
+    </ul>
+
+    <div class="info-box">
+      <strong>You're now practicing context engineering.</strong>
+      Every file you add to your knowledge base makes every future AI conversation better. Start with identity and your top 3 most-repeated explanations, then expand from there. The compound effect is real — after a week of building context, you'll wonder how you used AI without it.
+    </div>
+
+    <div class="cta-block">
+      <h3>Ready to go deeper?</h3>
+      <p>Join the know.help waitlist for hosted knowledge bases, living intelligence, and the pack marketplace.</p>
+      <a href="/#waitlist">Get early access</a>
+    </div>
+
+  </div>
+
+  <footer>
+    <a href="/" class="footer-logo">know<span>.help</span></a>
+    <div class="footer-links">
+      <a href="https://github.com/Kuleana808/Know-Help">GitHub</a>
+      <a href="/blog">Blog</a>
+      <a href="mailto:hello@know.help">hello@know.help</a>
+    </div>
+  </footer>
+
+  <!-- JSON-LD HowTo Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Set Up an MCP Server for Claude Desktop",
+    "description": "Step-by-step guide to building a personal AI knowledge base with an MCP server for Claude Desktop using know.help.",
+    "totalTime": "PT10M",
+    "tool": [
+      {"@type": "HowToTool", "name": "Claude Desktop"},
+      {"@type": "HowToTool", "name": "Node.js 18+"},
+      {"@type": "HowToTool", "name": "Git"},
+      {"@type": "HowToTool", "name": "Text editor"}
+    ],
+    "step": [
+      {
+        "@type": "HowToStep",
+        "position": 1,
+        "name": "Clone and install know.help",
+        "text": "Clone the know.help repository from GitHub and install dependencies with npm install, then build with npm run build."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 2,
+        "name": "Configure Claude Desktop",
+        "text": "Add the know-help MCP server to Claude Desktop's claude_desktop_config.json file with the command and args pointing to the built dist/index.js file."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 3,
+        "name": "Restart Claude Desktop",
+        "text": "Quit and reopen Claude Desktop. Verify the MCP tools icon appears in the chat input area."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 4,
+        "name": "Write your first knowledge file",
+        "text": "Edit knowledge/core/identity.md with your personal information, including trigger keywords in the YAML front-matter."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 5,
+        "name": "Test trigger-based loading",
+        "text": "Open a new conversation and type 'Tell me about myself'. Claude will search your knowledge base, find identity.md, and respond with your actual information."
+      }
+    ]
+  }
+  </script>
+
+  <!-- Article Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "How to Set Up an MCP Server for Claude Desktop: A Complete Guide",
+    "description": "Step-by-step guide to building a personal AI knowledge base with an MCP server for Claude Desktop.",
+    "datePublished": "2026-02-25",
+    "dateModified": "2026-02-25",
+    "author": {
+      "@type": "Organization",
+      "name": "know.help",
+      "url": "https://know.help"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "know.help",
+      "url": "https://know.help"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://know.help/blog/claude-desktop-mcp-setup"
+    },
+    "keywords": ["Claude Desktop", "MCP server", "MCP setup", "personal knowledge base", "context engineering", "know.help"]
+  }
+  </script>
+
+</body>
+</html>

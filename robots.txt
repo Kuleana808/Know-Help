@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /blog/
+Allow: /packs/
+
+Disallow: /knowledge/
+Disallow: /src/
+Disallow: /dist/
+Disallow: /scripts/
+Disallow: /node_modules/
+
+Sitemap: https://know.help/sitemap.xml
