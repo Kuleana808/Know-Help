@@ -1,5 +1,7 @@
 {
-  "buildCommand": null,
+  "framework": null,
+  "installCommand": "echo 'skip — static site'",
+  "buildCommand": "echo 'skip — static site'",
   "outputDirectory": ".",
   "cleanUrls": true,
   "trailingSlash": false,
@@ -29,6 +31,7 @@
   ],
   "rewrites": [
     { "source": "/blog", "destination": "/blog/index.html" },
-    { "source": "/packs", "destination": "/packs/index.html" }
+    { "source": "/packs", "destination": "/packs/index.html" },
+    { "source": "/for/:vertical", "destination": "/for/:vertical.html" }
   ]
 }
