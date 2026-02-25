@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.kuleana808/know-help",
+  "description": "Context engineering MCP server. Gives Claude Desktop a persistent, trigger-based knowledge base. Your AI finally knows who you are.",
+  "repository": {
+    "url": "https://github.com/Kuleana808/Know-Help.git",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "know-help",
+      "version": "1.0.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

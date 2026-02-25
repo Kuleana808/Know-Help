@@ -26,9 +26,11 @@
   "homepage": "https://know.help",
   "scripts": {
     "build": "tsc",
+    "test": "node test/server.test.js",
     "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
-    "postinstall": "node scripts/init-knowledge.js"
+    "postinstall": "node scripts/init-knowledge.js",
+    "prepublishOnly": "npm run build && npm test"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1"
