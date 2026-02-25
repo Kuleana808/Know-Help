@@ -7,7 +7,21 @@
     "build": "tsc",
     "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
-    "postinstall": "node scripts/init-knowledge.js"
+    "postinstall": "node scripts/init-knowledge.js",
+    "scan": "cd content-engine && npx ts-node src/cli.ts scan",
+    "scan:status": "cd content-engine && npx ts-node src/cli.ts scan status",
+    "generate": "cd content-engine && npx ts-node src/cli.ts generate",
+    "generate:blog": "cd content-engine && npx ts-node src/cli.ts generate blog",
+    "generate:landing": "cd content-engine && npx ts-node src/cli.ts generate landing",
+    "generate:thread": "cd content-engine && npx ts-node src/cli.ts generate thread",
+    "generate:pack": "cd content-engine && npx ts-node src/cli.ts generate pack",
+    "generate:reddit": "cd content-engine && npx ts-node src/cli.ts generate reddit",
+    "queue": "cd content-engine && npx ts-node src/cli.ts queue",
+    "queue:list": "cd content-engine && npx ts-node src/cli.ts queue list",
+    "publish": "cd content-engine && npx ts-node src/cli.ts publish",
+    "publish:sitemap": "cd content-engine && npx ts-node src/cli.ts publish sitemap",
+    "content:status": "cd content-engine && npx ts-node src/cli.ts status",
+    "content:schedule": "cd content-engine && npx ts-node src/scheduler.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1"

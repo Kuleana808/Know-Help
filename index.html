@@ -718,19 +718,19 @@
       white-space: nowrap;
     }
 
-    /* WAITLIST */
-    .waitlist-section {
+    /* NOTIFY / CTA SECTION */
+    .cta-section {
       background: var(--accent);
       padding: 120px 80px;
       text-align: center;
     }
 
-    .waitlist-inner {
+    .cta-inner {
       max-width: 620px;
       margin: 0 auto;
     }
 
-    .waitlist-section h2 {
+    .cta-section h2 {
       font-family: var(--serif);
       font-size: clamp(36px, 5vw, 62px);
       font-weight: 400;
@@ -739,25 +739,40 @@
       margin-bottom: 20px;
     }
 
-    .waitlist-section h2 em {
+    .cta-section h2 em {
       font-style: italic;
       color: rgba(245,242,235,0.4);
     }
 
-    .waitlist-section > .waitlist-inner > p {
+    .cta-section > .cta-inner > p {
       font-size: 14px;
       color: rgba(245,242,235,0.55);
       margin-bottom: 48px;
       line-height: 1.7;
     }
 
-    .waitlist-form {
+    .cta-actions {
       display: flex;
-      max-width: 480px;
-      margin: 0 auto;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
     }
 
-    .waitlist-form input {
+    .cta-actions .btn-primary {
+      background: #f5f2eb;
+      color: var(--accent);
+    }
+    .cta-actions .btn-primary:hover {
+      background: var(--bg2);
+    }
+
+    .notify-form {
+      display: flex;
+      max-width: 480px;
+      width: 100%;
+    }
+
+    .notify-form input {
       flex: 1;
       background: rgba(245,242,235,0.07);
       border: 1px solid rgba(245,242,235,0.18);
@@ -769,13 +784,13 @@
       outline: none;
     }
 
-    .waitlist-form input::placeholder { color: rgba(245,242,235,0.25); }
-    .waitlist-form input:focus { border-color: rgba(245,242,235,0.4); }
+    .notify-form input::placeholder { color: rgba(245,242,235,0.25); }
+    .notify-form input:focus { border-color: rgba(245,242,235,0.4); }
 
-    .waitlist-form button {
-      background: #f5f2eb;
-      border: 1px solid #f5f2eb;
-      color: var(--accent);
+    .notify-form button {
+      background: rgba(245,242,235,0.12);
+      border: 1px solid rgba(245,242,235,0.18);
+      color: rgba(245,242,235,0.7);
       font-family: var(--mono);
       font-size: 11px;
       letter-spacing: 0.12em;
@@ -786,12 +801,12 @@
       white-space: nowrap;
     }
 
-    .waitlist-form button:hover { background: var(--bg2); }
+    .notify-form button:hover { background: rgba(245,242,235,0.2); }
 
     .form-note {
       font-size: 11px;
       color: rgba(245,242,235,0.28);
-      margin-top: 16px;
+      margin-top: 12px;
       letter-spacing: 0.04em;
     }
 
@@ -875,9 +890,9 @@
       .pack-grid { grid-template-columns: 1fr; }
       .oss-block { grid-template-columns: 1fr; gap: 40px; }
       .pricing-grid { grid-template-columns: 1fr; }
-      .waitlist-section { padding: 80px 24px; }
-      .waitlist-form { flex-direction: column; }
-      .waitlist-form input { border-right: 1px solid rgba(245,242,235,0.18); border-bottom: none; }
+      .cta-section { padding: 80px 24px; }
+      .notify-form { flex-direction: column; }
+      .notify-form input { border-right: 1px solid rgba(245,242,235,0.18); border-bottom: none; }
       footer { padding: 24px; flex-direction: column; gap: 16px; text-align: center; }
     }
   </style>
@@ -886,15 +901,14 @@
 
   <!-- NAV -->
   <nav id="nav">
-    <a href="/" class="logo">know<span>.help</span></a>
+    <a href="#" class="logo">know<span>.help</span></a>
     <div class="nav-links">
       <a href="#layers" class="nav-link">How it works</a>
       <a href="#marketplace" class="nav-link">Marketplace</a>
-      <a href="/blog" class="nav-link">Blog</a>
-      <a href="/packs" class="nav-link">Packs</a>
-      <a href="https://github.com/Kuleana808/Know-Help" class="nav-link">GitHub</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="https://github.com/know-help/know-help" class="nav-link">GitHub</a>
     </div>
-    <a href="#waitlist" class="nav-cta">Early access</a>
+    <a href="https://github.com/know-help/know-help" class="nav-cta">Install free</a>
   </nav>
 
   <!-- HERO -->
@@ -902,11 +916,11 @@
     <div class="hero">
       <p class="hero-eyebrow">Context engineering platform</p>
       <h1>The infrastructure layer<br>for <em>AI that knows you.</em></h1>
-      <p class="hero-sub">Prompt engineering optimizes one conversation. Context engineering designs the information architecture that makes every conversation better — permanently. know.help is how you build that.</p>
+      <p class="hero-sub">Prompt engineering optimizes one conversation. Context engineering designs the information architecture that makes every conversation better &mdash; permanently. know.help is how you build that.</p>
       <div class="hero-actions">
-        <a href="#waitlist" class="btn-primary">Get early access</a>
-        <a href="https://github.com/Kuleana808/Know-Help" class="btn-secondary">View on GitHub</a>
-        <span class="hero-note">Free during beta &nbsp;&middot;&nbsp; Works with Claude Desktop</span>
+        <a href="https://github.com/know-help/know-help" class="btn-primary">Install free &mdash; GitHub</a>
+        <a href="#pricing" class="btn-secondary">See Pro &amp; Team</a>
+        <span class="hero-note">Open source &nbsp;&middot;&nbsp; Works with Claude Desktop &nbsp;&middot;&nbsp; No account required</span>
       </div>
       <div class="hero-rule"></div>
     </div>
@@ -917,15 +931,15 @@
     <div class="stat-bar">
       <div class="stat">
         <span class="stat-value">3</span>
-        <span class="stat-label">Loading levels — routing, module, data</span>
+        <span class="stat-label">Loading levels &mdash; routing, module, data</span>
       </div>
       <div class="stat">
         <span class="stat-value">5</span>
-        <span class="stat-label">Intelligence sources — X, Reddit, LinkedIn, TikTok, RSS</span>
+        <span class="stat-label">Intelligence sources &mdash; X, Reddit, LinkedIn, TikTok, RSS</span>
       </div>
       <div class="stat">
         <span class="stat-value">6hr</span>
-        <span class="stat-label">Crawl cadence — knowledge base updates itself</span>
+        <span class="stat-label">Crawl cadence &mdash; knowledge base updates itself</span>
       </div>
       <div class="stat">
         <span class="stat-value">70%</span>
@@ -943,17 +957,17 @@
         <div class="insight-card">
           <p class="insight-card-label">Problem 01</p>
           <h3>Every session starts from zero</h3>
-          <p>Your role, your ventures, your relationships, your voice — re-explained every time. The model is brilliant but amnesiac. Every conversation is its first conversation with you.</p>
+          <p>Your role, your ventures, your relationships, your voice &mdash; re-explained every time. The model is brilliant but amnesiac. Every conversation is its first conversation with you.</p>
         </div>
         <div class="insight-card">
           <p class="insight-card-label">Problem 02</p>
           <h3>Dumping context doesn't work</h3>
-          <p>Language models have a U-shaped attention curve. Paste in 10 pages of background and the model loses the middle. More context isn't the answer — structured context is.</p>
+          <p>Language models have a U-shaped attention curve. Paste in 10 pages of background and the model loses the middle. More context isn't the answer &mdash; structured context is.</p>
         </div>
         <div class="insight-card">
           <p class="insight-card-label">Problem 03</p>
           <h3>Expertise doesn't transfer</h3>
-          <p>The best sales methodology, the sharpest founder playbook, the most refined voice guide — locked in someone's head. No way to install it into your AI workflow. Until now.</p>
+          <p>The best sales methodology, the sharpest founder playbook, the most refined voice guide &mdash; locked in someone's head. No way to install it into your AI workflow. Until now.</p>
         </div>
       </div>
     </section>
@@ -972,7 +986,7 @@
           <div class="layer-meta">
             <span class="layer-tag">MCP Server</span>
             <h3>Structured knowledge base</h3>
-            <p>Modular markdown and JSONL files organized by domain. A three-level loading hierarchy ensures the model always gets precisely the right context — never everything at once, never the wrong thing.</p>
+            <p>Modular markdown and JSONL files organized by domain. A three-level loading hierarchy ensures the model always gets precisely the right context &mdash; never everything at once, never the wrong thing.</p>
           </div>
           <div class="layer-detail">
             <div class="layer-detail-item">
@@ -985,7 +999,7 @@
             </div>
             <div class="layer-detail-item">
               <div class="layer-detail-dot"></div>
-              <div class="layer-detail-text"><strong>Append-only logs</strong>Decisions, failures, network interactions — stored as JSONL. Stream-friendly, corruption-proof, self-documenting.</div>
+              <div class="layer-detail-text"><strong>Append-only logs</strong>Decisions, failures, network interactions &mdash; stored as JSONL. Stream-friendly, corruption-proof, self-documenting.</div>
             </div>
           </div>
         </div>
@@ -1018,7 +1032,7 @@
           <div class="layer-meta">
             <span class="layer-tag">Marketplace</span>
             <h3>Expert knowledge, installable</h3>
-            <p>Practitioners publish their methodology as knowledge packs — sales playbooks, voice guides, founder frameworks, industry ICP profiles. Install one command. The expertise loads into your AI immediately.</p>
+            <p>Practitioners publish their methodology as knowledge packs &mdash; sales playbooks, voice guides, founder frameworks, industry ICP profiles. Install one command. The expertise loads into your AI immediately.</p>
           </div>
           <div class="layer-detail">
             <div class="layer-detail-item">
@@ -1046,7 +1060,7 @@
         <h2>Expert knowledge,<br><em>installable.</em></h2>
         <div>
           <p>The marketplace turns individual expertise into shareable infrastructure. A founder who's closed $10M in SaaS deals can publish their entire sales brain as a pack. You install it in one command.</p>
-          <p>Every pack is plain markdown — you can read exactly what you're getting before you buy. The quality is transparent. The value compounds with your own context.</p>
+          <p>Every pack is plain markdown &mdash; you can read exactly what you're getting before you buy. The quality is transparent. The value compounds with your own context.</p>
         </div>
       </div>
       <div class="pack-grid reveal">
@@ -1063,7 +1077,7 @@
           <span class="pack-badge">Popular</span>
           <p class="pack-category">Voice</p>
           <p class="pack-name">LinkedIn Authority Voice</p>
-          <p class="pack-desc">Distinct voice guide for LinkedIn — post structure, hook formulas, engagement patterns, and what not to say. Built for founders and operators, not content marketers.</p>
+          <p class="pack-desc">Distinct voice guide for LinkedIn &mdash; post structure, hook formulas, engagement patterns, and what not to say. Built for founders and operators, not content marketers.</p>
           <div class="pack-footer">
             <span class="pack-price">$19</span>
             <span class="pack-meta">312 installs</span>
@@ -1072,7 +1086,7 @@
         <div class="pack-card">
           <p class="pack-category">Founder</p>
           <p class="pack-name">Operator Core</p>
-          <p class="pack-desc">Identity, venture, and planning templates for solo operators and indie founders. The baseline context pack — everything your AI needs to know about how you run.</p>
+          <p class="pack-desc">Identity, venture, and planning templates for solo operators and indie founders. The baseline context pack &mdash; everything your AI needs to know about how you run.</p>
           <div class="pack-footer">
             <span class="pack-price free">Free</span>
             <span class="pack-meta">891 installs</span>
@@ -1099,12 +1113,12 @@
         <div class="pack-card" style="display: flex; align-items: center; justify-content: center; text-align: center; flex-direction: column; gap: 12px;">
           <p style="font-family: var(--serif); font-size: 20px; color: var(--muted);">Publish yours</p>
           <p style="font-size: 12px; color: var(--border-dark); max-width: 200px; line-height: 1.6;">Submit a pack. 70% revenue share. Your audience installs it once.</p>
-          <a href="#waitlist" style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-mid); text-decoration: none; border-bottom: 1px solid var(--accent-light);">Apply to create &rarr;</a>
+          <a href="mailto:hello@know.help" style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-mid); text-decoration: none; border-bottom: 1px solid var(--accent-light);">Apply to create &rarr;</a>
         </div>
       </div>
       <div class="marketplace-cta reveal">
-        <a href="#waitlist" class="btn-primary">Join early access</a>
-        <span class="marketplace-note">Pack marketplace opens with Pro launch &nbsp;&middot;&nbsp; Creator applications open now</span>
+        <a href="https://github.com/know-help/know-help" class="btn-primary">Install free &mdash; GitHub</a>
+        <span class="marketplace-note">Marketplace launches with Pro &nbsp;&middot;&nbsp; <a href="mailto:hello@know.help" style="color:var(--border-dark);">Apply to create packs &rarr;</a></span>
       </div>
     </section>
   </div>
@@ -1116,10 +1130,10 @@
         <div>
           <p class="section-label">Open source</p>
           <h2>The MCP server is free.<br>Forever.</h2>
-          <p>The core know.help MCP server is open source and self-hostable. Your knowledge base is plain files — no cloud dependency, no subscription required to run Layer 1.</p>
+          <p>The core know.help MCP server is open source and self-hostable. Your knowledge base is plain files &mdash; no cloud dependency, no subscription required to run Layer 1.</p>
           <p>We make money on hosting (Pro), teams (Team), and marketplace revenue share. Not on the infrastructure people build on top of.</p>
           <div style="display: flex; gap: 16px; margin-top: 32px; flex-wrap: wrap;">
-            <a href="https://github.com/Kuleana808/Know-Help" class="btn-secondary">Star on GitHub</a>
+            <a href="https://github.com/know-help/know-help" class="btn-secondary">Star on GitHub</a>
             <a href="https://docs.know.help" class="btn-secondary">Read the docs</a>
           </div>
         </div>
@@ -1167,7 +1181,7 @@
             <li>Marketplace pack install (free packs)</li>
             <li>Claude Desktop integration</li>
           </ul>
-          <a href="https://github.com/Kuleana808/Know-Help" class="pricing-btn">Get the code</a>
+          <a href="https://github.com/know-help/know-help" class="pricing-btn">Get the code</a>
         </div>
         <div class="pricing-card featured">
           <span class="pricing-badge">Most popular</span>
@@ -1176,14 +1190,14 @@
           <p class="pricing-period">per month &middot; 14-day free trial</p>
           <ul class="pricing-features">
             <li>Everything in Open Source</li>
-            <li>Hosted MCP server — no setup</li>
+            <li>Hosted MCP server &mdash; no setup</li>
             <li>Living Intelligence (all 5 sources)</li>
             <li>Up to 5 ventures monitored</li>
             <li>Web dashboard for knowledge base</li>
             <li>Paid marketplace pack access</li>
             <li>100MB knowledge base storage</li>
           </ul>
-          <a href="#waitlist" class="pricing-btn">Start free trial</a>
+          <a href="#cta" class="pricing-btn">Coming soon</a>
         </div>
         <div class="pricing-card">
           <p class="pricing-tier">Team</p>
@@ -1198,23 +1212,26 @@
             <li>10 ventures monitored</li>
             <li>500MB shared storage</li>
           </ul>
-          <a href="#waitlist" class="pricing-btn">Start free trial</a>
+          <a href="#cta" class="pricing-btn">Coming soon</a>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- WAITLIST -->
-  <div class="waitlist-section" id="waitlist">
-    <div class="waitlist-inner">
-      <h2 class="reveal">The context engineering<br>platform is <em>almost ready.</em></h2>
-      <p class="reveal">Join the waitlist. Early access ships to founders and operators first. Free during beta.</p>
-      <form class="waitlist-form reveal" id="waitlistForm">
-        <input type="email" placeholder="your@email.com" required id="emailInput" />
-        <button type="submit">Get early access</button>
-      </form>
-      <p class="form-note reveal">No spam &nbsp;&middot;&nbsp; Free during beta &nbsp;&middot;&nbsp; Unsubscribe anytime</p>
-      <p class="success-msg" id="successMsg">You're on the list. We'll be in touch soon.</p>
+  <!-- CTA -->
+  <div class="cta-section" id="cta">
+    <div class="cta-inner">
+      <h2 class="reveal">Start building your<br><em>context layer.</em></h2>
+      <p class="reveal">Install free from GitHub. No account required. Add a Pro notification below if you want hosted intelligence when it ships.</p>
+      <div class="cta-actions reveal">
+        <a href="https://github.com/know-help/know-help" class="btn-primary">Install free &mdash; GitHub</a>
+        <form class="notify-form" id="notifyForm">
+          <input type="email" placeholder="notify me when Pro launches" required id="notifyEmail" />
+          <button type="submit">Notify me</button>
+        </form>
+        <p class="form-note">No spam &nbsp;&middot;&nbsp; Free during beta &nbsp;&middot;&nbsp; Unsubscribe anytime</p>
+        <p class="success-msg" id="successMsg">You're on the list. We'll notify you when Pro launches.</p>
+      </div>
     </div>
   </div>
 
@@ -1222,95 +1239,13 @@
   <footer>
     <a href="#" class="footer-logo">know<span>.help</span></a>
     <div class="footer-links">
-      <a href="https://github.com/Kuleana808/Know-Help">GitHub</a>
-      <a href="/blog">Blog</a>
-      <a href="/packs">Packs</a>
+      <a href="https://github.com/know-help/know-help">GitHub</a>
+      <a href="https://docs.know.help">Docs</a>
+      <a href="#marketplace">Marketplace</a>
       <a href="mailto:hello@know.help">hello@know.help</a>
     </div>
     <span class="footer-copy">&copy; 2026 know.help</span>
   </footer>
-
-  <!-- JSON-LD Structured Data for SEO -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "know.help",
-    "description": "know.help is an MCP server that gives Claude Desktop a persistent, trigger-based knowledge base. Context engineering for founders and operators.",
-    "url": "https://know.help",
-    "applicationCategory": "DeveloperApplication",
-    "operatingSystem": "macOS, Windows, Linux",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD",
-      "description": "Free during beta"
-    },
-    "author": {
-      "@type": "Organization",
-      "name": "know.help",
-      "url": "https://know.help"
-    },
-    "softwareRequirements": "Claude Desktop, Node.js 18+",
-    "keywords": "context engineering, MCP server, personal AI memory, Claude Desktop, AI knowledge base"
-  }
-  </script>
-
-  <!-- Organization Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "know.help",
-    "url": "https://know.help",
-    "description": "Context engineering tools for AI. Building the infrastructure for persistent AI memory.",
-    "email": "hello@know.help",
-    "sameAs": [
-      "https://github.com/Kuleana808/Know-Help"
-    ]
-  }
-  </script>
-
-  <!-- JSON-LD Structured Data for SEO -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "know.help",
-    "description": "know.help is an MCP server that gives Claude Desktop a persistent, trigger-based knowledge base. Context engineering for founders and operators.",
-    "url": "https://know.help",
-    "applicationCategory": "DeveloperApplication",
-    "operatingSystem": "macOS, Windows, Linux",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD",
-      "description": "Free during beta"
-    },
-    "author": {
-      "@type": "Organization",
-      "name": "know.help",
-      "url": "https://know.help"
-    },
-    "softwareRequirements": "Claude Desktop, Node.js 18+",
-    "keywords": "context engineering, MCP server, personal AI memory, Claude Desktop, AI knowledge base"
-  }
-  </script>
-
-  <!-- Organization Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "know.help",
-    "url": "https://know.help",
-    "description": "Context engineering tools for AI. Building the infrastructure for persistent AI memory.",
-    "email": "hello@know.help",
-    "sameAs": [
-      "https://github.com/Kuleana808/Know-Help"
-    ]
-  }
-  </script>
 
   <script>
     // Nav scroll
@@ -1333,18 +1268,56 @@
     }, { threshold: 0.06, rootMargin: '0px 0px -40px 0px' });
     reveals.forEach(el => observer.observe(el));
 
-    // Waitlist form
-    document.getElementById('waitlistForm').addEventListener('submit', function(e) {
+    // Pro notify form
+    document.getElementById('notifyForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const email = document.getElementById('emailInput').value;
       const btn = this.querySelector('button');
-      btn.textContent = 'Joining...';
+      btn.textContent = 'Done';
       btn.disabled = true;
-      setTimeout(() => {
-        this.style.display = 'none';
-        document.getElementById('successMsg').style.display = 'block';
-      }, 800);
+      this.querySelector('input').disabled = true;
+      document.getElementById('successMsg').style.display = 'block';
     });
+  </script>
+
+  <!-- JSON-LD Structured Data for SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "know.help",
+    "description": "know.help is an MCP server that gives Claude Desktop a persistent, trigger-based knowledge base. Context engineering for founders and operators.",
+    "url": "https://know.help",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "macOS, Windows, Linux",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "description": "Open source — free forever"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "know.help",
+      "url": "https://know.help"
+    },
+    "softwareRequirements": "Claude Desktop, Node.js 18+",
+    "keywords": "context engineering, MCP server, personal AI memory, Claude Desktop, AI knowledge base"
+  }
+  </script>
+
+  <!-- Organization Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "know.help",
+    "url": "https://know.help",
+    "description": "Context engineering tools for AI. Building the infrastructure for persistent AI memory.",
+    "email": "hello@know.help",
+    "sameAs": [
+      "https://github.com/Kuleana808/Know-Help"
+    ]
+  }
   </script>
 
 </body>

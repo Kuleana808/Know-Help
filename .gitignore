@@ -16,3 +16,18 @@ dist/
 
 # Generated index
 knowledge/CLAUDE.md
+
+# Content engine generated content (tracked selectively)
+content-engine/content/blog/*.md
+content-engine/content/pages/*.html
+content-engine/content/threads/*.md
+content-engine/content/packs/*/
+content-engine/content/queue/*.json
+content-engine/content/approved/*.json
+content-engine/content/sitemap.xml
+!content-engine/content/**/.gitkeep
+
+# Content engine cost logs
+content-engine/data/api-costs.jsonl
+content-engine/data/published.jsonl
+content-engine/data/queue.jsonl
