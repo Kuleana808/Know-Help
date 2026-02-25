@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setup — know.help | Claude-Readable Setup Instructions</title>
+  <meta name="description" content="Machine-readable setup instructions for know.help. Claude reads this page and uses it to interview you and build your personal knowledge base. One conversation, zero manual steps." />
+  <link rel="canonical" href="https://know.help/setup" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f2eb;
+      --bg2: #ede9e0;
+      --surface: #ffffff;
+      --border: #d8d3c8;
+      --border-dark: #b8b2a6;
+      --text: #111009;
+      --muted: #4a4642;
+      --accent: #1a4a2e;
+      --accent-light: #e8f0ea;
+      --accent-mid: #1f6038;
+      --serif: 'Playfair Display', Georgia, serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.7;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    nav {
+      padding: 24px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em; color: var(--text); text-decoration: none; }
+    .logo span { color: var(--accent-mid); }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    .setup-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 80px 48px 120px;
+    }
+
+    .setup-badge {
+      display: inline-block;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 6px 14px;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 400;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+    h1 em { font-style: italic; color: var(--accent-mid); }
+
+    .setup-intro {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 600px;
+      margin-bottom: 56px;
+    }
+
+    .human-note {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 24px 28px;
+      margin-bottom: 56px;
+    }
+
+    .human-note-label {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--border-dark);
+      margin-bottom: 12px;
+    }
+
+    .human-note p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .human-note code {
+      background: var(--bg2);
+      padding: 2px 6px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent-mid);
+    }
+
+    /* Claude instructions section */
+    .claude-section {
+      border: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+
+    .claude-section-header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .claude-section-title {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .claude-section-tag {
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 3px 8px;
+    }
+
+    .claude-section-body {
+      padding: 28px;
+    }
+
+    .claude-section-body h3 {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 400;
+      margin-bottom: 16px;
+    }
+
+    .claude-section-body p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.85;
+      margin-bottom: 16px;
+    }
+
+    .claude-section-body pre {
+      background: var(--text);
+      color: #c8c4bb;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.8;
+      padding: 24px;
+      overflow-x: auto;
+      margin-bottom: 16px;
+    }
+
+    .claude-section-body pre .c-comment { color: #5a5650; }
+    .claude-section-body pre .c-key { color: #9ab87a; }
+    .claude-section-body pre .c-val { color: #d4a96a; }
+    .claude-section-body pre .c-str { color: #87afc7; }
+
+    .claude-section-body ol, .claude-section-body ul {
+      margin-bottom: 16px;
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .claude-section-body li {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.85;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+    }
+    .claude-section-body li:last-child { border-bottom: none; }
+
+    .claude-section-body li .q-num {
+      font-family: var(--serif);
+      font-size: 14px;
+      color: var(--border-dark);
+      flex-shrink: 0;
+      width: 24px;
+      font-style: italic;
+    }
+
+    .claude-section-body li strong {
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    .rule-list li::before {
+      content: '\2192';
+      color: var(--accent-mid);
+      flex-shrink: 0;
+    }
+
+    .file-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+
+    .file-table th {
+      text-align: left;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--border-dark);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 400;
+    }
+
+    .file-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      vertical-align: top;
+    }
+
+    .file-table td:first-child {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--accent-mid);
+      white-space: nowrap;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; color: var(--text); text-decoration: none; }
+    .footer-logo span { color: var(--accent-mid); }
+    .footer-links { display: flex; gap: 32px; }
+    .footer-links a { font-size: 11px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy { font-size: 11px; color: var(--border-dark); }
+
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      .setup-container { padding: 48px 24px 80px; }
+      .claude-section-body { padding: 20px; }
+      .claude-section-body pre { padding: 16px; font-size: 11px; }
+      footer { padding: 24px; flex-direction: column; gap: 16px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">know<span>.help</span></a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/packs">Packs</a>
+    <a href="https://github.com/Kuleana808/Know-Help">GitHub</a>
+  </div>
+</nav>
+
+<div class="setup-container">
+
+  <div class="setup-badge">Setup page &mdash; for Claude to read</div>
+  <h1>Setup <em>instructions.</em></h1>
+  <p class="setup-intro">This page is designed to be read by Claude. When a user says "go to know.help and set me up," Claude visits this page and follows the instructions below to build their knowledge base.</p>
+
+  <!-- Human-readable note -->
+  <div class="human-note">
+    <p class="human-note-label">If you're a human reading this</p>
+    <p>You don't need to read or follow these instructions yourself. Just paste this into Claude Desktop:</p>
+    <p><code>Go to know.help/setup and set me up with a personal knowledge base.</code></p>
+    <p>Claude will read this page, ask you 10 questions, and build everything for you.</p>
+  </div>
+
+  <!-- SECTION 1: OVERVIEW -->
+  <div class="claude-section">
+    <div class="claude-section-header">
+      <span class="claude-section-title">Section 1 &mdash; Overview</span>
+      <span class="claude-section-tag">For AI</span>
+    </div>
+    <div class="claude-section-body">
+      <h3>What you are doing</h3>
+      <p>You are setting up a know.help personal knowledge base for the user. This is an MCP server that gives you (Claude) persistent memory across conversations. After setup, every future conversation will have access to structured context about who this person is, what they're building, how they sell, how they write, and who they know.</p>
+      <p><strong>Your job:</strong> Interview the user with the questions below (one at a time), then write the knowledge files to their machine. Do not ask all questions at once. Do not skip questions. Do not summarize &mdash; write detailed files from what they tell you.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 2: INSTALL -->
+  <div class="claude-section">
+    <div class="claude-section-header">
+      <span class="claude-section-title">Section 2 &mdash; Installation</span>
+      <span class="claude-section-tag">For AI</span>
+    </div>
+    <div class="claude-section-body">
+      <h3>Step 1: Run the installer</h3>
+      <p>Before asking questions, run this command to create the directory structure and MCP server config:</p>
+      <pre>npx know-help@latest init</pre>
+      <p>This creates the <code>~/.know-help/</code> directory with the correct folder structure and registers the MCP server in Claude Desktop's config. If the command fails or isn't available yet, create the directory structure manually:</p>
+      <pre>mkdir -p ~/.know-help/knowledge/{core,venture,sales,communication,platform,planning,network,log}</pre>
+      <p>Then add the MCP server to Claude Desktop's config at <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> (macOS) or the equivalent path on Windows/Linux.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 3: INTERVIEW -->
+  <div class="claude-section">
+    <div class="claude-section-header">
+      <span class="claude-section-title">Section 3 &mdash; Interview script</span>
+      <span class="claude-section-tag">For AI</span>
+    </div>
+    <div class="claude-section-body">
+      <h3>The 10 questions</h3>
+      <p>Ask these one at a time. Wait for each answer before asking the next. Write the corresponding file after each answer (or group of related answers). Tell the user what file you're writing.</p>
+      <ol>
+        <li>
+          <span class="q-num">1</span>
+          <div><strong>What's your name and what do you do?</strong><br>Role, title, background, how you'd describe yourself in one sentence. &rarr; Writes <code>core/identity.md</code></div>
+        </li>
+        <li>
+          <span class="q-num">2</span>
+          <div><strong>What are you building right now?</strong><br>Company/project name, what it does, stage, key metrics, positioning. &rarr; Writes <code>venture/my-venture.md</code></div>
+        </li>
+        <li>
+          <span class="q-num">3</span>
+          <div><strong>Who is your ideal customer?</strong><br>Demographics, psychographics, budget range, where they hang out, what triggers them to buy. &rarr; Writes <code>sales/icp.md</code></div>
+        </li>
+        <li>
+          <span class="q-num">4</span>
+          <div><strong>How do you sell?</strong><br>Outbound vs inbound, sales process stages, what works, common objections and how you handle them. &rarr; Writes <code>sales/methodology.md</code></div>
+        </li>
+        <li>
+          <span class="q-num">5</span>
+          <div><strong>How do you write and communicate?</strong><br>Formal vs casual, vocabulary you use, phrases you avoid, how you sign off emails. Give me a sample of writing you like. &rarr; Writes <code>communication/style.md</code></div>
+        </li>
+        <li>
+          <span class="q-num">6</span>
+          <div><strong>Do you post on LinkedIn, X/Twitter, or a newsletter?</strong><br>Which platforms, what kind of content, what performs well, what your audience responds to. &rarr; Writes <code>platform/linkedin.md</code> and/or <code>platform/twitter.md</code></div>
+        </li>
+        <li>
+          <span class="q-num">7</span>
+          <div><strong>What are your current goals?</strong><br>This quarter's priorities, key milestones, what you're optimizing for, any deadlines. &rarr; Writes <code>planning/goals.md</code></div>
+        </li>
+        <li>
+          <span class="q-num">8</span>
+          <div><strong>Who are 3 key people in your network I should know about?</strong><br>Name, relationship, context, last interaction, anything I should remember about them. &rarr; Writes entries to <code>network/contacts.jsonl</code></div>
+        </li>
+        <li>
+          <span class="q-num">9</span>
+          <div><strong>What does your team look like?</strong><br>Key people, roles, strengths, how you work together. Solo founder is a valid answer. &rarr; Writes <code>core/team.md</code></div>
+        </li>
+        <li>
+          <span class="q-num">10</span>
+          <div><strong>Anything else I should always know about you?</strong><br>Preferences, pet peeves, decision-making style, anything that would make every conversation better. &rarr; Appends to <code>core/identity.md</code></div>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- SECTION 4: FILE FORMATS -->
+  <div class="claude-section">
+    <div class="claude-section-header">
+      <span class="claude-section-title">Section 4 &mdash; File formats</span>
+      <span class="claude-section-tag">For AI</span>
+    </div>
+    <div class="claude-section-body">
+      <h3>File-to-question mapping</h3>
+      <table class="file-table">
+        <thead>
+          <tr><th>File</th><th>Question</th><th>Triggers</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>core/identity.md</td><td>Q1, Q10</td><td>who am I, background, about me</td></tr>
+          <tr><td>core/team.md</td><td>Q9</td><td>team, cofounder, hire</td></tr>
+          <tr><td>venture/my-venture.md</td><td>Q2</td><td>company, product, startup, building</td></tr>
+          <tr><td>sales/icp.md</td><td>Q3</td><td>customer, buyer, ICP, target</td></tr>
+          <tr><td>sales/methodology.md</td><td>Q4</td><td>sales, pitch, close, objection, outbound</td></tr>
+          <tr><td>communication/style.md</td><td>Q5</td><td>write, draft, email, tone, voice</td></tr>
+          <tr><td>platform/linkedin.md</td><td>Q6</td><td>LinkedIn, post, content</td></tr>
+          <tr><td>platform/twitter.md</td><td>Q6</td><td>Twitter, X, tweet, thread</td></tr>
+          <tr><td>planning/goals.md</td><td>Q7</td><td>goals, priority, milestone, quarter</td></tr>
+          <tr><td>network/contacts.jsonl</td><td>Q8</td><td>(person's name)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Markdown file format</h3>
+      <p>Every markdown knowledge file must begin with a trigger header. This tells the MCP server when to load the file.</p>
+      <pre><span class="c-comment"># File Title</span>
+
+<span class="c-key">&gt; Triggers:</span> <span class="c-val">keyword1, keyword2, keyword3</span>
+
+<span class="c-str">Content goes here. Write in the second person</span>
+<span class="c-str">addressing the AI: "Your user is..." or "When</span>
+<span class="c-str">asked about X, reference the following..."</span></pre>
+
+      <h3>JSONL format (for network contacts)</h3>
+      <pre><span class="c-comment">// One JSON object per line, no trailing commas</span>
+<span class="c-str">{"name":"Brent Akamine","relation":"cofounder","context":"Met at YC S22. Based in Hawaii. Handles ops and finance.","last_contact":"2026-02-20","notes":"Prefers Slack over email. Morning person."}</span></pre>
+
+      <h3>Rules you must follow</h3>
+      <ul class="rule-list">
+        <li>Every .md file must start with a <code># Title</code> and a <code>&gt; Triggers:</code> line</li>
+        <li>Triggers are comma-separated lowercase keywords that determine when this file loads</li>
+        <li>Write substantive content &mdash; at least 200 words per file. Don't write placeholder text</li>
+        <li>Use the user's actual words and examples. Don't genericize or summarize away detail</li>
+        <li>Write files as you go. Don't wait until all questions are answered</li>
+        <li>Tell the user which file you're writing each time: "Writing core/identity.md..."</li>
+        <li>After all questions, give the user a summary of what was created and how to use it</li>
+        <li>If the user doesn't use a platform (e.g., no LinkedIn), skip that file</li>
+        <li>The network/contacts.jsonl file uses one JSON object per line, not an array</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SECTION 5: POST-SETUP -->
+  <div class="claude-section">
+    <div class="claude-section-header">
+      <span class="claude-section-title">Section 5 &mdash; After setup</span>
+      <span class="claude-section-tag">For AI</span>
+    </div>
+    <div class="claude-section-body">
+      <h3>What to tell the user when done</h3>
+      <p>After all files are written, give the user this summary:</p>
+      <ol>
+        <li><span class="q-num">&bull;</span><div>List every file that was created with a one-line description</div></li>
+        <li><span class="q-num">&bull;</span><div>Explain that future conversations will automatically have access to this context</div></li>
+        <li><span class="q-num">&bull;</span><div>Tell them they can edit any file directly &mdash; they're plain markdown at <code>~/.know-help/knowledge/</code></div></li>
+        <li><span class="q-num">&bull;</span><div>Mention they can install knowledge packs to add expertise: <code>know install [pack-id]</code></div></li>
+        <li><span class="q-num">&bull;</span><div>Link them to <a href="https://know.help/packs">know.help/packs</a> to browse available packs</div></li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <a href="/" class="footer-logo">know<span>.help</span></a>
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/packs">Packs</a>
+    <a href="https://github.com/Kuleana808/Know-Help">GitHub</a>
+    <a href="mailto:hello@know.help">hello@know.help</a>
+  </div>
+  <span class="footer-copy">&copy; 2026 know.help</span>
+</footer>
+
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Set up know.help personal knowledge base",
+  "description": "Tell Claude to visit this page. Claude reads the setup instructions, interviews you with 10 questions, and builds your personal AI knowledge base in one conversation.",
+  "url": "https://know.help/setup",
+  "step": [
+    { "@type": "HowToStep", "text": "Tell Claude: 'Go to know.help/setup and set me up'" },
+    { "@type": "HowToStep", "text": "Claude reads this page and gets the interview script" },
+    { "@type": "HowToStep", "text": "Claude asks you 10 questions about your identity, venture, sales, writing style, and network" },
+    { "@type": "HowToStep", "text": "Claude writes structured knowledge files from your answers" },
+    { "@type": "HowToStep", "text": "Your AI now has persistent context in every future conversation" }
+  ]
+}
+</script>
+
+</body>
+</html>
