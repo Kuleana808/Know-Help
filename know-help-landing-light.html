@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>know.help — Personal AI memory for founders and operators</title>
+  <meta name="description" content="Give your AI a persistent knowledge base about you. Trigger-based context loading via MCP. Your AI finally knows who you are, what you're building, and who matters." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f2eb;
+      --bg2: #ede9e0;
+      --surface: #ffffff;
+      --border: #d8d3c8;
+      --border-dark: #b8b2a6;
+      --text: #111009;
+      --muted: #4a4642;
+      --accent: #1a4a2e;
+      --accent-light: #e8f0ea;
+      --accent-mid: #1f6038;
+      --serif: 'Playfair Display', Georgia, serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.7;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* PAPER TEXTURE */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      padding: 24px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    nav.scrolled {
+      border-bottom: 1px solid var(--border);
+      background: rgba(245, 242, 235, 0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .logo span { color: var(--accent-mid); }
+
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--surface);
+      background: var(--accent);
+      padding: 9px 22px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .nav-cta:hover { background: var(--accent-mid); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 120px 48px 80px;
+      position: relative;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent-mid);
+      margin-bottom: 36px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(52px, 8vw, 96px);
+      line-height: 1.05;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      max-width: 14ch;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.4s;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    .hero-sub {
+      margin-top: 40px;
+      max-width: 460px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.9;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.6s;
+    }
+
+    .hero-actions {
+      margin-top: 48px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.8s;
+    }
+
+    .btn-primary {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--surface);
+      background: var(--accent);
+      padding: 15px 36px;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-mid);
+      transform: translateY(-1px);
+    }
+
+    .hero-note {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
+    /* HERO DECORATIVE LINE */
+    .hero-rule {
+      position: absolute;
+      right: 48px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1px;
+      height: 180px;
+      background: linear-gradient(to bottom, transparent, var(--border-dark), transparent);
+      opacity: 0;
+      animation: fadeIn 1.2s ease forwards 1s;
+    }
+
+    /* SCROLL INDICATOR */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 40px;
+      left: 48px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1.2s;
+    }
+
+    .scroll-line {
+      width: 40px;
+      height: 1px;
+      background: var(--border-dark);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scroll-line::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: var(--accent-mid);
+      animation: slideLine 2s ease infinite 1.5s;
+    }
+
+    /* DIVIDER */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0 48px;
+    }
+
+    /* SECTION BASE */
+    section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 100px 48px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent-mid);
+      margin-bottom: 48px;
+    }
+
+    /* PROBLEM */
+    .problem-text {
+      font-family: var(--serif);
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.25;
+      font-weight: 400;
+      max-width: 22ch;
+    }
+
+    .problem-text em {
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    .problem-detail {
+      margin-top: 52px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      max-width: 800px;
+    }
+
+    .problem-point {
+      padding: 32px;
+      background: var(--bg);
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.8;
+      transition: background 0.25s;
+    }
+
+    .problem-point:hover { background: var(--surface); }
+
+    .problem-point strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 10px;
+      font-weight: 400;
+      font-family: var(--serif);
+      font-size: 17px;
+    }
+
+    /* HOW IT WORKS */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 48px;
+    }
+
+    .step {
+      background: var(--bg);
+      padding: 44px 36px;
+      transition: background 0.25s;
+    }
+
+    .step:hover { background: var(--surface); }
+
+    .step-num {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--accent-mid);
+      margin-bottom: 28px;
+    }
+
+    .step h3 {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 400;
+      margin-bottom: 16px;
+      line-height: 1.25;
+    }
+
+    .step p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.85;
+    }
+
+    /* FILE STRUCTURE */
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 48px;
+    }
+
+    .file-item {
+      background: var(--bg);
+      padding: 28px 32px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      transition: background 0.25s;
+    }
+
+    .file-item:hover { background: var(--surface); }
+
+    .file-name {
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--accent-mid);
+      min-width: 110px;
+      padding-top: 2px;
+    }
+
+    .file-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* WHO IT'S FOR */
+    .audience-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 48px;
+      max-width: 900px;
+    }
+
+    .audience-item {
+      background: var(--bg);
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      padding: 36px;
+      transition: background 0.25s;
+    }
+
+    .audience-item:hover { background: var(--surface); }
+
+    .audience-dot {
+      width: 5px;
+      height: 5px;
+      background: var(--accent-mid);
+      margin-top: 10px;
+      flex-shrink: 0;
+    }
+
+    .audience-item h4 {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 400;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .audience-item p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    /* TECHNICAL */
+    .tech-block {
+      margin-top: 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .code-snippet {
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 2.1;
+      color: var(--muted);
+      background: var(--bg2);
+      padding: 40px;
+    }
+
+    .code-snippet .c-accent { color: var(--accent-mid); }
+    .code-snippet .c-text { color: var(--text); }
+    .code-snippet .c-comment { color: #8a8278; }
+
+    .tech-copy {
+      padding: 40px;
+      background: var(--bg);
+    }
+
+    .tech-copy h3 {
+      font-family: var(--serif);
+      font-size: 30px;
+      font-weight: 400;
+      line-height: 1.25;
+      margin-bottom: 20px;
+    }
+
+    .tech-copy p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.85;
+      margin-bottom: 14px;
+    }
+
+    .tech-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .tag {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border: 1px solid var(--border-dark);
+      color: var(--muted);
+    }
+
+    /* WAITLIST */
+    .waitlist-section {
+      background: var(--accent);
+      padding: 100px 48px;
+      text-align: center;
+    }
+
+    .waitlist-inner {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .waitlist-section h2 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 5vw, 58px);
+      font-weight: 400;
+      line-height: 1.15;
+      color: #f5f2eb;
+      margin-bottom: 20px;
+    }
+
+    .waitlist-section h2 em {
+      font-style: italic;
+      color: rgba(245,242,235,0.5);
+    }
+
+    .waitlist-section > .waitlist-inner > p {
+      font-size: 14px;
+      color: rgba(245,242,235,0.6);
+      margin-bottom: 48px;
+    }
+
+    .waitlist-form {
+      display: flex;
+      gap: 0;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+
+    .waitlist-form input {
+      flex: 1;
+      background: rgba(245,242,235,0.08);
+      border: 1px solid rgba(245,242,235,0.2);
+      border-right: none;
+      color: #f5f2eb;
+      font-family: var(--mono);
+      font-size: 13px;
+      padding: 15px 20px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .waitlist-form input::placeholder { color: rgba(245,242,235,0.3); }
+    .waitlist-form input:focus { border-color: rgba(245,242,235,0.5); }
+
+    .waitlist-form button {
+      background: #f5f2eb;
+      border: 1px solid #f5f2eb;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 15px 28px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
+    }
+
+    .waitlist-form button:hover {
+      background: var(--bg2);
+    }
+
+    .form-note {
+      font-size: 11px;
+      color: rgba(245,242,235,0.35);
+      margin-top: 16px;
+      letter-spacing: 0.04em;
+    }
+
+    .success-msg {
+      display: none;
+      font-size: 13px;
+      color: rgba(245,242,235,0.7);
+      margin-top: 16px;
+      letter-spacing: 0.05em;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .footer-logo span { color: var(--accent-mid); }
+
+    .footer-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .footer-links a {
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--text); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideLine {
+      from { left: -100%; }
+      to { left: 100%; }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      .hero { padding: 100px 24px 60px; }
+      .hero-rule { display: none; }
+      section { padding: 72px 24px; }
+      .divider { margin: 0 24px; }
+      .problem-detail { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .file-grid { grid-template-columns: 1fr; }
+      .audience-list { grid-template-columns: 1fr; }
+      .tech-block { grid-template-columns: 1fr; }
+      .waitlist-section { padding: 72px 24px; }
+      .waitlist-form { flex-direction: column; }
+      .waitlist-form input { border-right: 1px solid rgba(245,242,235,0.2); border-bottom: none; }
+      footer { padding: 24px; flex-direction: column; gap: 16px; }
+      .scroll-indicator { left: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="#" class="logo">know<span>.help</span></a>
+    <a href="#waitlist" class="nav-cta">Early access</a>
+  </nav>
+
+  <!-- HERO -->
+  <div style="max-width:1200px;margin:0 auto;position:relative;">
+    <div class="hero">
+      <p class="hero-eyebrow">Context engineering for humans</p>
+      <h1>Stop prompting.<br><em>Start engineering.</em></h1>
+      <p class="hero-sub">Prompt engineering asks: how do I phrase this better? Context engineering asks: what does my AI need to know — and how do I structure it so it actually uses it? know.help is the answer.</p>
+      <div class="hero-actions">
+        <a href="#waitlist" class="btn-primary">Get early access</a>
+        <span class="hero-note">Free during beta &nbsp;·&nbsp; Works with Claude Desktop</span>
+      </div>
+      <div class="scroll-indicator">
+        <div class="scroll-line"></div>
+        Scroll
+      </div>
+    </div>
+    <div class="hero-rule"></div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- PROBLEM -->
+  <section>
+    <p class="section-label reveal">The problem</p>
+    <p class="problem-text reveal">Most people think the bottleneck is the prompt.<br><em>It's the context.</em></p>
+    <div class="problem-detail">
+      <div class="problem-point reveal">
+        <strong>You re-explain everything, every time</strong>
+        Your role. Your company. The deal you're working. The person you're meeting. The way you write. Every session is the first session.
+      </div>
+      <div class="problem-point reveal">
+        <strong>Dumping context doesn't work either</strong>
+        Language models have a U-shaped attention curve. Paste in 10 pages of background and the model loses the middle. Structure matters more than volume.
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- HOW IT WORKS -->
+  <section>
+    <p class="section-label reveal">How it works</p>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <h3>Structure your knowledge base</h3>
+        <p>Modular files organized by domain — identity, network, ventures, voice, goals. Three levels: routing index, module files, data files. The model loads only what's relevant, never everything at once.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <h3>Triggers inject context precisely</h3>
+        <p>Each file declares its own load triggers. Mention a person's name and their full relationship history loads. Start a sales conversation and your methodology appears. Right context, right moment — nothing wasted.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <h3>Your knowledge base updates itself</h3>
+        <p>know.help monitors X, Reddit, LinkedIn, TikTok, and RSS across your ventures. New signals are written back to your files automatically. Your AI gets smarter while you sleep.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- FILE STRUCTURE -->
+  <section>
+    <p class="section-label reveal">What lives in your knowledge base</p>
+    <div class="file-grid">
+      <div class="file-item reveal">
+        <span class="file-name">core/</span>
+        <span class="file-desc">Who you are — your background, identity, skills, and team.</span>
+      </div>
+      <div class="file-item reveal">
+        <span class="file-name">network/</span>
+        <span class="file-desc">Every key relationship with full conversation history, context, and open threads.</span>
+      </div>
+      <div class="file-item reveal">
+        <span class="file-name">venture/</span>
+        <span class="file-desc">Your businesses and partnerships — status, contacts, strategy, revenue.</span>
+      </div>
+      <div class="file-item reveal">
+        <span class="file-name">sales/</span>
+        <span class="file-desc">Methodology, buyer psychology, objection handling, ICP profiles.</span>
+      </div>
+      <div class="file-item reveal">
+        <span class="file-name">platform/</span>
+        <span class="file-desc">Your distinct voice for each channel — LinkedIn, Twitter, Instagram, all separate.</span>
+      </div>
+      <div class="file-item reveal">
+        <span class="file-name">planning/</span>
+        <span class="file-desc">Goals, pipeline, and active opportunities.</span>
+      </div>
+      <div class="file-item reveal">
+        <span class="file-name">communication/</span>
+        <span class="file-desc">Style rules and templates broken down by channel and audience.</span>
+      </div>
+      <div class="file-item reveal">
+        <span class="file-name">log/</span>
+        <span class="file-desc">Daily activity tracking and decision logs with full context.</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- WHO IT'S FOR -->
+  <section>
+    <p class="section-label reveal">Who it's for</p>
+    <div class="audience-list">
+      <div class="audience-item reveal">
+        <div class="audience-dot"></div>
+        <div>
+          <h4>Founders &amp; operators</h4>
+          <p>You context-switch constantly. know.help keeps your AI up to speed across every deal, relationship, and initiative.</p>
+        </div>
+      </div>
+      <div class="audience-item reveal">
+        <div class="audience-dot"></div>
+        <div>
+          <h4>Sales professionals</h4>
+          <p>Your relationships are your business. Every contact, every conversation, every objection — instantly available.</p>
+        </div>
+      </div>
+      <div class="audience-item reveal">
+        <div class="audience-dot"></div>
+        <div>
+          <h4>Content creators</h4>
+          <p>You have a distinct voice on every platform. Your AI should know the difference between your LinkedIn and your Twitter.</p>
+        </div>
+      </div>
+      <div class="audience-item reveal">
+        <div class="audience-dot"></div>
+        <div>
+          <h4>Builders &amp; developers</h4>
+          <p>You want your AI to know your stack, your architecture, your team — not just the current file.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- TECHNICAL -->
+  <section>
+    <p class="section-label reveal">How it's built</p>
+    <div class="tech-block reveal">
+      <div class="code-snippet">
+        <div><span class="c-comment">// Every file starts with triggers</span></div>
+        <div>&nbsp;</div>
+        <div><span class="c-accent">---</span></div>
+        <div><span class="c-text">Load for:</span> <span class="c-accent">Brent, CEO, Vinovest, Hawaii</span></div>
+        <div><span class="c-accent">---</span></div>
+        <div>&nbsp;</div>
+        <div><span class="c-comment">// Mention the name → file loads</span></div>
+        <div><span class="c-comment">// No prompting. No searching.</span></div>
+        <div><span class="c-comment">// Just context, automatically.</span></div>
+      </div>
+      <div class="tech-copy">
+        <h3>Context engineering,<br>not prompt engineering.</h3>
+        <p>Prompt engineering optimizes one interaction. Context engineering designs the information architecture that makes every interaction better — permanently.</p>
+        <p>know.help runs as an MCP server. Your knowledge base is plain markdown and JSONL files. You own everything. No lock-in. Works with Claude Desktop today.</p>
+        <div class="tech-tags">
+          <span class="tag">MCP</span>
+          <span class="tag">Claude Desktop</span>
+          <span class="tag">Open source</span>
+          <span class="tag">Markdown</span>
+          <span class="tag">No lock-in</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAITLIST -->
+  <div class="waitlist-section" id="waitlist">
+    <div class="waitlist-inner">
+      <h2 class="reveal">Stop explaining yourself<br><em>to your own AI.</em></h2>
+      <p class="reveal">Join the waitlist. Early access ships soon.</p>
+      <form class="waitlist-form reveal" id="waitlistForm">
+        <input type="email" placeholder="your@email.com" required id="emailInput" />
+        <button type="submit">Get early access</button>
+      </form>
+      <p class="form-note reveal">Free during beta &nbsp;·&nbsp; No spam &nbsp;·&nbsp; Unsubscribe anytime</p>
+      <p class="success-msg" id="successMsg">You're on the list. We'll be in touch soon.</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <a href="#" class="footer-logo">know<span>.help</span></a>
+    <div class="footer-links">
+      <a href="#">GitHub</a>
+      <a href="#">Docs</a>
+      <a href="/cdn-cgi/l/email-protection#86eee3eaeae9c6ede8e9f1a8eee3eaf6"><span class="__cf_email__" data-cfemail="056d6069696a456e6b6a722b6d606975">[email&#160;protected]</span></a>
+    </div>
+  </footer>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const siblings = Array.from(entry.target.parentElement.querySelectorAll('.reveal:not(.visible)'));
+          const delay = siblings.indexOf(entry.target) * 80;
+          setTimeout(() => entry.target.classList.add('visible'), delay);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+    reveals.forEach(el => observer.observe(el));
+
+    document.getElementById('waitlistForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email
